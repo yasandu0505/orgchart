@@ -1,2 +1,2 @@
-# orgchart-frontend
+# orgchart
 OrgChart Revamp
