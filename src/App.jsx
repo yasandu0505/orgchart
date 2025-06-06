@@ -24,7 +24,6 @@ const fetchGazetteDates = async () => {
     }
 
     const result = await response.json();
-    console.log(result);
 
     // Assuming result.entities is the array containing `createdAt`
     const dates = result.body
