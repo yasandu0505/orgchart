@@ -27,8 +27,8 @@ const fetchGazetteDates = async () => {
     console.log(result);
 
     // Assuming result.entities is the array containing `createdAt`
-    const dates = result.entities
-      .map((item) => item.createdAt?.split("T")[0])  // Extract only date part
+    const dates = result.body
+      .map((item) => item.created?.split("T")[0])  // Extract only date part
       .filter((date) => !!date)                      // Remove null/undefined
       .filter((value, index, self) => self.indexOf(value) === index) // Unique dates
       .sort();                                       // Optional: sort chronologically
