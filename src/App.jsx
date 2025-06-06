@@ -3,21 +3,43 @@ import TidyTree from "./components/TidyTree"; // Import the new component
 import EventSlider from "./components/EventSlider";
 import { ErrorBoundary } from "react-error-boundary";
 
-// Function to fetch the dates from gazette_dates.txt
+// Function to fetch the dates through search API
 const fetchGazetteDates = async () => {
   try {
-    const response = await fetch("/gazette_dates.txt"); // Assuming the file is in the public directory
-    const data = await response.text();
-    const dates = data
-      .split("\n")
-      .map((date) => date.trim())
-      .filter((date) => date !== "");
+    const response = await fetch("/v1/entities/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        kind: {
+          major: "Organisation",
+          minor: "minister"
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log(result);
+
+    // Assuming result.entities is the array containing `createdAt`
+    const dates = result.entities
+      .map((item) => item.createdAt?.split("T")[0])  // Extract only date part
+      .filter((date) => !!date)                      // Remove null/undefined
+      .filter((value, index, self) => self.indexOf(value) === index) // Unique dates
+      .sort();                                       // Optional: sort chronologically
+
     return dates;
   } catch (error) {
-    console.error("Error fetching dates:", error);
+    console.error("Error fetching gazette dates from API:", error);
     return [];
   }
 };
+
 
 // Function to fetch data for a given date (called once for all dates)
 const fetchDataForAllDates = async (dates) => {
