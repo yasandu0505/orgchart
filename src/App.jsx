@@ -1,9 +1,35 @@
 import React, { useEffect, useState } from "react";
-import TidyTree from "./components/TidyTree"; // Import the new component
+import TidyTree from "./components/TidyTree";
 import EventSlider from "./components/EventSlider";
 import { ErrorBoundary } from "react-error-boundary";
 
-// Function to fetch the dates through search API
+// Decode minister name from hex format
+const decodeHexString = (hex) =>
+  decodeURIComponent(hex.replace(/(..)/g, "%$1"));
+
+// Convert raw ministerial data into tree format
+const transformRawDataToTree = (rawData) => {
+  const children = rawData.map((item) => {
+    let name = item.name;
+    try {
+      const parsed = JSON.parse(item.name);
+      if (parsed?.value) {
+        name = decodeHexString(parsed.value);
+      }
+    } catch (e) {
+      // Fallback to raw name if JSON.parse fails
+      name = item.name;
+    }
+
+    return { name, children: [] };
+  });
+
+  return {
+    name: "Government",
+    children,
+  };
+};
+
 const fetchGazetteData = async () => {
   try {
     const response = await fetch("/v1/entities/search", {
@@ -24,15 +50,11 @@ const fetchGazetteData = async () => {
     }
 
     const result = await response.json();
-
-    // Assuming result.entities is the array containing `created`
     const dates = result.body
-      .map((item) => item.created?.split("T")[0]) // Extract only date part
-      .filter((date) => !!date) // Remove null/undefined
-      .filter((value, index, self) => self.indexOf(value) === index) // Unique dates
-      .sort(); // Optional: sort chronologically
-
-    console.log(dates);
+      .map((item) => item.created?.split("T")[0])
+      .filter((date) => !!date)
+      .filter((value, index, self) => self.indexOf(value) === index)
+      .sort();
 
     return { dates, rawData: result.body };
   } catch (error) {
@@ -43,48 +65,6 @@ const fetchGazetteData = async () => {
     };
   }
 };
-
-const exampleTreeData = {
-  name: "Government",
-  children: [
-    {
-      name: "Minister of Health",
-      children: [
-        { name: "Department of Public Health" },
-        { name: "Department of Hospitals" }
-      ]
-    },
-    {
-      name: "Minister of Education",
-      children: [
-        { name: "Department of Schools" },
-        { name: "Department of Higher Education" }
-      ]
-    },
-    {
-      name: "Minister of Transport",
-      children: [
-        { name: "Department of Bus" },
-        { name: "Department of Railway" }
-      ]
-    },
-    {
-      name: "Minister of Defence",
-      children: [
-        { name: "Department of Air Force" },
-        { name: "Department of Army" }
-      ]
-    },
-    {
-      name: "Minister of Enviornment",
-      children: [
-        { name: "Department of Rivers" },
-        { name: "Department of Canals" }
-      ]
-    }
-  ]
-};
-
 
 const App = () => {
   const [treeData, setTreeData] = useState(null);
@@ -99,8 +79,13 @@ const App = () => {
         setGazetteData(dates);
 
         if (dates.length > 0) {
-          setIsTreeDataLoading(false);
+          const latestDate = dates[dates.length - 1]; // show latest by default
+          const transformed = transformRawDataToTree(rawData);
+          setTreeData(transformed);
+          setAllData({ [latestDate]: transformed });
         }
+
+        setIsTreeDataLoading(false);
       }
     };
 
@@ -110,21 +95,14 @@ const App = () => {
   const handleDateChange = async (date) => {
     setIsTreeDataLoading(true);
     if (!allData[date]) {
-      console.log(`App.jsx: Fetching data for ${date}`);
-      console.log("allData");
-      console.log(allData);
-      const newData = await fetchDataForAllDates([date]);
-      console.log("newData");
-      console.log(newData);
-      setAllData((prevData) => ({
-        ...prevData,
-        [date]: newData[date],
-      }));
-      setTreeData(newData[date]);
+      const { rawData } = await fetchGazetteData(); // You might want to fetch only specific date's data
+      const filteredData = rawData.filter((item) =>
+        item.created?.startsWith(date)
+      );
+      const transformed = transformRawDataToTree(filteredData);
+      setAllData((prev) => ({ ...prev, [date]: transformed }));
+      setTreeData(transformed);
     } else {
-      console.log("allData[date]");
-      console.log(date);
-      console.log(allData[date]);
       setTreeData(allData[date]);
     }
     setIsTreeDataLoading(false);
@@ -137,45 +115,14 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-      <div
-        style={{
-          position: "fixed", // Fixed position relative to viewport
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
         {/* Header */}
-        <div
-          style={{
-            height: "50px",
-            padding: "10px 20px",
-            backgroundColor: "#1e1e1e",
-            borderBottom: "1px solid #333",
-            flexShrink: 0,
-          }}
-        >
+        <div style={{ height: "50px", padding: "10px 20px", backgroundColor: "#1e1e1e", borderBottom: "1px solid #333", flexShrink: 0 }}>
           <h2 style={{ margin: 0 }}>Organization Chart</h2>
         </div>
 
-        {/* Fixed Slider Section */}
-        <div
-          style={{
-            height: "120px", // Fixed height
-            backgroundColor: "#1e1e1e",
-            borderBottom: "1px solid #333",
-            padding: "20px",
-            position: "relative", // For proper rendering
-            flexShrink: 0, // Prevent shrinking
-            width: "100%", // Full width
-            display: "flex",
-            alignItems: "center", // Center slider vertically
-          }}
-        >
+        {/* Slider */}
+        <div style={{ height: "120px", backgroundColor: "#1e1e1e", borderBottom: "1px solid #333", padding: "20px", flexShrink: 0, width: "100%", display: "flex", alignItems: "center" }}>
           <ErrorBoundary>
             {gazetteData.length > 0 && (
               <EventSlider
@@ -186,21 +133,13 @@ const App = () => {
           </ErrorBoundary>
         </div>
 
-        {/* Scrollable Tree Section */}
-        <div
-          style={{
-            flex: 1, // Take remaining space
-            backgroundColor: "#1e1e1e",
-            overflow: "auto", // Enable scrolling
-            padding: "20px",
-            position: "relative", // For proper rendering
-          }}
-        >
+        {/* Tree */}
+        <div style={{ flex: 1, backgroundColor: "#1e1e1e", overflow: "auto", padding: "20px", position: "relative" }}>
           <ErrorBoundary>
             {isTreeDataLoading ? (
-              <p>Loading...</p>
+              <p style={{ color: "#fff" }}>Loading...</p>
             ) : (
-              <TidyTree data={exampleTreeData} />
+              <TidyTree data={treeData} />
             )}
           </ErrorBoundary>
         </div>
