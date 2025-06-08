@@ -11,6 +11,8 @@ const decodeHexString = (hex) =>
 const transformRawDataToTree = (rawData) => {
   const children = rawData.map((item) => {
     let name = item.name;
+    let ministryId = item.id; // Store the ministry ID for later use
+    
     try {
       const parsed = JSON.parse(item.name);
       if (parsed?.value) {
@@ -21,13 +23,51 @@ const transformRawDataToTree = (rawData) => {
       name = item.name;
     }
 
-    return { name, children: [] };
+    return { 
+      name, 
+      children: [], 
+      id: ministryId, // Add ministry ID to the node
+      type: 'ministry' // Add type to identify ministry nodes
+    };
   });
 
   return {
     name: "Government",
     children,
+    type: 'root'
   };
+};
+
+// Fetch departments for a specific ministry
+const fetchDepartments = async (ministryId) => {
+  try {
+    const response = await fetch(`/v1/entities/${ministryId}/allrelations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}), // Empty JSON body for POST request
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    const departments = await response.json();
+    
+    // Transform department data into tree nodes
+    return departments
+      .filter(dept => dept.name === "AS_DEPARTMENT") // Filter only department relations
+      .map(dept => ({
+        name: dept.relatedEntityId, // Use relatedEntityId as department name
+        children: [],
+        id: dept.relatedEntityId,
+        type: 'department'
+      }));
+  } catch (error) {
+    console.error(`Error fetching departments for ministry ${ministryId}:`, error);
+    return [];
+  }
 };
 
 const fetchGazetteData = async () => {
@@ -72,7 +112,7 @@ const App = () => {
   const [gazetteData, setGazetteData] = useState([]);
   const [allData, setAllData] = useState({});
   const [selectedDate, setSelectedDate] = useState(null);
-
+  const [loadingDepartments, setLoadingDepartments] = useState(new Set());
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -112,6 +152,72 @@ const App = () => {
     setIsTreeDataLoading(false);
   };
 
+  // Handle ministry node click to fetch departments
+  const handleMinistryClick = async (ministryNode) => {
+    if (ministryNode.type !== 'ministry') return;
+    
+    const ministryId = ministryNode.id;
+    
+    // Check if departments are already loaded
+    if (ministryNode.children && ministryNode.children.length > 0) {
+      return; // Departments already loaded
+    }
+
+    // Show loading state for this specific ministry
+    setLoadingDepartments(prev => new Set([...prev, ministryId]));
+
+    try {
+      const departments = await fetchDepartments(ministryId);
+      
+      // Update the tree data with the fetched departments
+      setTreeData(prevTreeData => {
+        const updateMinistryInTree = (node) => {
+          if (node.id === ministryId && node.type === 'ministry') {
+            return {
+              ...node,
+              children: departments,
+              _children: departments // Store for D3 tree expansion
+            };
+          }
+          
+          if (node.children) {
+            return {
+              ...node,
+              children: node.children.map(updateMinistryInTree)
+            };
+          }
+          
+          return node;
+        };
+
+        return updateMinistryInTree(prevTreeData);
+      });
+
+      // Also update the cached data for the selected date
+      setAllData(prev => ({
+        ...prev,
+        [selectedDate]: {
+          ...prev[selectedDate],
+          children: prev[selectedDate].children.map(ministry => 
+            ministry.id === ministryId 
+              ? { ...ministry, children: departments, _children: departments }
+              : ministry
+          )
+        }
+      }));
+
+    } catch (error) {
+      console.error(`Failed to fetch departments for ministry ${ministryId}:`, error);
+    } finally {
+      // Remove loading state for this ministry
+      setLoadingDepartments(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(ministryId);
+        return newSet;
+      });
+    }
+  };
+
   const timelineData = gazetteData.map((date) => ({
     date,
     event: `OrgChart at ${date}`,
@@ -144,7 +250,11 @@ const App = () => {
             {isTreeDataLoading ? (
               <p style={{ color: "#fff" }}>Loading...</p>
             ) : (
-              <TidyTree data={treeData} />
+              <TidyTree 
+                data={treeData} 
+                onMinistryClick={handleMinistryClick}
+                loadingDepartments={loadingDepartments}
+              />
             )}
           </ErrorBoundary>
         </div>

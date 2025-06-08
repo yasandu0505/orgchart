@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import "./TidyTree.css";
 
-const TidyTree = ({ data }) => {
+const TidyTree = ({ data, onMinistryClick, loadingDepartments }) => {
   const containerRef = useRef(null);
   const [width, setWidth] = useState(window.innerWidth);
   let ministersExpanded = false;
@@ -60,7 +60,6 @@ const TidyTree = ({ data }) => {
       .attr("pointer-events", "all");
 
     function update(event, source) {
-      //const duration = event?.altKey ? 2500 : 250; // hold the alt key to slow down the transition
       const duration = 500;
       const nodes = root.descendants().reverse();
       const links = root.links();
@@ -74,7 +73,6 @@ const TidyTree = ({ data }) => {
         if (node.x > right.x) right = node;
       });
 
-      //const width = window.innerWidth;
       const height = right.x - left.x + marginTop + marginBottom;
 
       const transition = svg
@@ -94,19 +92,19 @@ const TidyTree = ({ data }) => {
         .attr("data-id", (d) => d.id)
         .attr("fill-opacity", 0)
         .attr("stroke-opacity", 0)
-        // .on("click", (event, d) => {
-        //   d.children = d.children ? null : d._children;
-        //   update(event, d);
-        // })
-        .on("click", (event, d) => {
+        .on("click", async (event, d) => {
           const isExpanding = !d.children; // Check if the node is expanding
         
+          // Handle ministry clicks to fetch departments
+          if (d.data.type === 'ministry' && isExpanding && onMinistryClick) {
+            await onMinistryClick(d.data);
+          }
+
           d.children = isExpanding ? d._children : null;
           update(event, d);
         
           // Apply or remove highlight
           d3.selectAll(".nodes circle,.nodes text").classed("highlight", false); // Remove highlight from all
-          //d3.selectAll(".link").classed("highlight", false);
         
           if (isExpanding) {
             highlightNodes(d);
@@ -124,36 +122,76 @@ const TidyTree = ({ data }) => {
             }
             update(event, d);
           }
-          
         });
 
+      // Add circle for each node
       nodeEnter.append("circle")
         .attr("r", 5)
+        .attr("fill", (d) => {
+          // Different colors for different node types
+          if (d.data.type === 'root') return "#fff";
+          if (d.data.type === 'ministry') return "#4CAF50";
+          if (d.data.type === 'department') return "#2196F3";
+          return "#fff";
+        })
+        .attr("stroke", (d) => {
+          if (d.data.type === 'root') return "#555";
+          if (d.data.type === 'ministry') return "#4CAF50";
+          if (d.data.type === 'department') return "#2196F3";
+          return "#555";
+        })
+        .attr("stroke-width", 1.5);
 
+      // Add text labels
       nodeEnter.append("text")
         .attr("dy", "0.31em")
         .attr("x", 6) // Always position the text 6 units to the right of the circle
         .attr("text-anchor", "start") // Always anchor the text to the start (right)
         .text((d) => d.data.name)
+        .attr("fill", "#fff")
+        .style("font-size", (d) => {
+          // Different font sizes for different node types
+          if (d.data.type === 'root') return "14px";
+          if (d.data.type === 'ministry') return "12px";
+          if (d.data.type === 'department') return "10px";
+          return "10px";
+        })
+        .style("font-weight", (d) => d.data.type === 'root' ? "bold" : "normal");
 
-        // Transition nodes to their new position.
-      node.merge(nodeEnter)
+      // Add loading indicator for ministries that are loading departments
+      nodeEnter.append("text")
+        .attr("class", "loading-indicator")
+        .attr("dy", "0.31em")
+        .attr("x", -15)
+        .attr("text-anchor", "middle")
+        .text("⟳")
+        .attr("fill", "#ffeb3b")
+        .style("font-size", "12px")
+        .style("opacity", 0)
+        .style("animation", "spin 1s linear infinite");
+
+      // Transition nodes to their new position.
+      const nodeUpdate = node.merge(nodeEnter)
         .transition(transition)
         .attr("transform", (d) => {
           // Adjust the x for second layer (minister nodes)
           let adjustedX = d.y;
           if (d.depth === 1) {
-            // For depth 1 nodes (minister nodes), center them horizontally
-            //adjustedX = width / 2;
             // If ministers are expanded, shift them left to 1/4 of the width
             adjustedX = ministersExpanded ? width / 4 : width / 2;
           }
           return `translate(${adjustedX},${d.x})`;
         })
         .attr("fill-opacity", 1)
-        .attr("stroke-opacity", 1)
+        .attr("stroke-opacity", 1);
 
-        // Transition exiting nodes to the parent's new position.
+      // Update loading indicators
+      node.merge(nodeEnter).selectAll(".loading-indicator")
+        .style("opacity", (d) => {
+          return loadingDepartments && loadingDepartments.has(d.data.id) ? 1 : 0;
+        });
+
+      // Transition exiting nodes to the parent's new position.
       node.exit()
         .transition(transition)
         .remove()
@@ -161,11 +199,11 @@ const TidyTree = ({ data }) => {
         .attr("fill-opacity", 0)
         .attr("stroke-opacity", 0);
 
-        // Update the links...
+      // Update the links...
       const link = gLink.selectAll("path")
         .data(links, (d) => d.target.id);
 
-        // Enter any new links at the parent's previous position.
+      // Enter any new links at the parent's previous position.
       const linkEnter = link.enter()
         .append("path")
         .attr("d", (d) => {
@@ -173,26 +211,17 @@ const TidyTree = ({ data }) => {
           return diagonal({ source: o, target: o });
         });
 
-        // Transition links to their new position.
+      // Transition links to their new position.
       link.merge(linkEnter)
         .transition(transition)
-        //.attr("d", diagonal);
         .attr("d", (d) => {
-          // Adjust the link paths for the second layer nodes (minister nodes)
-          // const adjustedSourceY = d.source.depth === 1 ? width / 2 : d.source.y;
-          // const adjustedTargetY = d.target.depth === 1 ? width / 2 : d.target.y;
-    
-          // const sourcePosition = { x: d.source.x, y: adjustedSourceY };
-          // const targetPosition = { x: d.target.x, y: adjustedTargetY };
-    
-          // return diagonal({ source: sourcePosition, target: targetPosition });
           const adjustedSourceY = d.source.depth === 1 ? (ministersExpanded ? width / 4 : width / 2) : d.source.y;
           const adjustedTargetY = d.target.depth === 1 ? (ministersExpanded ? width / 4 : width / 2) : d.target.y;
 
           return diagonal({ source: { x: d.source.x, y: adjustedSourceY }, target: { x: d.target.x, y: adjustedTargetY } });
         });
 
-        // Transition existing nodes to the parent's new position.
+      // Transition existing nodes to the parent's new position.
       link.exit()
         .transition(transition)
         .remove()
@@ -201,7 +230,7 @@ const TidyTree = ({ data }) => {
           return diagonal({ source: o, target: o });
         });
 
-        // Stash the old positions for transition.
+      // Stash the old positions for transition.
       root.eachBefore((d) => {
         d.x0 = d.x;
         d.y0 = d.y;
@@ -230,8 +259,18 @@ const TidyTree = ({ data }) => {
       if (d.depth > 0) d.children = null;
     });
 
+    // Add CSS for spinning animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+
     update(null, root);
-  }, [data, width]); // Re-run the effect when windowWidth changes
+  }, [data, width, loadingDepartments]); // Re-run the effect when loadingDepartments changes
 
   return <div ref={containerRef}></div>; // Render a div instead of returning SVG
 };
