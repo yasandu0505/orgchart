@@ -45,8 +45,7 @@ const fetchDepartments = async (ministryId) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}), // Empty JSON body for POST request
+      } // Empty JSON body for POST request
     });
     
     if (!response.ok) {
@@ -55,12 +54,11 @@ const fetchDepartments = async (ministryId) => {
 
     const departments = await response.json();
     
-    // Transform department data into tree nodes
+    // Transform department data into simple array of department info
     return departments
       .filter(dept => dept.name === "AS_DEPARTMENT") // Filter only department relations
       .map(dept => ({
         name: dept.relatedEntityId, // Use relatedEntityId as department name
-        children: [],
         id: dept.relatedEntityId,
         type: 'department'
       }));
@@ -112,6 +110,7 @@ const App = () => {
   const [gazetteData, setGazetteData] = useState([]);
   const [allData, setAllData] = useState({});
   const [selectedDate, setSelectedDate] = useState(null);
+  const [departmentData, setDepartmentData] = useState({}); // Store departments separately
   const [loadingDepartments, setLoadingDepartments] = useState(new Set());
 
   useEffect(() => {
@@ -138,6 +137,9 @@ const App = () => {
   const handleDateChange = async (date) => {
     setIsTreeDataLoading(true);
     setSelectedDate(date);
+    // Clear department data when changing dates
+    setDepartmentData({});
+    
     if (!allData[date]) {
       const { rawData } = await fetchGazetteData(); // You might want to fetch only specific date's data
       const filteredData = rawData.filter((item) =>
@@ -153,13 +155,9 @@ const App = () => {
   };
 
   // Handle ministry node click to fetch departments
-  const handleMinistryClick = async (ministryNode) => {
-    if (ministryNode.type !== 'ministry') return;
-    
-    const ministryId = ministryNode.id;
-    
-    // Check if departments are already loaded
-    if (ministryNode.children && ministryNode.children.length > 0) {
+  const handleMinistryClick = async (ministryId) => {
+    // Check if departments are already loaded for this ministry
+    if (departmentData[ministryId]) {
       return; // Departments already loaded
     }
 
@@ -169,41 +167,10 @@ const App = () => {
     try {
       const departments = await fetchDepartments(ministryId);
       
-      // Update the tree data with the fetched departments
-      setTreeData(prevTreeData => {
-        const updateMinistryInTree = (node) => {
-          if (node.id === ministryId && node.type === 'ministry') {
-            return {
-              ...node,
-              children: departments,
-              _children: departments // Store for D3 tree expansion
-            };
-          }
-          
-          if (node.children) {
-            return {
-              ...node,
-              children: node.children.map(updateMinistryInTree)
-            };
-          }
-          
-          return node;
-        };
-
-        return updateMinistryInTree(prevTreeData);
-      });
-
-      // Also update the cached data for the selected date
-      setAllData(prev => ({
+      // Store departments separately without modifying tree structure
+      setDepartmentData(prev => ({
         ...prev,
-        [selectedDate]: {
-          ...prev[selectedDate],
-          children: prev[selectedDate].children.map(ministry => 
-            ministry.id === ministryId 
-              ? { ...ministry, children: departments, _children: departments }
-              : ministry
-          )
-        }
+        [ministryId]: departments
       }));
 
     } catch (error) {
@@ -254,6 +221,7 @@ const App = () => {
                 data={treeData} 
                 onMinistryClick={handleMinistryClick}
                 loadingDepartments={loadingDepartments}
+                departmentData={departmentData}
               />
             )}
           </ErrorBoundary>
