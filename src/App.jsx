@@ -4,7 +4,7 @@ import EventSlider from "./components/EventSlider";
 import { ErrorBoundary } from "react-error-boundary";
 
 // Function to fetch the dates through search API
-const fetchGazetteDates = async () => {
+const fetchGazetteData = async () => {
   try {
     const response = await fetch("/v1/entities/search", {
       method: "POST",
@@ -14,9 +14,9 @@ const fetchGazetteDates = async () => {
       body: JSON.stringify({
         kind: {
           major: "Organisation",
-          minor: "minister"
-        }
-      })
+          minor: "minister",
+        },
+      }),
     });
 
     if (!response.ok) {
@@ -25,124 +25,87 @@ const fetchGazetteDates = async () => {
 
     const result = await response.json();
 
-    // Assuming result.entities is the array containing `createdAt`
+    // Assuming result.entities is the array containing `created`
     const dates = result.body
-      .map((item) => item.created?.split("T")[0])  // Extract only date part
-      .filter((date) => !!date)                      // Remove null/undefined
+      .map((item) => item.created?.split("T")[0]) // Extract only date part
+      .filter((date) => !!date) // Remove null/undefined
       .filter((value, index, self) => self.indexOf(value) === index) // Unique dates
-      .sort();                                       // Optional: sort chronologically
+      .sort(); // Optional: sort chronologically
 
-    return dates;
+    console.log(dates);
+
+    return { dates, rawData: result.body };
   } catch (error) {
     console.error("Error fetching gazette dates from API:", error);
-    return [];
+    return {
+      dates: [],
+      rawData: [],
+    };
   }
 };
 
-
-// Function to fetch data for a given date (called once for all dates)
-const fetchDataForAllDates = async (dates) => {
-  const allData = {};
-
-  try {
-    // Loop through all dates to fetch the data for each date
-    for (const selectedDate of dates) {
-
-      if (allData[selectedDate]) {
-        console.log(`App.jsx: Skipping fetch, data already exists for ${selectedDate}`);
-        continue; // Move to the next date
-      }
-      
-      // GraphQL Query
-      const query = `
-        query {
-          govStrucByDate(date: "${selectedDate}") {
-            name
-            ministers {
-              name
-              departments {
-                name
-              }
-            }
-          }
-        }
-      `;
-      
-      const response = await fetch("http://127.0.0.1:5000/graphql", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: query,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
-      }
-      
-      const result = await response.json();
-
-      if (!result.data || !result.data.govStrucByDate || result.data.govStrucByDate.length === 0) {
-        console.warn(`No data returned for date ${selectedDate}`);
-        allData[selectedDate] = null;
-        continue;
-      }
-
-      // Extract the government structure data
-      const govStructure = result.data.govStrucByDate[0];
-
-      const graph = { name: govStructure.name, children: [] };
-      const ministersMap = new Map();
-
-      govStructure.ministers.forEach((minister) => {
-        if (!ministersMap.has(minister.name)) {
-          ministersMap.set(minister.name, { name: minister.name, children: [] });
-          graph.children.push(ministersMap.get(minister.name));
-        }
-
-        minister.departments.forEach((department) => {
-          ministersMap.get(minister.name).children.push({ name: department.name });
-        });
-      });
-
-
-      allData[selectedDate] = graph;
-      console.log(`Data fetched for ${selectedDate}`);
+const exampleTreeData = {
+  name: "Government",
+  children: [
+    {
+      name: "Minister of Health",
+      children: [
+        { name: "Department of Public Health" },
+        { name: "Department of Hospitals" }
+      ]
+    },
+    {
+      name: "Minister of Education",
+      children: [
+        { name: "Department of Schools" },
+        { name: "Department of Higher Education" }
+      ]
+    },
+    {
+      name: "Minister of Transport",
+      children: [
+        { name: "Department of Bus" },
+        { name: "Department of Railway" }
+      ]
+    },
+    {
+      name: "Minister of Defence",
+      children: [
+        { name: "Department of Air Force" },
+        { name: "Department of Army" }
+      ]
+    },
+    {
+      name: "Minister of Enviornment",
+      children: [
+        { name: "Department of Rivers" },
+        { name: "Department of Canals" }
+      ]
     }
-
-    return allData;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    return {};
-  } 
+  ]
 };
+
 
 const App = () => {
   const [treeData, setTreeData] = useState(null);
   const [isTreeDataLoading, setIsTreeDataLoading] = useState(true);
-  const [gazetteDates, setGazetteDates] = useState([]);
+  const [gazetteData, setGazetteData] = useState([]);
   const [allData, setAllData] = useState({});
 
   useEffect(() => {
     const initializeApp = async () => {
-      if (gazetteDates.length === 0) {
-        const dates = await fetchGazetteDates();
-        setGazetteDates(dates);
-  
+      if (gazetteData.length === 0) {
+        const { dates, rawData } = await fetchGazetteData();
+        setGazetteData(dates);
+
         if (dates.length > 0) {
-          const latestDate = dates[dates.length - 1];
-          const initialData = await fetchDataForAllDates([latestDate]);
-          setAllData(initialData);
-          setTreeData(initialData[latestDate]);
           setIsTreeDataLoading(false);
         }
       }
     };
-  
+
     initializeApp();
-  }, []); 
+  }, []);
 
   const handleDateChange = async (date) => {
     setIsTreeDataLoading(true);
@@ -153,9 +116,9 @@ const App = () => {
       const newData = await fetchDataForAllDates([date]);
       console.log("newData");
       console.log(newData);
-      setAllData(prevData => ({
+      setAllData((prevData) => ({
         ...prevData,
-        [date]: newData[date]
+        [date]: newData[date],
       }));
       setTreeData(newData[date]);
     } else {
@@ -167,48 +130,54 @@ const App = () => {
     setIsTreeDataLoading(false);
   };
 
-  const timelineData = gazetteDates.map((date) => ({
+  const timelineData = gazetteData.map((date) => ({
     date,
     event: `OrgChart at ${date}`,
   }));
 
   return (
     <ErrorBoundary>
-      <div style={{ 
-        position: 'fixed',  // Fixed position relative to viewport
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden'
-      }}>
+      <div
+        style={{
+          position: "fixed", // Fixed position relative to viewport
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
         {/* Header */}
-        <div style={{
-          height: '50px',
-          padding: '10px 20px',
-          backgroundColor: '#1e1e1e',
-          borderBottom: '1px solid #333',
-          flexShrink: 0
-        }}>
+        <div
+          style={{
+            height: "50px",
+            padding: "10px 20px",
+            backgroundColor: "#1e1e1e",
+            borderBottom: "1px solid #333",
+            flexShrink: 0,
+          }}
+        >
           <h2 style={{ margin: 0 }}>Organization Chart</h2>
         </div>
-        
+
         {/* Fixed Slider Section */}
-        <div style={{ 
-          height: '120px',           // Fixed height
-          backgroundColor: '#1e1e1e',
-          borderBottom: '1px solid #333',
-          padding: '20px',
-          position: 'relative',      // For proper rendering
-          flexShrink: 0,            // Prevent shrinking
-          width: '100%',            // Full width
-          display: 'flex',
-          alignItems: 'center'      // Center slider vertically
-        }}>
+        <div
+          style={{
+            height: "120px", // Fixed height
+            backgroundColor: "#1e1e1e",
+            borderBottom: "1px solid #333",
+            padding: "20px",
+            position: "relative", // For proper rendering
+            flexShrink: 0, // Prevent shrinking
+            width: "100%", // Full width
+            display: "flex",
+            alignItems: "center", // Center slider vertically
+          }}
+        >
           <ErrorBoundary>
-            {gazetteDates.length > 0 && (
+            {gazetteData.length > 0 && (
               <EventSlider
                 data={timelineData}
                 onSelectDate={handleDateChange}
@@ -218,18 +187,20 @@ const App = () => {
         </div>
 
         {/* Scrollable Tree Section */}
-        <div style={{ 
-          flex: 1,                  // Take remaining space
-          backgroundColor: '#1e1e1e',
-          overflow: 'auto',         // Enable scrolling
-          padding: '20px',
-          position: 'relative'      // For proper rendering
-        }}>
+        <div
+          style={{
+            flex: 1, // Take remaining space
+            backgroundColor: "#1e1e1e",
+            overflow: "auto", // Enable scrolling
+            padding: "20px",
+            position: "relative", // For proper rendering
+          }}
+        >
           <ErrorBoundary>
             {isTreeDataLoading ? (
               <p>Loading...</p>
             ) : (
-              <TidyTree data={treeData} />
+              <TidyTree data={exampleTreeData} />
             )}
           </ErrorBoundary>
         </div>
