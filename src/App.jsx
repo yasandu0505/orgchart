@@ -71,6 +71,8 @@ const App = () => {
   const [isTreeDataLoading, setIsTreeDataLoading] = useState(true);
   const [gazetteData, setGazetteData] = useState([]);
   const [allData, setAllData] = useState({});
+  const [selectedDate, setSelectedDate] = useState(null);
+
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -82,6 +84,7 @@ const App = () => {
           const latestDate = dates[dates.length - 1]; // show latest by default
           const transformed = transformRawDataToTree(rawData);
           setTreeData(transformed);
+          setSelectedDate(latestDate);
           setAllData({ [latestDate]: transformed });
         }
 
@@ -94,6 +97,7 @@ const App = () => {
 
   const handleDateChange = async (date) => {
     setIsTreeDataLoading(true);
+    setSelectedDate(date);
     if (!allData[date]) {
       const { rawData } = await fetchGazetteData(); // You might want to fetch only specific date's data
       const filteredData = rawData.filter((item) =>
@@ -128,6 +132,7 @@ const App = () => {
               <EventSlider
                 data={timelineData}
                 onSelectDate={handleDateChange}
+                selectedDate={selectedDate}
               />
             )}
           </ErrorBoundary>
