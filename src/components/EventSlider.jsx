@@ -1,8 +1,18 @@
 import * as React from "react";
 import { Box, Slider, Typography } from "@mui/material";
 
-export default function EventSlider({ data, onSelectDate }) {
+export default function EventSlider({ data, onSelectDate, selectedDate }) {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    if (selectedDate) {
+      const index = data.findIndex((item) => item.date === selectedDate);
+      if (index !== -1 && index !== selectedIndex) {
+        setSelectedIndex(index);
+      }
+    }
+  }, [selectedDate, data]);
+
 
   if (!data || data.length === 0) {
     return <Typography>No dates to display</Typography>;

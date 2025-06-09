@@ -1,30 +1,61 @@
-/* TidyTree.css */
-
 .nodes text {
-    -webkit-transition: fill, font-size 0.5s;
-    transition: fill, font-size 0.5s;
-    font-size: 12px;
-    background-color: #444;
-    fill: #F4F4F4;
-    text-shadow: 0 1px 4px black;
-    stroke-linejoin: round;
-    paint-order: stroke;
+  -webkit-transition: fill, font-size 0.5s;
+  transition: fill, font-size 0.5s;
+  font-size: 12px;
+  fill: #f4f4f4;
+  text-shadow: 0 1px 4px black;
+  stroke-linejoin: round;
+  paint-order: stroke;
 }
 
 .nodes circle {
-    fill: #F3F3FF; /* Circle fill color */
-    stroke: #2593B8; /* Circle border color */
-    stroke-width: 1.5px;
+  fill: #f3f3ff;
+  stroke: #2593b8;
+  stroke-width: 1.5px;
+  transition: all 0.3s ease;
 }
 
-circle.highlight{
-    fill: orange; /* Highlight color */
+.links path {
+  transition: all 0.3s ease;
+}
+
+circle.highlight {
+  fill: #f3f3ff !important;
+  stroke: #1ec8c2 !important;
+  stroke-width: 2px !important;
+}
+
+text.highlight {
+  font-weight: bold !important;
+  font-size: 14px !important;
+  fill: #7deae6 !important;
+}
+
+path.highlight {
+  stroke: #1ec8c2 !important;
+  stroke-width: 2px !important;
+  stroke-opacity: 0.8 !important;
+}
+
+.loading-indicator {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
   }
-
-text.highlight{
-    font-weight:bold;
-    font-size: 14px;
+  to {
+    transform: rotate(360deg);
+  }
 }
-  
-  
-  
+
+.node:hover circle {
+  filter: brightness(1.2);
+  transition: all 0.2s ease;
+}
+
+.node:hover text {
+  filter: brightness(1.1);
+  transition: all 0.2s ease;
+}

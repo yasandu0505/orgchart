@@ -1,239 +1,531 @@
-import React, { useEffect, useRef, useState } from "react";
-import * as d3 from "d3";
-import "./TidyTree.css";
+"use client"
 
-const TidyTree = ({ data }) => {
-  const containerRef = useRef(null);
-  const [width, setWidth] = useState(window.innerWidth);
-  let ministersExpanded = false;
+import { useEffect, useRef, useState, useMemo } from "react"
+import * as d3 from "d3"
+import "./TidyTree.css"
 
+const TidyTree = ({
+  data,
+  onMinistryClick,
+  loadingDepartments = new Set(),
+  departmentData = {},
+  expandedMinistries = new Set(),
+}) => {
+  const containerRef = useRef(null)
+  const svgRef = useRef(null)
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+  const treeRef = useRef(null)
+  const rootRef = useRef(null)
+
+  // Handle container resize
   useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth); // Update width on window resize
-    window.addEventListener("resize", handleResize);
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        setDimensions({ width: rect.width, height: rect.height })
+      }
+    }
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    updateDimensions()
+    const resizeObserver = new ResizeObserver(updateDimensions)
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current)
+    }
 
+    return () => resizeObserver.disconnect()
+  }, [])
+
+  // Stabilize the tree structure
+  const treeStructure = useMemo(() => {
+    if (!data) return null
+
+    const createTreeStructure = (node) => {
+      const treeNode = { ...node }
+
+      if (node.children) {
+        treeNode.children = node.children.map((child) => {
+          const childNode = { ...child }
+          childNode._children = child.type === "ministry" ? [] : null
+          childNode.children = null
+          return childNode
+        })
+      }
+
+      return treeNode
+    }
+
+    return createTreeStructure(data)
+  }, [data])
+
+  // Convert Sets to arrays for stable comparison
+  const expandedMinistriesArray = useMemo(() => Array.from(expandedMinistries), [expandedMinistries])
+  const loadingDepartmentsArray = useMemo(() => Array.from(loadingDepartments), [loadingDepartments])
+
+  // Function to highlight nodes and their path
+  const highlightPath = (ministryId) => {
+    // Remove all existing highlights
+    d3.selectAll(".nodes circle, .nodes text, .links path").classed("highlight", false)
+
+    if (!ministryId) return
+
+    // Highlight the root
+    d3.select(`[data-id='root']`).selectAll("circle, text").classed("highlight", true)
+
+    // Highlight the clicked ministry
+    d3.select(`[data-id='${ministryId}']`).selectAll("circle, text").classed("highlight", true)
+
+    // Highlight departments of the clicked ministry
+    if (departmentData[ministryId]) {
+      departmentData[ministryId].forEach((dept) => {
+        d3.select(`[data-id='${dept.id}']`).selectAll("circle, text").classed("highlight", true)
+      })
+    }
+
+    // Highlight the connecting links
+    d3.selectAll(".links path").classed(
+      "highlight",
+      (d) =>
+        (d.source.data.type === "root" && d.target.data.id === ministryId) ||
+        (d.source.data.id === ministryId && d.target.data.type === "department"),
+    )
+  }
+
+  // Update function to add/remove departments for a specific ministry
+  const updateDepartments = (ministryId, isExpanding) => {
+    if (!rootRef.current || !treeRef.current) return
+
+    const root = rootRef.current
+    const tree = treeRef.current
+    const svg = d3.select(containerRef.current).select("svg")
+    const gNode = svg.select(".nodes")
+    const gLink = svg.select(".links")
+    const { width } = dimensions
+
+    const duration = 500
+
+    // Find the ministry node in the hierarchy
+    let ministryNode = null
+    root.eachBefore((d) => {
+      if (d.data.id === ministryId) {
+        ministryNode = d
+      }
+    })
+
+    if (!ministryNode) return
+
+    if (isExpanding) {
+      // Add departments to the ministry node
+      const departments = departmentData[ministryId] || []
+      ministryNode.children = departments.map((dept) => ({
+        data: dept,
+        parent: ministryNode,
+        depth: ministryNode.depth + 1,
+        children: null,
+        _children: null,
+        id: dept.id,
+      }))
+    } else {
+      // Remove departments
+      ministryNode.children = null
+    }
+
+    // Recompute the tree layout
+    tree(root)
+
+    // Calculate new bounds
+    let left = root,
+      right = root
+    root.eachBefore((node) => {
+      if (node.x < left.x) left = node
+      if (node.x > right.x) right = node
+    })
+
+    const marginTop = 10
+    const marginRight = 10
+    const marginBottom = 10
+    const marginLeft = 40
+    const height = right.x - left.x + marginTop + marginBottom
+
+    // Update SVG dimensions
+    svg
+      .transition()
+      .duration(duration)
+      .attr("height", height)
+      .attr("viewBox", [-marginLeft, left.x - marginTop, width, height])
+
+    const nodes = root.descendants()
+    const links = root.links()
+    const ministersExpanded = expandedMinistriesArray.length > 0
+
+    // Update nodes
+    const node = gNode.selectAll("g").data(nodes, (d) => d.data.id || "root")
+
+    // Enter new nodes (departments)
+    const nodeEnter = node
+      .enter()
+      .append("g")
+      .attr("transform", (d) => `translate(${ministryNode.y},${ministryNode.x})`) // Start from ministry position
+      .attr("data-id", (d) => d.data.id || "root")
+      .attr("fill-opacity", 0)
+      .attr("stroke-opacity", 0)
+
+    // Add circles for new nodes
+    nodeEnter
+      .append("circle")
+      .attr("r", (d) => (d.data.type === "department" ? 4 : 5))
+      .attr("fill", (d) => {
+        if (d.data.type === "root") return "#fff"
+        if (d.data.type === "department") return "#4A9EFF"
+        return "#F3F3FF"
+      })
+      .attr("stroke", "#2593B8")
+      .attr("stroke-width", 1.5)
+      .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
+
+    // Add text for new nodes
+    nodeEnter
+      .append("text")
+      .attr("dy", "0.31em")
+      .attr("x", 6)
+      .attr("text-anchor", "start")
+      .text((d) => d.data.name)
+      .attr("fill", "#F4F4F4")
+      .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
+
+    // Add click handlers to ALL nodes (including existing ones)
+    node
+      .merge(nodeEnter)
+      .selectAll("circle")
+      .on("click", (event, d) => {
+        if (d.data.type === "ministry") {
+          event.stopPropagation()
+          onMinistryClick(d.data.id)
+        }
+      })
+
+    node
+      .merge(nodeEnter)
+      .selectAll("text:not(.loading-indicator)")
+      .on("click", (event, d) => {
+        if (d.data.type === "ministry") {
+          event.stopPropagation()
+          onMinistryClick(d.data.id)
+        }
+      })
+
+    // Update all nodes positions with better layout
+    node
+      .merge(nodeEnter)
+      .transition()
+      .duration(duration)
+      .attr("transform", (d) => {
+        let adjustedY = d.y
+
+        // Better positioning logic to prevent departments from going off-screen
+        if (d.depth === 1) {
+          // Ministry nodes
+          adjustedY = ministersExpanded ? width * 0.25 : width * 0.5
+        } else if (d.depth === 2) {
+          // Department nodes - ensure they fit within screen
+          const maxDepartmentX = width - 450 // Leave 200px margin from right edge
+          adjustedY = Math.min(d.y, maxDepartmentX)
+        }
+
+        return `translate(${adjustedY},${d.x})`
+      })
+      .attr("fill-opacity", 1)
+      .attr("stroke-opacity", 1)
+
+    // Update loading indicators
+    node
+      .merge(nodeEnter)
+      .selectAll(".loading-indicator")
+      .style("opacity", (d) => {
+        return loadingDepartmentsArray.includes(d.data.id) ? 1 : 0
+      })
+
+    // Remove exiting nodes
+    node
+      .exit()
+      .transition()
+      .duration(duration)
+      .attr("transform", `translate(${ministryNode.y},${ministryNode.x})`) // Exit to ministry position
+      .attr("fill-opacity", 0)
+      .attr("stroke-opacity", 0)
+      .remove()
+
+    // Update links
+    const link = gLink.selectAll("path").data(links, (d) => d.target.data.id || "root")
+
+    // Enter new links
+    const linkEnter = link
+      .enter()
+      .append("path")
+      .attr("d", () => {
+        const o = { x: ministryNode.x, y: ministryNode.y }
+        return d3
+          .linkHorizontal()
+          .x((d) => d.y)
+          .y((d) => d.x)({ source: o, target: o })
+      })
+
+    // Update all links with better positioning
+    link
+      .merge(linkEnter)
+      .transition()
+      .duration(duration)
+      .attr("d", (d) => {
+        let adjustedSourceY = d.source.y
+        let adjustedTargetY = d.target.y
+
+        // Apply same positioning logic as nodes
+        if (d.source.depth === 1) {
+          adjustedSourceY = ministersExpanded ? width * 0.25 : width * 0.5
+        }
+        if (d.target.depth === 1) {
+          adjustedTargetY = ministersExpanded ? width * 0.25 : width * 0.5
+        }
+        if (d.target.depth === 2) {
+          const maxDepartmentX = width - 450
+          adjustedTargetY = Math.min(d.target.y, maxDepartmentX)
+        }
+
+        return d3
+          .linkHorizontal()
+          .x((d) => d.y)
+          .y((d) => d.x)({
+          source: { x: d.source.x, y: adjustedSourceY },
+          target: { x: d.target.x, y: adjustedTargetY },
+        })
+      })
+
+    // Remove exiting links
+    link
+      .exit()
+      .transition()
+      .duration(duration)
+      .attr("d", () => {
+        const o = { x: ministryNode.x, y: ministryNode.y }
+        return d3
+          .linkHorizontal()
+          .x((d) => d.y)
+          .y((d) => d.x)({ source: o, target: o })
+      })
+      .remove()
+
+    // Store the old positions for transition
+    root.eachBefore((d) => {
+      d.x0 = d.x
+      d.y0 = d.y
+    })
+
+    // Highlight the path after animation
+    setTimeout(() => {
+      highlightPath(ministryId)
+    }, duration + 50)
+  }
+
+  // Watch for changes in expanded ministries and update accordingly
   useEffect(() => {
-    if (!data) return;
+    if (!rootRef.current) return
 
-    // Clear existing SVG when data changes
-    d3.select(containerRef.current).selectAll("svg").remove();
+    // Get the current expanded ministries from the tree
+    const currentExpanded = new Set()
+    rootRef.current.eachBefore((d) => {
+      if (d.data.type === "ministry" && d.children) {
+        currentExpanded.add(d.data.id)
+      }
+    })
 
-    // Create new SVG
+    // Find ministries that need to be expanded
+    expandedMinistriesArray.forEach((ministryId) => {
+      if (!currentExpanded.has(ministryId) && departmentData[ministryId]) {
+        updateDepartments(ministryId, true)
+      }
+    })
+
+    // Find ministries that need to be collapsed
+    Array.from(currentExpanded).forEach((ministryId) => {
+      if (!expandedMinistriesArray.includes(ministryId)) {
+        updateDepartments(ministryId, false)
+      }
+    })
+  }, [expandedMinistriesArray, departmentData, dimensions])
+
+  // Initial tree setup
+  useEffect(() => {
+    if (!treeStructure || dimensions.width === 0) return
+
+    const { width, height } = dimensions
+
+    // Clear existing SVG
+    d3.select(containerRef.current).selectAll("svg").remove()
+
+    // Create SVG
     const svg = d3
       .select(containerRef.current)
       .append("svg")
       .attr("width", width)
-      .attr("height", 0)
-      .attr("viewBox", [0, 0, width, 0])
+      .attr("height", height)
+      .attr("viewBox", [0, 0, width, height])
       .style("max-width", "100%")
       .style("height", "auto")
       .style("font", "10px sans-serif")
-      .style("user-select", "none");
+      .style("user-select", "none")
 
-    // Specify the charts' dimensions. The height is variable, depending on the layout.
-    const marginTop = 10;
-    const marginRight = 10;
-    const marginBottom = 10;
-    const marginLeft = 40;
+    // Margins
+    const marginTop = 10
+    const marginRight = 10
+    const marginBottom = 10
+    const marginLeft = 40
 
-    // Rows are separated by dx pixels, columns by dy pixels. These names can be counter-intuitive
-    // (dx is a height, and dy a width). This because the tree must be viewed with the root at the
-    // "bottom", in the data domain. The width of a column is based on the tree's height.
-    const root = d3.hierarchy(data);
-    const dx = 20;
-    const dy = (width - marginRight - marginLeft) / (1 + root.height);
+    // Create hierarchy
+    const root = d3.hierarchy(treeStructure)
+    rootRef.current = root
 
-    // Define the tree layout and the shape for links.
-    const tree = d3.tree().nodeSize([dx, dy]);
-    const diagonal = d3.linkHorizontal().x((d) => d.y).y((d) => d.x);
+    // Tree layout with better spacing
+    const dx = 25 // Increased vertical spacing
+    const dy = (width - marginRight - marginLeft) / (1 + root.height)
 
-    // Create the groups for links and nodes if not already present
-    const gLink = svg.selectAll("g.links").data([0]).enter().append("g").attr("class", "links").attr("fill", "none")
+    const tree = d3.tree().nodeSize([dx, dy])
+    treeRef.current = tree
+
+    // Create groups
+    const gLink = svg
+      .append("g")
+      .attr("class", "links")
+      .attr("fill", "none")
       .attr("stroke", "#2593B8")
       .attr("stroke-opacity", 0.4)
-      .attr("stroke-width", 1.5);
+      .attr("stroke-width", 1.5)
 
-    const gNode = svg.selectAll("g.nodes").data([0]).enter().append("g").attr("class", "nodes")
-      .attr("cursor", "pointer")
-      .attr("pointer-events", "all");
+    const gNode = svg.append("g").attr("class", "nodes").attr("cursor", "pointer").attr("pointer-events", "all")
 
-    function update(event, source) {
-      //const duration = event?.altKey ? 2500 : 250; // hold the alt key to slow down the transition
-      const duration = 500;
-      const nodes = root.descendants().reverse();
-      const links = root.links();
+    // Initial tree computation
+    tree(root)
 
-      // Compute the new tree layout.
-      tree(root);
+    // Calculate bounds
+    let left = root,
+      right = root
+    root.eachBefore((node) => {
+      if (node.x < left.x) left = node
+      if (node.x > right.x) right = node
+    })
 
-      let left = root, right = root;
-      root.eachBefore((node) => {
-        if (node.x < left.x) left = node;
-        if (node.x > right.x) right = node;
-      });
+    const treeHeight = right.x - left.x + marginTop + marginBottom
 
-      //const width = window.innerWidth;
-      const height = right.x - left.x + marginTop + marginBottom;
+    // Set SVG dimensions
+    svg.attr("height", treeHeight).attr("viewBox", [-marginLeft, left.x - marginTop, width, treeHeight])
 
-      const transition = svg
-        .transition()
-        .duration(duration)
-        .attr("height", height)
-        .attr("viewBox", [-marginLeft, left.x - marginTop, width, height]);
+    const nodes = root.descendants()
+    const links = root.links()
 
-      // Update the nodes…
-      const node = gNode.selectAll("g")
-        .data(nodes, (d) => d.id);
+    // Add initial nodes
+    const nodeEnter = gNode
+      .selectAll("g")
+      .data(nodes)
+      .enter()
+      .append("g")
+      .attr("transform", (d) => {
+        let adjustedY = d.y
+        if (d.depth === 1) {
+          adjustedY = width * 0.5 // Start ministries at center
+        }
+        return `translate(${adjustedY},${d.x})`
+      })
+      .attr("data-id", (d) => d.data.id || "root")
 
-      // Enter any new nodes at the parent's previous position.
-      const nodeEnter = node.enter()
-        .append("g")
-        .attr("transform", (d) => `translate(${source.y0},${source.x0})`)
-        .attr("data-id", (d) => d.id)
-        .attr("fill-opacity", 0)
-        .attr("stroke-opacity", 0)
-        // .on("click", (event, d) => {
-        //   d.children = d.children ? null : d._children;
-        //   update(event, d);
-        // })
-        .on("click", (event, d) => {
-          const isExpanding = !d.children; // Check if the node is expanding
-        
-          d.children = isExpanding ? d._children : null;
-          update(event, d);
-        
-          // Apply or remove highlight
-          d3.selectAll(".nodes circle,.nodes text").classed("highlight", false); // Remove highlight from all
-          //d3.selectAll(".link").classed("highlight", false);
-        
-          if (isExpanding) {
-            highlightNodes(d);
-            update(event, d);
-          }
+    // Add circles
+    nodeEnter
+      .append("circle")
+      .attr("r", 5)
+      .attr("fill", (d) => {
+        if (d.data.type === "root") return "#fff"
+        return "#F3F3FF"
+      })
+      .attr("stroke", "#2593B8")
+      .attr("stroke-width", 1.5)
+      .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
+      .on("click", (event, d) => {
+        if (d.data.type === "ministry") {
+          event.stopPropagation()
+          onMinistryClick(d.data.id)
+        }
+      })
 
-          // Set a flag for ministers to shift position when expanded
-          if (d.depth === 1) {
-            if (isExpanding) {
-              ministersExpanded = true;  // Move ministers to the left
-            } else {
-              // Check if all minister nodes are collapsed
-              const allCollapsed = root.children.every(min => !min.children);
-              ministersExpanded = !allCollapsed;  // Reset to false if all are collapsed
-            }
-            update(event, d);
-          }
-          
-        });
+    // Add text
+    nodeEnter
+      .append("text")
+      .attr("dy", "0.31em")
+      .attr("x", 6)
+      .attr("text-anchor", "start")
+      .text((d) => d.data.name)
+      .attr("fill", "#F4F4F4")
+      .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
+      .on("click", (event, d) => {
+        if (d.data.type === "ministry") {
+          event.stopPropagation()
+          onMinistryClick(d.data.id)
+        }
+      })
 
-      nodeEnter.append("circle")
-        .attr("r", 5)
+    // Add loading indicators
+    nodeEnter
+      .append("text")
+      .attr("class", "loading-indicator")
+      .attr("dy", "0.31em")
+      .attr("x", -15)
+      .attr("text-anchor", "middle")
+      .text("⟳")
+      .attr("fill", "#ffeb3b")
+      .style("font-size", "12px")
+      .style("opacity", 0)
 
-      nodeEnter.append("text")
-        .attr("dy", "0.31em")
-        .attr("x", 6) // Always position the text 6 units to the right of the circle
-        .attr("text-anchor", "start") // Always anchor the text to the start (right)
-        .text((d) => d.data.name)
+    // Add initial links
+    gLink
+      .selectAll("path")
+      .data(links)
+      .enter()
+      .append("path")
+      .attr("d", (d) => {
+        const adjustedSourceY = d.source.depth === 1 ? width * 0.5 : d.source.y
+        const adjustedTargetY = d.target.depth === 1 ? width * 0.5 : d.target.y
 
-        // Transition nodes to their new position.
-      node.merge(nodeEnter)
-        .transition(transition)
-        .attr("transform", (d) => {
-          // Adjust the x for second layer (minister nodes)
-          let adjustedX = d.y;
-          if (d.depth === 1) {
-            // For depth 1 nodes (minister nodes), center them horizontally
-            //adjustedX = width / 2;
-            // If ministers are expanded, shift them left to 1/4 of the width
-            adjustedX = ministersExpanded ? width / 4 : width / 2;
-          }
-          return `translate(${adjustedX},${d.x})`;
+        return d3
+          .linkHorizontal()
+          .x((d) => d.y)
+          .y((d) => d.x)({
+          source: { x: d.source.x, y: adjustedSourceY },
+          target: { x: d.target.x, y: adjustedTargetY },
         })
-        .attr("fill-opacity", 1)
-        .attr("stroke-opacity", 1)
+      })
 
-        // Transition exiting nodes to the parent's new position.
-      node.exit()
-        .transition(transition)
-        .remove()
-        .attr("transform", (d) => `translate(${source.y},${source.x})`)
-        .attr("fill-opacity", 0)
-        .attr("stroke-opacity", 0);
-
-        // Update the links...
-      const link = gLink.selectAll("path")
-        .data(links, (d) => d.target.id);
-
-        // Enter any new links at the parent's previous position.
-      const linkEnter = link.enter()
-        .append("path")
-        .attr("d", (d) => {
-          const o = { x: source.x0, y: source.y0 };
-          return diagonal({ source: o, target: o });
-        });
-
-        // Transition links to their new position.
-      link.merge(linkEnter)
-        .transition(transition)
-        //.attr("d", diagonal);
-        .attr("d", (d) => {
-          // Adjust the link paths for the second layer nodes (minister nodes)
-          // const adjustedSourceY = d.source.depth === 1 ? width / 2 : d.source.y;
-          // const adjustedTargetY = d.target.depth === 1 ? width / 2 : d.target.y;
-    
-          // const sourcePosition = { x: d.source.x, y: adjustedSourceY };
-          // const targetPosition = { x: d.target.x, y: adjustedTargetY };
-    
-          // return diagonal({ source: sourcePosition, target: targetPosition });
-          const adjustedSourceY = d.source.depth === 1 ? (ministersExpanded ? width / 4 : width / 2) : d.source.y;
-          const adjustedTargetY = d.target.depth === 1 ? (ministersExpanded ? width / 4 : width / 2) : d.target.y;
-
-          return diagonal({ source: { x: d.source.x, y: adjustedSourceY }, target: { x: d.target.x, y: adjustedTargetY } });
-        });
-
-        // Transition existing nodes to the parent's new position.
-      link.exit()
-        .transition(transition)
-        .remove()
-        .attr("d", (d) => {
-          const o = { x: source.x, y: source.y };
-          return diagonal({ source: o, target: o });
-        });
-
-        // Stash the old positions for transition.
-      root.eachBefore((d) => {
-        d.x0 = d.x;
-        d.y0 = d.y;
-      });
-    }
-
-    function highlightNodes(node) {
-      // Highlight the clicked node
-      d3.select(`[data-id='${node.id}']`)
-      .selectAll("circle, text") // Target the circle inside the node
-      .classed("highlight", true);
-    
-      // Highlight all children recursively
-      if (node.children) {
-        node.children.forEach((child) => highlightNodes(child));
-      }
-    }
-
-    // Do the first update to the initial configuration of the tree — where a number of nodes
-    // are open (arbitrarily selected as the root).
-    root.x0 = dy / 2;
-    root.y0 = 0;
+    // Initialize positions
+    root.x0 = dy / 2
+    root.y0 = 0
     root.descendants().forEach((d, i) => {
-      d.id = i;
-      d._children = d.children;
-      if (d.depth > 0) d.children = null;
-    });
+      d.id = d.data.id || i
+      d.x0 = d.x
+      d.y0 = d.y
+    })
 
-    update(null, root);
-  }, [data, width]); // Re-run the effect when windowWidth changes
+    // Cleanup function
+    return () => {
+      d3.select(containerRef.current).selectAll("svg").remove()
+    }
+  }, [treeStructure, dimensions])
 
-  return <div ref={containerRef}></div>; // Render a div instead of returning SVG
-};
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        width: "100%",
+        height: "100%",
+        overflow: "auto",
+        backgroundColor: "#1e1e1e"
+      }}
+    />
+  )
+}
 
-export default TidyTree;
+export default TidyTree
