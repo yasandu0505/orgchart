@@ -16,7 +16,6 @@ const TidyTree = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const treeRef = useRef(null)
   const rootRef = useRef(null)
-  const [lastExpandedMinistries, setLastExpandedMinistries] = useState(new Set())
 
   // Handle container resize
   useEffect(() => {
@@ -181,6 +180,7 @@ const TidyTree = ({
       })
       .attr("stroke", "#2593B8")
       .attr("stroke-width", 1.5)
+      .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
 
     // Add text for new nodes
     nodeEnter
@@ -190,22 +190,25 @@ const TidyTree = ({
       .attr("text-anchor", "start")
       .text((d) => d.data.name)
       .attr("fill", "#F4F4F4")
+      .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
 
-    // Add expand/collapse indicators for ministries
-    nodeEnter
-      .filter((d) => d.data.type === "ministry")
-      .append("text")
-      .attr("class", "expand-indicator")
-      .attr("dy", "0.31em")
-      .attr("x", -15)
-      .attr("text-anchor", "middle")
-      .text((d) => (expandedMinistries.has(d.data.id) ? "−" : "+"))
-      .attr("fill", "#ffeb3b")
-      .style("font-size", "14px")
-      .style("cursor", "pointer")
+    // Add click handlers to ALL nodes (including existing ones)
+    node
+      .merge(nodeEnter)
+      .selectAll("circle")
       .on("click", (event, d) => {
-        event.stopPropagation()
-        if (d.data.type === "ministry" && onMinistryClick) {
+        if (d.data.type === "ministry") {
+          event.stopPropagation()
+          onMinistryClick(d.data.id)
+        }
+      })
+
+    node
+      .merge(nodeEnter)
+      .selectAll("text:not(.loading-indicator)")
+      .on("click", (event, d) => {
+        if (d.data.type === "ministry") {
+          event.stopPropagation()
           onMinistryClick(d.data.id)
         }
       })
@@ -347,9 +350,6 @@ const TidyTree = ({
         updateDepartments(ministryId, false)
       }
     })
-
-    // Update the last expanded state
-    setLastExpandedMinistries(new Set(expandedMinistriesArray))
   }, [expandedMinistriesArray, departmentData, dimensions])
 
   // Initial tree setup
@@ -447,7 +447,7 @@ const TidyTree = ({
       .attr("stroke-width", 1.5)
       .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
       .on("click", (event, d) => {
-        if (d.data.type === "ministry" && onMinistryClick) {
+        if (d.data.type === "ministry") {
           event.stopPropagation()
           onMinistryClick(d.data.id)
         }
@@ -463,7 +463,7 @@ const TidyTree = ({
       .attr("fill", "#F4F4F4")
       .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
       .on("click", (event, d) => {
-        if (d.data.type === "ministry" && onMinistryClick) {
+        if (d.data.type === "ministry") {
           event.stopPropagation()
           onMinistryClick(d.data.id)
         }
@@ -509,9 +509,6 @@ const TidyTree = ({
       d.y0 = d.y
     })
 
-    // Reset the last expanded state
-    setLastExpandedMinistries(new Set())
-
     // Cleanup function
     return () => {
       d3.select(containerRef.current).selectAll("svg").remove()
@@ -525,7 +522,8 @@ const TidyTree = ({
         width: "100%",
         height: "100%",
         overflow: "auto",
-        backgroundColor: "#1e1e1e"
+        backgroundColor: "#1e1e1e",
+        padding: "20px",
       }}
     />
   )

@@ -187,23 +187,28 @@ const App = () => {
     setIsTreeDataLoading(false)
   }
 
-  // Optimized ministry click handler using useCallback to prevent unnecessary re-renders
+  // Fixed ministry click handler with proper toggle logic
   const handleMinistryClick = useCallback(
     async (ministryId) => {
+      // Check if this ministry is already expanded
       const isCurrentlyExpanded = expandedMinistries.has(ministryId)
 
       if (isCurrentlyExpanded) {
-        // Collapse - remove from expanded set
+        // If expanded, collapse it by removing from the set
         setExpandedMinistries((prev) => {
           const newSet = new Set(prev)
           newSet.delete(ministryId)
           return newSet
         })
       } else {
-        // Expand - add to expanded set
-        setExpandedMinistries((prev) => new Set([...prev, ministryId]))
+        // If collapsed, expand it by adding to the set
+        setExpandedMinistries((prev) => {
+          const newSet = new Set(prev)
+          newSet.add(ministryId)
+          return newSet
+        })
 
-        // Fetch departments if not already loaded
+        // Then fetch departments if not already loaded
         if (!departmentData[ministryId]) {
           setLoadingDepartments((prev) => new Set([...prev, ministryId]))
 
