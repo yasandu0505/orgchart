@@ -4,9 +4,40 @@ import { useEffect, useState, useCallback } from "react"
 import TidyTree from "./components/TidyTree"
 import EventSlider from "./components/EventSlider"
 import { ErrorBoundary } from "react-error-boundary"
+import { major } from "@mui/system"
 
 // Decode minister name from hex format
 const decodeHexString = (hex) => decodeURIComponent(hex.replace(/(..)/g, "%$1"))
+
+// Helper function to decode hex string to readable text
+const hexToString = (hex) => {
+  try {
+    let str = '';
+    for (let i = 0; i < hex.length; i += 2) {
+      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    }
+    return str;
+  } catch (error) {
+    console.error('Error decoding hex string:', error);
+    return hex; // Return original if decoding fails
+  }
+};
+
+// Helper function to extract name from protobuf format
+const extractNameFromProtobuf = (nameObj) => {
+  try {
+    if (typeof nameObj === 'string') {
+      const parsed = JSON.parse(nameObj);
+      if (parsed.value) {
+        return hexToString(parsed.value);
+      }
+    }
+    return nameObj; // Return as-is if not in expected format
+  } catch (error) {
+    console.error('Error parsing protobuf name:', error);
+    return nameObj;
+  }
+};
 
 // Convert raw ministerial data into tree format
 const transformRawDataToTree = (rawData) => {
@@ -38,8 +69,8 @@ const transformRawDataToTree = (rawData) => {
   }
 }
 
-// Fetch departments for a specific ministry
-const fetchDepartments = async (ministryId) => {
+// Fetch departments for a specific ministry with date filtering
+const fetchDepartments = async (ministryId, selectedDate) => {
   try {
     const response = await fetch(`/v1/entities/${ministryId}/allrelations`, {
       method: "POST",
@@ -48,19 +79,73 @@ const fetchDepartments = async (ministryId) => {
       },
     })
 
+    const response2 = await fetch("/v1/entities/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        kind: {
+          major: "Organisation",
+          minor: "department" // Fixed typo: "minro" -> "minor"
+        }
+      })
+    })
+
     if (!response.ok) {
       throw new Error(`API error: ${response.statusText}`)
     }
 
-    const departments = await response.json()
+    if (!response2.ok) {
+      throw new Error(`API error: ${response2.statusText}`)
+    }
 
-    return departments
-      .filter((dept) => dept.name === "AS_DEPARTMENT")
-      .map((dept) => ({
-        name: dept.relatedEntityId,
-        id: dept.relatedEntityId,
-        type: "department",
-      }))
+    const departments = await response.json();
+    const departmentsWithName = await response2.json();
+
+    console.log('Departments with name:', departmentsWithName);
+
+    // Create a lookup map for department names with date filtering
+    const departmentNameMap = {};
+    if (departmentsWithName.body && Array.isArray(departmentsWithName.body)) {
+      departmentsWithName.body.forEach(dept => {
+        if (dept && dept.id) {
+          // Filter departments by selected date - only include if created <= selectedDate
+          const deptCreatedDate = dept.created?.split("T")[0];
+          if (!selectedDate || !deptCreatedDate || deptCreatedDate <= selectedDate) {
+            const decodedName = extractNameFromProtobuf(dept.name);
+            departmentNameMap[dept.id] = decodedName || dept.id;
+          }
+        }
+      });
+    }
+
+    console.log('Department name map (filtered by date):', departmentNameMap);
+
+    // Ensure we always return a valid array, even if empty
+    if (!Array.isArray(departments)) {
+      console.warn('Departments response is not an array:', departments);
+      return [];
+    }
+
+    const filteredDepartments = departments
+      .filter((dept) => dept && dept.name === "AS_DEPARTMENT" && dept.relatedEntityId)
+      .map((dept) => {
+        const deptName = departmentNameMap[dept.relatedEntityId] || dept.relatedEntityId;
+        return {
+          name: deptName,
+          id: dept.relatedEntityId,
+          type: "department",
+        };
+      })
+      .filter((dept) => {
+        // Only include departments that have valid data
+        return dept && dept.id && dept.name && (!selectedDate || departmentNameMap.hasOwnProperty(dept.id));
+      });
+
+    console.log('Filtered departments:', filteredDepartments);
+    return filteredDepartments;
+
   } catch (error) {
     console.error(`Error fetching departments for ministry ${ministryId}:`, error)
     return []
@@ -72,14 +157,14 @@ const fetchGazetteData = async () => {
     const response = await fetch("/v1/entities/search", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         kind: {
           major: "Organisation",
-          minor: "minister",
-        },
-      }),
+          minor: "minister"
+        }
+      })
     })
 
     if (!response.ok) {
@@ -213,7 +298,7 @@ const App = () => {
           setLoadingDepartments((prev) => new Set([...prev, ministryId]))
 
           try {
-            const departments = await fetchDepartments(ministryId)
+            const departments = await fetchDepartments(ministryId, selectedDate)
 
             setDepartmentData((prev) => ({
               ...prev,
