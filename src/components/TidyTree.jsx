@@ -17,7 +17,6 @@ const TidyTree = ({
   const treeRef = useRef(null)
   const rootRef = useRef(null)
   const [lastExpandedMinistries, setLastExpandedMinistries] = useState(new Set())
-  const [isProcessing, setIsProcessing] = useState(false)
 
   // Handle container resize
   useEffect(() => {
@@ -92,10 +91,9 @@ const TidyTree = ({
     )
   }
 
+  // Update function to add/remove departments for a specific ministry
   const updateDepartments = (ministryId, isExpanding) => {
-    if (!rootRef.current || !treeRef.current || isProcessing) return
-
-    setIsProcessing(true)
+    if (!rootRef.current || !treeRef.current) return
 
     const root = rootRef.current
     const tree = treeRef.current
@@ -119,7 +117,7 @@ const TidyTree = ({
     if (isExpanding) {
       // Add departments to the ministry node
       const departments = departmentData[ministryId] || []
-      ministryNode.children = departments.map((dept, index) => ({
+      ministryNode.children = departments.map((dept) => ({
         data: dept,
         parent: ministryNode,
         depth: ministryNode.depth + 1,
@@ -171,13 +169,6 @@ const TidyTree = ({
       .attr("data-id", (d) => d.data.id || "root")
       .attr("fill-opacity", 0)
       .attr("stroke-opacity", 0)
-      .on("click", (event, d) => {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        if (d.data.type === "ministry" && onMinistryClick) {
-          onMinistryClick(d.data.id)
-        }
-      })
 
     // Add circles for new nodes
     nodeEnter
@@ -199,6 +190,25 @@ const TidyTree = ({
       .attr("text-anchor", "start")
       .text((d) => d.data.name)
       .attr("fill", "#F4F4F4")
+
+    // Add expand/collapse indicators for ministries
+    nodeEnter
+      .filter((d) => d.data.type === "ministry")
+      .append("text")
+      .attr("class", "expand-indicator")
+      .attr("dy", "0.31em")
+      .attr("x", -15)
+      .attr("text-anchor", "middle")
+      .text((d) => (expandedMinistries.has(d.data.id) ? "−" : "+"))
+      .attr("fill", "#ffeb3b")
+      .style("font-size", "14px")
+      .style("cursor", "pointer")
+      .on("click", (event, d) => {
+        event.stopPropagation()
+        if (d.data.type === "ministry" && onMinistryClick) {
+          onMinistryClick(d.data.id)
+        }
+      })
 
     // Update all nodes positions with better layout
     node
@@ -310,40 +320,37 @@ const TidyTree = ({
     setTimeout(() => {
       highlightPath(ministryId)
     }, duration + 50)
-
-    setTimeout(() => {
-      setIsProcessing(false)
-    }, duration + 100)
   }
 
+  // Watch for changes in expanded ministries and update accordingly
   useEffect(() => {
-    if (!rootRef.current || isProcessing) return
+    if (!rootRef.current) return
 
-    const currentExpanded = new Set(expandedMinistriesArray)
-    const lastExpanded = lastExpandedMinistries
+    // Get the current expanded ministries from the tree
+    const currentExpanded = new Set()
+    rootRef.current.eachBefore((d) => {
+      if (d.data.type === "ministry" && d.children) {
+        currentExpanded.add(d.data.id)
+      }
+    })
 
-    // Find ministries that need to be expanded (newly added)
-    const toExpand = [...currentExpanded].filter((id) => !lastExpanded.has(id))
-
-    // Find ministries that need to be collapsed (removed)
-    const toCollapse = [...lastExpanded].filter((id) => !currentExpanded.has(id))
-
-    // Process only one change at a time to prevent conflicts
-    if (toExpand.length > 0) {
-      const ministryId = toExpand[0]
-      if (departmentData[ministryId]) {
+    // Find ministries that need to be expanded
+    expandedMinistriesArray.forEach((ministryId) => {
+      if (!currentExpanded.has(ministryId) && departmentData[ministryId]) {
         updateDepartments(ministryId, true)
       }
-    } else if (toCollapse.length > 0) {
-      const ministryId = toCollapse[0]
-      updateDepartments(ministryId, false)
-    }
+    })
 
-    // Update the last expanded state only if we processed changes
-    if (toExpand.length > 0 || toCollapse.length > 0) {
-      setLastExpandedMinistries(currentExpanded)
-    }
-  }, [expandedMinistriesArray, departmentData, dimensions, isProcessing])
+    // Find ministries that need to be collapsed
+    Array.from(currentExpanded).forEach((ministryId) => {
+      if (!expandedMinistriesArray.includes(ministryId)) {
+        updateDepartments(ministryId, false)
+      }
+    })
+
+    // Update the last expanded state
+    setLastExpandedMinistries(new Set(expandedMinistriesArray))
+  }, [expandedMinistriesArray, departmentData, dimensions])
 
   // Initial tree setup
   useEffect(() => {
@@ -427,13 +434,6 @@ const TidyTree = ({
         return `translate(${adjustedY},${d.x})`
       })
       .attr("data-id", (d) => d.data.id || "root")
-      .on("click", (event, d) => {
-        event.preventDefault()
-        event.stopImmediatePropagation()
-        if (d.data.type === "ministry" && onMinistryClick) {
-          onMinistryClick(d.data.id)
-        }
-      })
 
     // Add circles
     nodeEnter
@@ -446,6 +446,12 @@ const TidyTree = ({
       .attr("stroke", "#2593B8")
       .attr("stroke-width", 1.5)
       .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
+      .on("click", (event, d) => {
+        if (d.data.type === "ministry" && onMinistryClick) {
+          event.stopPropagation()
+          onMinistryClick(d.data.id)
+        }
+      })
 
     // Add text
     nodeEnter
@@ -456,6 +462,12 @@ const TidyTree = ({
       .text((d) => d.data.name)
       .attr("fill", "#F4F4F4")
       .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
+      .on("click", (event, d) => {
+        if (d.data.type === "ministry" && onMinistryClick) {
+          event.stopPropagation()
+          onMinistryClick(d.data.id)
+        }
+      })
 
     // Add loading indicators
     nodeEnter
