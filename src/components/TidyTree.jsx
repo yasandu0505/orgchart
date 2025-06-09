@@ -227,7 +227,7 @@ const TidyTree = ({
           adjustedY = ministersExpanded ? width * 0.25 : width * 0.5
         } else if (d.depth === 2) {
           // Department nodes - ensure they fit within screen
-          const maxDepartmentX = width - 200 // Leave 200px margin from right edge
+          const maxDepartmentX = width - 450 // Leave 200px margin from right edge
           adjustedY = Math.min(d.y, maxDepartmentX)
         }
 
@@ -286,7 +286,7 @@ const TidyTree = ({
           adjustedTargetY = ministersExpanded ? width * 0.25 : width * 0.5
         }
         if (d.target.depth === 2) {
-          const maxDepartmentX = width - 200
+          const maxDepartmentX = width - 450
           adjustedTargetY = Math.min(d.target.y, maxDepartmentX)
         }
 
