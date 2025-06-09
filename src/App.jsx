@@ -1,42 +1,42 @@
-import React, { useEffect, useState } from "react";
-import TidyTree from "./components/TidyTree";
-import EventSlider from "./components/EventSlider";
-import { ErrorBoundary } from "react-error-boundary";
+"use client"
+
+import { useEffect, useState, useCallback } from "react"
+import TidyTree from "./components/TidyTree"
+import EventSlider from "./components/EventSlider"
+import { ErrorBoundary } from "react-error-boundary"
 
 // Decode minister name from hex format
-const decodeHexString = (hex) =>
-  decodeURIComponent(hex.replace(/(..)/g, "%$1"));
+const decodeHexString = (hex) => decodeURIComponent(hex.replace(/(..)/g, "%$1"))
 
 // Convert raw ministerial data into tree format
 const transformRawDataToTree = (rawData) => {
   const children = rawData.map((item) => {
-    let name = item.name;
-    let ministryId = item.id; // Store the ministry ID for later use
-    
+    let name = item.name
+    const ministryId = item.id
+
     try {
-      const parsed = JSON.parse(item.name);
+      const parsed = JSON.parse(item.name)
       if (parsed?.value) {
-        name = decodeHexString(parsed.value);
+        name = decodeHexString(parsed.value)
       }
     } catch (e) {
-      // Fallback to raw name if JSON.parse fails
-      name = item.name;
+      name = item.name
     }
 
-    return { 
-      name, 
-      children: [], 
-      id: ministryId, // Add ministry ID to the node
-      type: 'ministry' // Add type to identify ministry nodes
-    };
-  });
+    return {
+      name,
+      children: [],
+      id: ministryId,
+      type: "ministry",
+    }
+  })
 
   return {
     name: "Government",
     children,
-    type: 'root'
-  };
-};
+    type: "root",
+  }
+}
 
 // Fetch departments for a specific ministry
 const fetchDepartments = async (ministryId) => {
@@ -45,28 +45,27 @@ const fetchDepartments = async (ministryId) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-      } // Empty JSON body for POST request
-    });
-    
+      },
+    })
+
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
+      throw new Error(`API error: ${response.statusText}`)
     }
 
-    const departments = await response.json();
-    
-    // Transform department data into simple array of department info
+    const departments = await response.json()
+
     return departments
-      .filter(dept => dept.name === "AS_DEPARTMENT") // Filter only department relations
-      .map(dept => ({
-        name: dept.relatedEntityId, // Use relatedEntityId as department name
+      .filter((dept) => dept.name === "AS_DEPARTMENT")
+      .map((dept) => ({
+        name: dept.relatedEntityId,
         id: dept.relatedEntityId,
-        type: 'department'
-      }));
+        type: "department",
+      }))
   } catch (error) {
-    console.error(`Error fetching departments for ministry ${ministryId}:`, error);
-    return [];
+    console.error(`Error fetching departments for ministry ${ministryId}:`, error)
+    return []
   }
-};
+}
 
 const fetchGazetteData = async () => {
   try {
@@ -81,154 +80,243 @@ const fetchGazetteData = async () => {
           minor: "minister",
         },
       }),
-    });
+    })
 
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
+      throw new Error(`API error: ${response.statusText}`)
     }
 
-    const result = await response.json();
+    const result = await response.json()
     const dates = result.body
       .map((item) => item.created?.split("T")[0])
       .filter((date) => !!date)
       .filter((value, index, self) => self.indexOf(value) === index)
-      .sort();
+      .sort()
 
-    return { dates, rawData: result.body };
+    return { dates, rawData: result.body }
   } catch (error) {
-    console.error("Error fetching gazette dates from API:", error);
+    console.error("Error fetching gazette dates from API:", error)
     return {
       dates: [],
       rawData: [],
-    };
+    }
   }
-};
+}
+
+// Add this function before the App component
+function ErrorFallback({ error, resetErrorBoundary }) {
+  return (
+    <div
+      style={{
+        padding: "20px",
+        backgroundColor: "#1e1e1e",
+        color: "#fff",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <h2>Something went wrong:</h2>
+      <pre style={{ color: "#ff6b6b", marginBottom: "20px" }}>{error.message}</pre>
+      <button
+        onClick={resetErrorBoundary}
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#4CAF50",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+        }}
+      >
+        Try again
+      </button>
+    </div>
+  )
+}
 
 const App = () => {
-  const [treeData, setTreeData] = useState(null);
-  const [isTreeDataLoading, setIsTreeDataLoading] = useState(true);
-  const [gazetteData, setGazetteData] = useState([]);
-  const [allData, setAllData] = useState({});
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [departmentData, setDepartmentData] = useState({}); // Store departments separately
-  const [loadingDepartments, setLoadingDepartments] = useState(new Set());
+  const [treeData, setTreeData] = useState(null)
+  const [isTreeDataLoading, setIsTreeDataLoading] = useState(true)
+  const [gazetteData, setGazetteData] = useState([])
+  const [allData, setAllData] = useState({})
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [departmentData, setDepartmentData] = useState({})
+  const [loadingDepartments, setLoadingDepartments] = useState(new Set())
+  const [expandedMinistries, setExpandedMinistries] = useState(new Set())
 
   useEffect(() => {
     const initializeApp = async () => {
       if (gazetteData.length === 0) {
-        const { dates, rawData } = await fetchGazetteData();
-        setGazetteData(dates);
+        const { dates, rawData } = await fetchGazetteData()
+        setGazetteData(dates)
 
         if (dates.length > 0) {
-          const latestDate = dates[dates.length - 1]; // show latest by default
-          const transformed = transformRawDataToTree(rawData);
-          setTreeData(transformed);
-          setSelectedDate(latestDate);
-          setAllData({ [latestDate]: transformed });
+          const latestDate = dates[dates.length - 1]
+          const transformed = transformRawDataToTree(rawData)
+          setTreeData(transformed)
+          setSelectedDate(latestDate)
+          setAllData({ [latestDate]: transformed })
         }
 
-        setIsTreeDataLoading(false);
+        setIsTreeDataLoading(false)
       }
-    };
+    }
 
-    initializeApp();
-  }, []);
+    initializeApp()
+  }, [])
 
   const handleDateChange = async (date) => {
-    setIsTreeDataLoading(true);
-    setSelectedDate(date);
-    // Clear department data when changing dates
-    setDepartmentData({});
-    
+    setIsTreeDataLoading(true)
+    setSelectedDate(date)
+    // Clear department data and expanded state when changing dates
+    setDepartmentData({})
+    setExpandedMinistries(new Set())
+
     if (!allData[date]) {
-      const { rawData } = await fetchGazetteData(); // You might want to fetch only specific date's data
-      const filteredData = rawData.filter((item) =>
-        item.created?.startsWith(date)
-      );
-      const transformed = transformRawDataToTree(filteredData);
-      setAllData((prev) => ({ ...prev, [date]: transformed }));
-      setTreeData(transformed);
+      const { rawData } = await fetchGazetteData()
+      const filteredData = rawData.filter((item) => item.created?.startsWith(date))
+      const transformed = transformRawDataToTree(filteredData)
+      setAllData((prev) => ({ ...prev, [date]: transformed }))
+      setTreeData(transformed)
     } else {
-      setTreeData(allData[date]);
+      setTreeData(allData[date])
     }
-    setIsTreeDataLoading(false);
-  };
+    setIsTreeDataLoading(false)
+  }
 
-  // Handle ministry node click to fetch departments
-  const handleMinistryClick = async (ministryId) => {
-    // Check if departments are already loaded for this ministry
-    if (departmentData[ministryId]) {
-      return; // Departments already loaded
-    }
+  // Optimized ministry click handler using useCallback to prevent unnecessary re-renders
+  const handleMinistryClick = useCallback(
+    async (ministryId) => {
+      const isCurrentlyExpanded = expandedMinistries.has(ministryId)
 
-    // Show loading state for this specific ministry
-    setLoadingDepartments(prev => new Set([...prev, ministryId]));
+      if (isCurrentlyExpanded) {
+        // Collapse - remove from expanded set
+        setExpandedMinistries((prev) => {
+          const newSet = new Set(prev)
+          newSet.delete(ministryId)
+          return newSet
+        })
+      } else {
+        // Expand - add to expanded set
+        setExpandedMinistries((prev) => new Set([...prev, ministryId]))
 
-    try {
-      const departments = await fetchDepartments(ministryId);
-      
-      // Store departments separately without modifying tree structure
-      setDepartmentData(prev => ({
-        ...prev,
-        [ministryId]: departments
-      }));
+        // Fetch departments if not already loaded
+        if (!departmentData[ministryId]) {
+          setLoadingDepartments((prev) => new Set([...prev, ministryId]))
 
-    } catch (error) {
-      console.error(`Failed to fetch departments for ministry ${ministryId}:`, error);
-    } finally {
-      // Remove loading state for this ministry
-      setLoadingDepartments(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(ministryId);
-        return newSet;
-      });
-    }
-  };
+          try {
+            const departments = await fetchDepartments(ministryId)
+
+            setDepartmentData((prev) => ({
+              ...prev,
+              [ministryId]: departments,
+            }))
+          } catch (error) {
+            console.error(`Failed to fetch departments for ministry ${ministryId}:`, error)
+          } finally {
+            setLoadingDepartments((prev) => {
+              const newSet = new Set(prev)
+              newSet.delete(ministryId)
+              return newSet
+            })
+          }
+        }
+      }
+    },
+    [expandedMinistries, departmentData],
+  )
 
   const timelineData = gazetteData.map((date) => ({
     date,
     event: `OrgChart at ${date}`,
-  }));
+  }))
 
   return (
-    <ErrorBoundary>
-      <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
         {/* Header */}
-        <div style={{ height: "50px", padding: "10px 20px", backgroundColor: "#1e1e1e", borderBottom: "1px solid #333", flexShrink: 0 }}>
-          <h2 style={{ margin: 0 }}>Organization Chart</h2>
+        <div
+          style={{
+            height: "50px",
+            padding: "10px 20px",
+            backgroundColor: "#1e1e1e",
+            borderBottom: "1px solid #333",
+            flexShrink: 0,
+          }}
+        >
+          <h2 style={{ margin: 0, color: "#fff" }}>Organization Chart</h2>
         </div>
 
         {/* Slider */}
-        <div style={{ height: "120px", backgroundColor: "#1e1e1e", borderBottom: "1px solid #333", padding: "20px", flexShrink: 0, width: "100%", display: "flex", alignItems: "center" }}>
-          <ErrorBoundary>
+        <div
+          style={{
+            height: "120px",
+            backgroundColor: "#1e1e1e",
+            borderBottom: "1px solid #333",
+            padding: "20px",
+            flexShrink: 0,
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
             {gazetteData.length > 0 && (
-              <EventSlider
-                data={timelineData}
-                onSelectDate={handleDateChange}
-                selectedDate={selectedDate}
-              />
+              <EventSlider data={timelineData} onSelectDate={handleDateChange} selectedDate={selectedDate} />
             )}
           </ErrorBoundary>
         </div>
 
         {/* Tree */}
-        <div style={{ flex: 1, backgroundColor: "#1e1e1e", overflow: "auto", padding: "20px", position: "relative" }}>
-          <ErrorBoundary>
+        <div
+          style={{
+            flex: 1,
+            backgroundColor: "#1e1e1e",
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
             {isTreeDataLoading ? (
-              <p style={{ color: "#fff" }}>Loading...</p>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
+                  color: "#fff",
+                }}
+              >
+                <p>Loading...</p>
+              </div>
             ) : (
-              <TidyTree 
-                data={treeData} 
+              <TidyTree
+                data={treeData}
                 onMinistryClick={handleMinistryClick}
                 loadingDepartments={loadingDepartments}
                 departmentData={departmentData}
+                expandedMinistries={expandedMinistries}
               />
             )}
           </ErrorBoundary>
         </div>
       </div>
     </ErrorBoundary>
-  );
-};
+  )
+}
 
-export default App;
+export default App
