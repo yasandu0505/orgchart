@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import  { useState, useRef, useEffect } from "react";
 import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -27,12 +27,29 @@ const presidents = [
         image:
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdOoGPxjbGmDh3erxJupQRQRIDT7IwIBNwbw&s",
     },
+    
      
 ];
 
 export default function PresidencyTimeline() {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const scrollRef = useRef(null);
+    const [centerContent, setCenterContent] = useState(false);
+
+    useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const checkIfCentered = () => {
+        const shouldCenter = container.scrollWidth <= container.clientWidth;
+        setCenterContent(shouldCenter);
+    };
+
+    checkIfCentered();
+    window.addEventListener("resize", checkIfCentered);
+    return () => window.removeEventListener("resize", checkIfCentered);
+}, []);
+
 
     // Scroll timeline container left/right by 100px on arrow click
     const scroll = (direction) => {
@@ -95,6 +112,8 @@ export default function PresidencyTimeline() {
                     "&::-webkit-scrollbar": { display: "none" },
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
+                    justifyContent: centerContent ? "center" : "start",
+
                 }}
             >
                 {presidents.map((president, index) => {
