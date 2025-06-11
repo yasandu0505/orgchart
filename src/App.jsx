@@ -69,16 +69,25 @@ const transformRawDataToTree = (rawData) => {
   }
 }
 
-// Fetch departments for a specific ministry with date filtering
+// Fetch active departments for a specific ministry with date filtering
 const fetchDepartments = async (ministryId, selectedDate) => {
   try {
-    const response = await fetch(`/v1/entities/${ministryId}/allrelations`, {
+    // Fetch active department relations for the ministry at the selected date
+    const response = await fetch(`/v1/entities/${ministryId}/relations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        relatedEntityId: "",
+        startTime: `${selectedDate}T00:00:00Z`,
+        endTime: "",
+        id: "",
+        name: "AS_DEPARTMENT"
+      })
     })
 
+    // Fetch all department protobuf data
     const response2 = await fetch("/v1/entities/search", {
       method: "POST",
       headers: {
@@ -100,50 +109,46 @@ const fetchDepartments = async (ministryId, selectedDate) => {
       throw new Error(`API error: ${response2.statusText}`)
     }
 
-    const departments = await response.json();
+    const activeDepartmentRelations = await response.json();
     const departmentsWithName = await response2.json();
 
+    console.log('Active department relations:', activeDepartmentRelations);
     console.log('Departments with name:', departmentsWithName);
 
-    // Create a lookup map for department names with date filtering
+    // Extract the relatedEntityIds from the active department relations
+    const activeDepartmentIds = activeDepartmentRelations
+      .filter(relation => relation.relatedEntityId && relation.name === "AS_DEPARTMENT")
+      .map(relation => relation.relatedEntityId);
+
+    console.log('Active department IDs:', activeDepartmentIds);
+
+    // Create a lookup map for department names
     const departmentNameMap = {};
     if (departmentsWithName.body && Array.isArray(departmentsWithName.body)) {
       departmentsWithName.body.forEach(dept => {
         if (dept && dept.id) {
-          // Filter departments by selected date - only include if created <= selectedDate
-          const deptCreatedDate = dept.created?.split("T")[0];
-          if (!selectedDate || !deptCreatedDate || deptCreatedDate <= selectedDate) {
-            const decodedName = extractNameFromProtobuf(dept.name);
-            departmentNameMap[dept.id] = decodedName || dept.id;
-          }
+          const decodedName = extractNameFromProtobuf(dept.name);
+          departmentNameMap[dept.id] = decodedName || dept.id;
         }
       });
     }
 
-    console.log('Department name map (filtered by date):', departmentNameMap);
+    console.log('Department name map:', departmentNameMap);
 
-    // Ensure we always return a valid array, even if empty
-    if (!Array.isArray(departments)) {
-      console.warn('Departments response is not an array:', departments);
-      return [];
-    }
-
-    const filteredDepartments = departments
-      .filter((dept) => dept && dept.name === "AS_DEPARTMENT" && dept.relatedEntityId)
-      .map((dept) => {
-        const deptName = departmentNameMap[dept.relatedEntityId] || dept.relatedEntityId;
+    // Map active department IDs with the protobuf data to get department names
+    const filteredDepartments = activeDepartmentIds
+      .filter(deptId => departmentNameMap.hasOwnProperty(deptId))
+      .map(deptId => {
+        const deptName = departmentNameMap[deptId];
         return {
           name: deptName,
-          id: dept.relatedEntityId,
+          id: deptId,
           type: "department",
         };
       })
-      .filter((dept) => {
-        // Only include departments that have valid data
-        return dept && dept.id && dept.name && (!selectedDate || departmentNameMap.hasOwnProperty(dept.id));
-      });
+      .filter(dept => dept && dept.id && dept.name);
 
-    console.log('Filtered departments:', filteredDepartments);
+    console.log('Filtered active departments:', filteredDepartments);
     return filteredDepartments;
 
   } catch (error) {
