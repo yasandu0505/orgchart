@@ -1,5 +1,6 @@
 import { Box, Button, Card, Stack, TextField } from '@mui/material';
 import PresidencyTimeline from './PresidencyTimeline';
+import GazetteTimeline from './GazetteTimeline';
 const ModernTree = () => {
     return (
         <>
@@ -11,7 +12,7 @@ const ModernTree = () => {
                 }}
             >
 
-                {/* Centered search bar below */}
+                {/* Centered search bar */}
                 <Box
                     sx={{
                         display: 'flex',
@@ -23,7 +24,7 @@ const ModernTree = () => {
                     }}
                 >
                     <TextField
-                        label="Search Department"
+                        label="Search"
                         variant="outlined"
                         size="small"
                         fullWidth
@@ -63,6 +64,11 @@ const ModernTree = () => {
                 </Box>
 
                 <PresidencyTimeline />
+                    
+
+
+
+
                 {/* Centered button row */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2, padding: 2 }}>
                     <Stack direction="row" spacing={3}>
@@ -83,13 +89,15 @@ const ModernTree = () => {
                     </Stack>
                 </Box>
                 <Card>
+                    
                     <Box sx={{ padding: 2, textAlign: 'center' }}>
+                        <GazetteTimeline data={[{date: "20202"}, {date: "20202"}, {date: "20202"}, {date: "20202"}, {date: "20202"}]}/>
+
                         <h2>Modern View</h2>
                         <p>Ministers</p>
                     </Box>
                 </Card>
-
-
+                        
 
             </Box>
 
