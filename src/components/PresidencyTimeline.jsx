@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import GazetteTimeline from "./GazetteTimeline"; 
+import GazetteTimeline from "./GazetteTimeline";
 
 const presidents = [
     {
@@ -10,23 +10,43 @@ const presidents = [
         year: "2015–2019",
         image:
             "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQ81rAgch6umHN8b0vOk6OQDgeumC2Mlb4kU7GNm2lC8uUrjJfh5IykCTJRnK_LE77JMFc_JBtquU9a8G2SsW2vMcBt5AdvHVwwsNW30Fo",
+        dates: [
+            { date: "2024-01-01" },
+            { date: "2024-08-15" },
+            { date: "2024-06-11" },
+        ]
     },
     {
         name: "Gotabaya Rajapaksa",
         year: "2019–2022",
         image:
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY5DIe5WDP4wAlZxj5esqZ10RdUTz8YKBInw&s",
+        dates: [
+            { date: "2024-01-01" },
+            { date: "2024-03-15" },
+            { date: "2024-06-12" },
+        ]
     },
     {
         name: "Ranil Wickremesinghe",
         year: "2022–2024",
         image: "https://unp.lk/assets/main/images/ranil/president-ranil.jpg",
+        dates: [
+            { date: "2024-01-01" },
+            { date: "2024-03-15" },
+            { date: "2024-00-13" },
+        ]
     },
     {
         name: "Anura Kumara Dissanayake",
         year: "2024–present",
         image:
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdOoGPxjbGmDh3erxJupQRQRIDT7IwIBNwbw&s",
+        dates: [
+            { date: "2024-01-01" },
+            { date: "2024-03-15" },
+            { date: "2024-06-14" },
+        ]
     },
 
 
@@ -103,13 +123,13 @@ export default function PresidencyTimeline() {
                     overflowX: "auto",
                     gap: 14,
                     padding: 4,
-                    paddingLeft: 10,
+                    paddingLeft: 20,
                     paddingRight: 10,
                     flexWrap: "nowrap",
                     scrollBehavior: "smooth",
                     flexGrow: 1,
                     position: "relative",
-                    zIndex: 1, 
+                    zIndex: 1,
                     "&::-webkit-scrollbar": { display: "none" },
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
@@ -159,13 +179,9 @@ export default function PresidencyTimeline() {
                             </Box>
 
                             {isSelected && (
-                                <Box sx={{ display: "flex", alignItems: "center", mt: -4 , ml: -12, mr: -12 }}>
+                                <Box sx={{ display: "flex", alignItems: "center", mt: -4, ml: -12, mr: -12 }}>
                                     <GazetteTimeline
-                                        data={[
-                                            { date: "2024-01-01" },
-                                            { date: "2024-03-15" },
-                                            { date: "2024-06-10" },
-                                        ]}
+                                        data={presidents[selectedIndex].dates}
                                         onSelectDate={(date) => console.log("Selected date:", date)}
                                     />
                                 </Box>

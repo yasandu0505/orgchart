@@ -5,11 +5,11 @@ const App = () => {
 
   return (
     <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<OrgChart />} />
+      <Routes>
+        <Route path="/" element={<OrgChart />} />
 
-        </Routes>
-      
+      </Routes>
+
     </BrowserRouter>
   );
 };

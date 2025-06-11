@@ -1,6 +1,6 @@
 import { Box, Button, Card, Stack, TextField } from '@mui/material';
 import PresidencyTimeline from './PresidencyTimeline';
-import GazetteTimeline from './GazetteTimeline';
+
 const OrgChart = () => {
     return (
         <>
@@ -64,8 +64,6 @@ const OrgChart = () => {
                 </Box>
 
                 <PresidencyTimeline />
-
-
 
 
 
