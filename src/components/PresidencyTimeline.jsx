@@ -1,9 +1,15 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const presidents = [
+     {
+        name: "Maitripala Sirisena",
+        year: "2015–2019",
+        image:
+            "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQ81rAgch6umHN8b0vOk6OQDgeumC2Mlb4kU7GNm2lC8uUrjJfh5IykCTJRnK_LE77JMFc_JBtquU9a8G2SsW2vMcBt5AdvHVwwsNW30Fo",
+    },
     {
         name: "Gotabaya Rajapaksa",
         year: "2019–2022",
@@ -21,6 +27,7 @@ const presidents = [
         image:
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdOoGPxjbGmDh3erxJupQRQRIDT7IwIBNwbw&s",
     },
+     
 ];
 
 export default function PresidencyTimeline() {
@@ -44,16 +51,31 @@ export default function PresidencyTimeline() {
                 display: "flex",
                 alignItems: "center",
                 maxWidth: "100%",
+                overflow: "hidden", // ensures the line doesn’t overflow
             }}
         >
             {/* Left Arrow */}
             <IconButton
                 onClick={() => scroll("left")}
-                sx={{ zIndex: 10 }}
+                sx={{ zIndex: 10, mt: -7 }}
                 aria-label="scroll left"
+                
             >
                 <ArrowBackIosNewIcon />
             </IconButton>
+
+            {/* Timeline Line */}
+            <Box
+                sx={{
+                    position: "absolute",
+                    top: "calc(50% - 30px)", // vertically aligns with avatar center
+                    left: 60, // offset to account for left arrow button
+                    right: 60, // offset to account for right arrow button
+                    height: "3px",
+                    backgroundColor: "#ccc",
+                    zIndex: 0,
+                }}
+            />
 
             {/* Scrollable timeline container */}
             <Box
@@ -61,50 +83,39 @@ export default function PresidencyTimeline() {
                 sx={{
                     display: "flex",
                     overflowX: "auto",
-                    justifyContent: "center",
+                    gap: 14,
                     padding: 4,
-                    gap: 15,
+                    paddingLeft: 10,
+                    paddingRight: 10,
                     flexWrap: "nowrap",
                     scrollBehavior: "smooth",
                     flexGrow: 1,
                     position: "relative",
-                    /* Hide scrollbar for WebKit browsers */
-                    "&::-webkit-scrollbar": {
-                        display: "none",
-                    },
-                    /* Hide scrollbar for Firefox */
+                    zIndex: 1, // avatars above the line
+                    "&::-webkit-scrollbar": { display: "none" },
                     scrollbarWidth: "none",
-                    /* Hide scrollbar for IE, Edge */
                     msOverflowStyle: "none",
                 }}
             >
-                {/* Timeline line behind avatars */}
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: "50px", // align with avatar center
-                        left: 0,
-                        right: 0,
-                        height: "3px",
-                        backgroundColor: "#ccc",
-                        zIndex: 0,
-                    }}
-                />
-
                 {presidents.map((president, index) => {
                     const isSelected = index === selectedIndex;
-
                     return (
                         <Box
                             key={index}
-                            onClick={() => setSelectedIndex(index)}
+                            onClick={() => {
+                                setSelectedIndex(index);
+                                scrollRef.current?.children[index]?.scrollIntoView({
+                                    behavior: "smooth",
+                                    inline: "center",
+                                });
+                            }}
                             sx={{
                                 cursor: "pointer",
                                 textAlign: "center",
                                 transform: isSelected ? "scale(1.3)" : "scale(1)",
                                 transition: "all 0.3s ease",
-                                position: "relative",
-                                zIndex: 1,
+                                minWidth: 100,
+                                flexShrink: 0,
                             }}
                         >
                             <Avatar
@@ -113,9 +124,7 @@ export default function PresidencyTimeline() {
                                 sx={{
                                     width: 40,
                                     height: 40,
-                                    border: isSelected
-                                        ? "3px solid #1976d2"
-                                        : "2px solid gray",
+                                    border: isSelected ? "3px solid #1976d2" : "2px solid gray",
                                     margin: "auto",
                                     backgroundColor: "white",
                                     filter: isSelected ? "none" : "grayscale(50%)",
@@ -135,11 +144,12 @@ export default function PresidencyTimeline() {
             {/* Right Arrow */}
             <IconButton
                 onClick={() => scroll("right")}
-                sx={{ zIndex: 10 }}
+                sx={{ zIndex: 10, mt: -7 }}
                 aria-label="scroll right"
             >
                 <ArrowForwardIosIcon />
             </IconButton>
         </Box>
+
     );
 }
