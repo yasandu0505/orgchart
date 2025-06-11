@@ -152,39 +152,38 @@ const fetchDepartments = async (ministryId, selectedDate) => {
   }
 }
 
+// Updated function to fetch gazette dates from text file
 const fetchGazetteData = async () => {
   try {
-    const response = await fetch("/v1/entities/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        kind: {
-          major: "Organisation",
-          minor: "minister"
-        }
-      })
-    })
-
+    // Fetch dates from the text file
+    const response = await fetch('/gazette_dates.txt');
+    
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`)
+      throw new Error(`Failed to fetch gazette dates: ${response.statusText}`);
     }
+    
+    const textContent = await response.text();
+    
+    // Parse the text content to extract dates
+    // Assuming each date is on a new line and in YYYY-MM-DD format
+    const dates = textContent
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line && line.match(/^\d{4}-\d{2}-\d{2}$/)) // Filter valid date format
+      .sort(); // Sort dates
 
-    const result = await response.json()
-    const dates = result.body
-      .map((item) => item.created?.split("T")[0])
-      .filter((date) => !!date)
-      .filter((value, index, self) => self.indexOf(value) === index)
-      .sort()
+    console.log('Loaded gazette dates from file:', dates);
 
-    return { dates, rawData: result.body }
+    // For now, we'll return empty rawData since we're only changing the date fetching
+    // The rawData will be handled in the next step of your migration
+    return { dates, rawData: [] };
+
   } catch (error) {
-    console.error("Error fetching gazette dates from API:", error)
+    console.error("Error fetching gazette dates from text file:", error);
     return {
       dates: [],
       rawData: [],
-    }
+    };
   }
 }
 
@@ -240,7 +239,13 @@ const App = () => {
 
         if (dates.length > 0) {
           const latestDate = dates[dates.length - 1]
-          const transformed = transformRawDataToTree(rawData)
+          // For now, create an empty tree structure since rawData is empty
+          // This will be updated in the next step when you provide the new data source
+          const transformed = {
+            name: "Government",
+            children: [],
+            type: "root",
+          }
           setTreeData(transformed)
           setSelectedDate(latestDate)
           setAllData({ [latestDate]: transformed })
@@ -261,9 +266,13 @@ const App = () => {
     setExpandedMinistries(new Set())
 
     if (!allData[date]) {
-      const { rawData } = await fetchGazetteData()
-      const filteredData = rawData.filter((item) => item.created?.startsWith(date))
-      const transformed = transformRawDataToTree(filteredData)
+      // For now, create empty tree structure for the selected date
+      // This will be updated in the next step when you provide the new data source
+      const transformed = {
+        name: "Government",
+        children: [],
+        type: "root",
+      }
       setAllData((prev) => ({ ...prev, [date]: transformed }))
       setTreeData(transformed)
     } else {
