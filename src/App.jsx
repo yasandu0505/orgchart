@@ -87,7 +87,7 @@ const fetchDepartments = async (ministryId, selectedDate) => {
       body: JSON.stringify({
         kind: {
           major: "Organisation",
-          minor: "department" // Fixed typo: "minro" -> "minor"
+          minor: "department" 
         }
       })
     })
@@ -152,7 +152,8 @@ const fetchDepartments = async (ministryId, selectedDate) => {
   }
 }
 
-const fetchGazetteData = async () => {
+// Fetch initial gazette dates and all ministry protobuf data
+const fetchInitialGazetteData = async () => {
   try {
     const response = await fetch("/v1/entities/search", {
       method: "POST",
@@ -178,12 +179,86 @@ const fetchGazetteData = async () => {
       .filter((value, index, self) => self.indexOf(value) === index)
       .sort()
 
-    return { dates, rawData: result.body }
+    return { dates, allMinistryData: result.body }
   } catch (error) {
-    console.error("Error fetching gazette dates from API:", error)
+    console.error("Error fetching initial gazette data from API:", error)
     return {
       dates: [],
-      rawData: [],
+      allMinistryData: [],
+    }
+  }
+}
+
+// Fetch active ministries for a specific date and map with protobuf data
+const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNodeId = "gov_01") => {
+  try {
+    const response = await fetch(`/v1/entities/${governmentNodeId}/relations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        relatedEntityId: "",
+        startTime: `${selectedDate}T00:00:00Z`,
+        endTime: "",
+        id: "",
+        name: "AS_MINISTER"
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`)
+    }
+
+    const activeMinistryRelations = await response.json()
+    console.log('Active ministry relations:', activeMinistryRelations)
+
+    // Extract the relatedEntityIds from the response
+    const activeMinistryIds = activeMinistryRelations
+      .filter(relation => relation.relatedEntityId)
+      .map(relation => relation.relatedEntityId)
+
+    console.log('Active ministry IDs:', activeMinistryIds)
+
+    // Map active ministry IDs with the protobuf data to get ministry names
+    const activeMinistries = allMinistryData
+      .filter(ministry => activeMinistryIds.includes(ministry.id))
+      .map(ministry => {
+        let name = ministry.name
+        
+        try {
+          const parsed = JSON.parse(ministry.name)
+          if (parsed?.value) {
+            name = decodeHexString(parsed.value)
+          }
+        } catch (e) {
+          // Use extractNameFromProtobuf as fallback
+          name = extractNameFromProtobuf(ministry.name) || ministry.name
+        }
+
+        return {
+          name,
+          id: ministry.id,
+          type: "ministry",
+          children: []
+        }
+      })
+
+    console.log('Active ministries with names:', activeMinistries)
+
+    return {
+      name: "Government",
+      children: activeMinistries,
+      type: "root",
+    }
+
+  } catch (error) {
+    console.error("Error fetching active ministries:", error)
+    // Return empty tree structure on error
+    return {
+      name: "Government",
+      children: [],
+      type: "root",
     }
   }
 }
@@ -226,6 +301,7 @@ const App = () => {
   const [treeData, setTreeData] = useState(null)
   const [isTreeDataLoading, setIsTreeDataLoading] = useState(true)
   const [gazetteData, setGazetteData] = useState([])
+  const [allMinistryData, setAllMinistryData] = useState([])
   const [allData, setAllData] = useState({})
   const [selectedDate, setSelectedDate] = useState(null)
   const [departmentData, setDepartmentData] = useState({})
@@ -235,15 +311,16 @@ const App = () => {
   useEffect(() => {
     const initializeApp = async () => {
       if (gazetteData.length === 0) {
-        const { dates, rawData } = await fetchGazetteData()
+        const { dates, allMinistryData: ministryData } = await fetchInitialGazetteData()
         setGazetteData(dates)
+        setAllMinistryData(ministryData)
 
         if (dates.length > 0) {
           const latestDate = dates[dates.length - 1]
-          const transformed = transformRawDataToTree(rawData)
-          setTreeData(transformed)
+          const activeMinistryTree = await fetchActiveMinistries(latestDate, ministryData)
+          setTreeData(activeMinistryTree)
           setSelectedDate(latestDate)
-          setAllData({ [latestDate]: transformed })
+          setAllData({ [latestDate]: activeMinistryTree })
         }
 
         setIsTreeDataLoading(false)
@@ -261,11 +338,9 @@ const App = () => {
     setExpandedMinistries(new Set())
 
     if (!allData[date]) {
-      const { rawData } = await fetchGazetteData()
-      const filteredData = rawData.filter((item) => item.created?.startsWith(date))
-      const transformed = transformRawDataToTree(filteredData)
-      setAllData((prev) => ({ ...prev, [date]: transformed }))
-      setTreeData(transformed)
+      const activeMinistryTree = await fetchActiveMinistries(date, allMinistryData)
+      setAllData((prev) => ({ ...prev, [date]: activeMinistryTree }))
+      setTreeData(activeMinistryTree)
     } else {
       setTreeData(allData[date])
     }
@@ -316,7 +391,7 @@ const App = () => {
         }
       }
     },
-    [expandedMinistries, departmentData],
+    [expandedMinistries, departmentData, selectedDate],
   )
 
   const timelineData = gazetteData.map((date) => ({
