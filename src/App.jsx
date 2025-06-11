@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import ModernTree from "./components/ModernTree";
+import OrgChart from "./components/OrgChart";
 
 const App = () => {
 
   return (
     <BrowserRouter>
         <Routes>
-          <Route path="/" element={<ModernTree />} />
+          <Route path="/" element={<OrgChart />} />
 
         </Routes>
       

@@ -1,7 +1,7 @@
 import { Box, Button, Card, Stack, TextField } from '@mui/material';
 import PresidencyTimeline from './PresidencyTimeline';
 import GazetteTimeline from './GazetteTimeline';
-const ModernTree = () => {
+const OrgChart = () => {
     return (
         <>
             <Box
@@ -64,7 +64,7 @@ const ModernTree = () => {
                 </Box>
 
                 <PresidencyTimeline />
-                    
+
 
 
 
@@ -89,15 +89,13 @@ const ModernTree = () => {
                     </Stack>
                 </Box>
                 <Card>
-                    
-                    <Box sx={{ padding: 2, textAlign: 'center' }}>
-                        <GazetteTimeline data={[{date: "20202"}, {date: "20202"}, {date: "20202"}, {date: "20202"}, {date: "20202"}]}/>
 
+                    <Box sx={{ padding: 2, textAlign: 'center' }}>
                         <h2>Modern View</h2>
                         <p>Ministers</p>
                     </Box>
                 </Card>
-                        
+
 
             </Box>
 
@@ -106,4 +104,4 @@ const ModernTree = () => {
     );
 };
 
-export default ModernTree;
+export default OrgChart;

@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import GazetteTimeline from "./GazetteTimeline"; 
 
 const presidents = [
     {
@@ -108,7 +109,7 @@ export default function PresidencyTimeline() {
                     scrollBehavior: "smooth",
                     flexGrow: 1,
                     position: "relative",
-                    zIndex: 1, // avatars above the line
+                    zIndex: 1, 
                     "&::-webkit-scrollbar": { display: "none" },
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
@@ -119,45 +120,60 @@ export default function PresidencyTimeline() {
                 {presidents.map((president, index) => {
                     const isSelected = index === selectedIndex;
                     return (
-                        <Box
-                            key={index}
-                            onClick={() => {
-                                setSelectedIndex(index);
-                                scrollRef.current?.children[index]?.scrollIntoView({
-                                    behavior: "smooth",
-                                    inline: "center",
-                                });
-                            }}
-                            sx={{
-                                cursor: "pointer",
-                                textAlign: "center",
-                                transform: isSelected ? "scale(1.3)" : "scale(1)",
-                                transition: "all 0.3s ease",
-                                minWidth: 100,
-                                flexShrink: 0,
-                            }}
-                        >
-                            <Avatar
-                                src={president.image}
-                                alt={president.name}
-                                sx={{
-                                    width: 40,
-                                    height: 40,
-                                    border: isSelected ? "3px solid #1976d2" : "2px solid gray",
-                                    margin: "auto",
-                                    backgroundColor: "white",
-                                    filter: isSelected ? "none" : "grayscale(50%)",
+                        <React.Fragment key={index}>
+                            <Box
+                                onClick={() => {
+                                    setSelectedIndex(index);
+                                    scrollRef.current?.children[index]?.scrollIntoView({
+                                        behavior: "smooth",
+                                        inline: "center",
+                                    });
                                 }}
-                            />
-                            <Typography variant="body2" sx={{ mt: 1, color: "black" }}>
-                                {president.name}
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: "gray" }}>
-                                {president.year}
-                            </Typography>
-                        </Box>
+                                sx={{
+                                    cursor: "pointer",
+                                    textAlign: "center",
+                                    transform: isSelected ? "scale(1.3)" : "scale(1)",
+                                    transition: "all 0.3s ease",
+                                    minWidth: 100,
+                                    flexShrink: 0,
+                                }}
+                            >
+                                <Avatar
+                                    src={president.image}
+                                    alt={president.name}
+                                    sx={{
+                                        width: 40,
+                                        height: 40,
+                                        border: isSelected ? "3px solid #1976d2" : "2px solid gray",
+                                        margin: "auto",
+                                        backgroundColor: "white",
+                                        filter: isSelected ? "none" : "grayscale(50%)",
+                                    }}
+                                />
+                                <Typography variant="body2" sx={{ mt: 1, color: "black" }}>
+                                    {president.name}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "gray" }}>
+                                    {president.year}
+                                </Typography>
+                            </Box>
+
+                            {isSelected && (
+                                <Box sx={{ display: "flex", alignItems: "center", mt: -4 , ml: -12, mr: -12 }}>
+                                    <GazetteTimeline
+                                        data={[
+                                            { date: "2024-01-01" },
+                                            { date: "2024-03-15" },
+                                            { date: "2024-06-10" },
+                                        ]}
+                                        onSelectDate={(date) => console.log("Selected date:", date)}
+                                    />
+                                </Box>
+                            )}
+                        </React.Fragment>
                     );
                 })}
+
             </Box>
 
             {/* Right Arrow */}

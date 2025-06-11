@@ -1,7 +1,5 @@
 import * as React from "react";
-import { Box, Typography, IconButton } from "@mui/material";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import { Box, Typography} from "@mui/material";
 
 export default function GazetteTimeline({ data, onSelectDate }) {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
@@ -21,15 +19,6 @@ export default function GazetteTimeline({ data, onSelectDate }) {
     window.addEventListener("resize", checkIfCentered);
     return () => window.removeEventListener("resize", checkIfCentered);
   }, []);
-
-  const scroll = (direction) => {
-    if (!scrollRef.current) return;
-    const scrollAmount = 100;
-    scrollRef.current.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
 
   const handleClick = (index) => {
     setSelectedIndex(index);
@@ -55,23 +44,6 @@ export default function GazetteTimeline({ data, onSelectDate }) {
         py: 4,
       }}
     >
-      {/* Left Arrow */}
-      <IconButton onClick={() => scroll("left")} sx={{ zIndex: 10, mt: -3.5 }} aria-label="scroll left">
-        <ArrowBackIosNewIcon />
-      </IconButton>
-
-      {/* Timeline Line */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: "calc(50% - 15px)",
-          left: 60,
-          right: 60,
-          height: "3px",
-          backgroundColor: "#ccc",
-          zIndex: 0,
-        }}
-      />
 
       {/* Scrollable Timeline */}
       <Box
@@ -79,7 +51,7 @@ export default function GazetteTimeline({ data, onSelectDate }) {
         sx={{
           display: "flex",
           overflowX: "auto",
-          gap: 6,
+          gap: 4,
           px: 4,
           scrollBehavior: "smooth",
           flexGrow: 1,
@@ -132,10 +104,6 @@ export default function GazetteTimeline({ data, onSelectDate }) {
         })}
       </Box>
 
-      {/* Right Arrow */}
-      <IconButton onClick={() => scroll("right")} sx={{ zIndex: 10, mt: -3.5 }} aria-label="scroll right">
-        <ArrowForwardIosIcon />
-      </IconButton>
     </Box>
   );
 }
