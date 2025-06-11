@@ -1,6 +1,6 @@
 import { Box, Button, Card, Stack, TextField } from '@mui/material';
 import PresidencyTimeline from './PresidencyTimeline';
-const TopButtons = () => {
+const ModernTree = () => {
     return (
         <>
             <Box
@@ -10,7 +10,6 @@ const TopButtons = () => {
                     backgroundColor: '#f5f5f5',
                 }}
             >
-
 
                 {/* Centered search bar below */}
                 <Box
@@ -99,4 +98,4 @@ const TopButtons = () => {
     );
 };
 
-export default TopButtons;
+export default ModernTree;
