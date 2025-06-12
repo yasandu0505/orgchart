@@ -43,17 +43,7 @@ export default function PresidencyTimeline() {
         }
     }, [dispatch]);
 
-    useEffect(() => {
-        const container = scrollRef.current;
-        if (!container) return;
-        const checkIfCentered = () => {
-            const shouldCenter = container.scrollWidth <= container.clientWidth;
-            setCenterContent(shouldCenter);
-        };
-        checkIfCentered();
-        window.addEventListener("resize", checkIfCentered);
-        return () => window.removeEventListener("resize", checkIfCentered);
-    }, []);
+    
 
     const handleDotMeasure = (dotX) => {
         if (avatarRef.current) {
@@ -98,8 +88,8 @@ export default function PresidencyTimeline() {
                 sx={{
                     position: "absolute",
                     top: "calc(50% - 30px)",
-                    left: 60,
-                    right: 60,
+                    left: 50,
+                    right: 50,
                     height: "3px",
                     backgroundColor: "#ccc",
                     zIndex: 0,
@@ -129,8 +119,8 @@ export default function PresidencyTimeline() {
                     overflowX: "auto",
                     gap: 14,
                     padding: 4,
-                    paddingLeft: 20,
-                    paddingRight: 10,
+                    paddingLeft: 6,
+                    paddingRight: 16,
                     flexWrap: "nowrap",
                     scrollBehavior: "smooth",
                     flexGrow: 1,
@@ -161,10 +151,7 @@ export default function PresidencyTimeline() {
 
                                         dispatch(setSelectedDate(firstDate));
 
-                                        scrollRef.current?.children[index]?.scrollIntoView({
-                                            behavior: "smooth",
-                                            inline: "center",
-                                        });
+                                       
                                     }
                                 }}
                                 sx={{
