@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import colors from "../assets/colors";
 
 export default function GazetteTimeline({ data, onSelectDate, triggerExpand, onMeasureStart }) {
-    const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [selectedIndex, setSelectedIndex] = React.useState(null);
     const [expanded, setExpanded] = React.useState(false);
     const containerRef = React.useRef(null);
     const dotRefs = React.useRef([]);

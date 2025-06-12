@@ -5,76 +5,16 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import GazetteTimeline from "./GazetteTimeline";
 import colors from "../assets/colors";
+import { presidents } from '../presidents';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSelectedIndex, setSelectedDate } from '../store/presidencySlice';
 
-const presidents = [
-    {
-        name: "Maitripala Sirisena",
-        year: "2015–2019",
-        image:
-            "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQ81rAgch6umHN8b0vOk6OQDgeumC2Mlb4kU7GNm2lC8uUrjJfh5IykCTJRnK_LE77JMFc_JBtquU9a8G2SsW2vMcBt5AdvHVwwsNW30Fo",
-        dates: [
-            { date: "2024-01-01" },
-            { date: "2024-08-15" },
-            { date: "2024-06-11" },
-             { date: "2024-01-01" },
-            { date: "2024-03-15" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-        ]
-    },
-    {
-        name: "Gotabaya Rajapaksa",
-        year: "2019–2022",
-        image:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY5DIe5WDP4wAlZxj5esqZ10RdUTz8YKBInw&s",
-        dates: [
-            { date: "2024-01-01" },
-            { date: "2024-03-15" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-             { date: "2024-01-01" },
-            { date: "2024-03-15" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-             { date: "2024-01-01" },
-            { date: "2024-03-15" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-        ]
-    },
-    {
-        name: "Ranil Wickremesinghe",
-        year: "2022–2024",
-        image: "https://unp.lk/assets/main/images/ranil/president-ranil.jpg",
-        dates: [
-            { date: "2024-01-01" },
-            { date: "2024-03-15" },
-            { date: "2024-00-13" },
-        ]
-    },
-    {
-        name: "Anura Kumara Dissanayake",
-        year: "2024–present",
-        image:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdOoGPxjbGmDh3erxJupQRQRIDT7IwIBNwbw&s",
-        dates: [
-            { date: "2024-01-01" },
-            { date: "2024-03-15" },
-            { date: "2024-06-14" },
-        ]
-    },
-];
+
 
 export default function PresidencyTimeline() {
-    const [selectedIndex, setSelectedIndex] = useState(0);
+    const dispatch = useDispatch();
+    const selectedIndex = useSelector((state) => state.presidency.selectedIndex);
+    const selectedDate = useSelector((state) => state.presidency.selectedDate);
     const scrollRef = useRef(null);
     const avatarRef = useRef(null);
     const [lineProps, setLineProps] = useState({ left: 0, width: 0 });
@@ -129,18 +69,21 @@ export default function PresidencyTimeline() {
                 }}
             />
             {/* Blue Line Between Avatar and GazetteTimeline */}
-            <Box
-                sx={{
-                    position: "absolute",
-                    top: "50.2px",
-                    height: "3px",
-                    backgroundColor: colors.timelineLineActive, 
-                    left: lineProps.left,
-                    width: lineProps.width,
-                    transition: "left 0.3s ease, width 0.3s ease",
-                    zIndex: 1,
-                }}
-            />
+            {selectedDate && (
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50.2px",
+                        height: "3px",
+                        backgroundColor: colors.timelineLineActive,
+                        left: lineProps.left,
+                        width: lineProps.width,
+                        transition: "left 0.3s ease, width 0.3s ease",
+                        zIndex: 1,
+                    }}
+                />
+            )}
+
 
             <Box
                 ref={scrollRef}
@@ -168,12 +111,21 @@ export default function PresidencyTimeline() {
                         <React.Fragment key={index}>
                             <Box
                                 onClick={() => {
-                                    setSelectedIndex(index);
-                                    scrollRef.current?.children[index]?.scrollIntoView({
-                                        behavior: "smooth",
-                                        inline: "center",
-                                    });
+                                    if (selectedIndex === index) {
+                                        // Clicking the same president again: clear gazette and deselect president
+                                        dispatch(setSelectedIndex(null));
+                                        dispatch(setSelectedDate(null));
+                                    } else {
+                                        // New president selected: reset gazette too
+                                        dispatch(setSelectedIndex(index));
+                                        dispatch(setSelectedDate(null));
+                                        scrollRef.current?.children[index]?.scrollIntoView({
+                                            behavior: "smooth",
+                                            inline: "center",
+                                        });
+                                    }
                                 }}
+
                                 sx={{
                                     cursor: "pointer",
                                     textAlign: "center",
@@ -191,7 +143,7 @@ export default function PresidencyTimeline() {
                                     sx={{
                                         width: 40,
                                         height: 40,
-                                        border: isSelected ?`3px solid ${colors.timelineLineActive}` : `2px solid ${colors.inactiveBorderColor}`,
+                                        border: isSelected ? `3px solid ${colors.timelineLineActive}` : `2px solid ${colors.inactiveBorderColor}`,
                                         margin: "auto",
                                         backgroundColor: "white",
                                         filter: isSelected ? "none" : "grayscale(50%)",
@@ -201,11 +153,11 @@ export default function PresidencyTimeline() {
                                 <Typography variant="caption" sx={{ color: "gray" }}>{president.year}</Typography>
                             </Box>
 
-                            {isSelected && (
+                            {isSelected && selectedIndex !== null && (
                                 <Box sx={{ display: "flex", alignItems: "center", mt: -4, ml: -12, mr: -12 }}>
                                     <GazetteTimeline
                                         data={president.dates}
-                                        onSelectDate={(date) => console.log("Selected date:", date)}
+                                        onSelectDate={(date) => dispatch(setSelectedDate(date))}
                                         onMeasureStart={handleDotMeasure}
                                     />
                                 </Box>

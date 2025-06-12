@@ -1,8 +1,14 @@
 import { Box, Button, Card, Stack, TextField } from '@mui/material';
 import PresidencyTimeline from './PresidencyTimeline';
 import colors from '../assets/colors';
+import { useSelector } from 'react-redux';
+import { presidents } from '../presidents';
+
 
 const OrgChart = () => {
+
+    const { selectedIndex, selectedDate } = useSelector((state) => state.presidency);
+    const selectedPresident = selectedIndex !== null ? presidents[selectedIndex] : null;
     return (
         <>
             <Box
@@ -10,6 +16,7 @@ const OrgChart = () => {
                     width: '100vw',
                     minHeight: '100vh',
                     backgroundColor: colors.backgroundPrimary,
+                    overflow: 'hidden',
                 }}
             >
 
@@ -65,7 +72,12 @@ const OrgChart = () => {
                 </Box>
 
                 <PresidencyTimeline />
-                
+
+
+
+
+
+
                 {/* Centered button row */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2, padding: 2 }}>
                     <Stack direction="row" spacing={3}>
@@ -88,8 +100,21 @@ const OrgChart = () => {
                 <Card>
 
                     <Box sx={{ padding: 2, textAlign: 'center' }}>
-                        <h2>Modern View</h2>
-                        <p>Ministers</p>
+                        <Card sx={{ m: 2 }}>
+                            <Box sx={{ padding: 2, textAlign: 'center' }}>
+                                <h2>Modern View</h2>
+                                {selectedPresident && (
+                                    <>
+                                        <p>{selectedPresident.name}</p>
+                                        <p>Term: {selectedPresident.year}</p>
+                                    </>
+
+                                )}
+
+                                {selectedDate && <p>Gazette Date: {selectedDate}</p>}
+                            </Box>
+                        </Card>
+
                     </Box>
                 </Card>
 
