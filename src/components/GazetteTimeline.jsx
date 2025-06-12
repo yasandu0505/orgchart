@@ -1,9 +1,16 @@
 import * as React from "react";
 import { Box, Typography } from "@mui/material";
 import colors from "../assets/colors";
+ import { useSelector } from 'react-redux';
 
 export default function GazetteTimeline({ data, onSelectDate, triggerExpand, onMeasureStart }) {
-    const [selectedIndex, setSelectedIndex] = React.useState(null);
+   
+
+const selectedDate = useSelector((state) => state.presidency.selectedDate);
+
+const selectedIndex = React.useMemo(() => {
+    return data.findIndex((item) => item.date === selectedDate);
+}, [data, selectedDate]);
     const [expanded, setExpanded] = React.useState(false);
     const containerRef = React.useRef(null);
     const dotRefs = React.useRef([]);
@@ -66,14 +73,13 @@ export default function GazetteTimeline({ data, onSelectDate, triggerExpand, onM
                         <Box
                             key={item.date}
                             onClick={() => {
-                                setSelectedIndex(index);
-                                onSelectDate(item.date);
+                               onSelectDate(item.date)
                             }}
                             sx={{
                                 cursor: "pointer",
                                 textAlign: "center",
                                 transform: isSelected ? "scale(1.1)" : "scale(1)",
-                                transition: "all 0.3s ease",
+                                transition: "all 0.01s ease",
                                 minWidth: 60,
                                 flexShrink: 0,
                             }}

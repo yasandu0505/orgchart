@@ -1,15 +1,12 @@
-// PresidencyTimeline.jsx
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import GazetteTimeline from "./GazetteTimeline";
 import colors from "../assets/colors";
-import { presidents } from '../presidents';
-import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedIndex, setSelectedDate } from '../store/presidencySlice';
-
-
+import { presidents } from "../presidents";
+import { useSelector, useDispatch } from "react-redux";
+import { setSelectedIndex, setSelectedDate } from "../store/presidencySlice";
 
 export default function PresidencyTimeline() {
     const dispatch = useDispatch();
@@ -19,6 +16,32 @@ export default function PresidencyTimeline() {
     const avatarRef = useRef(null);
     const [lineProps, setLineProps] = useState({ left: 0, width: 0 });
     const [centerContent, setCenterContent] = useState(false);
+
+    // This flag ensures we only do the initial auto-selection once
+    const initialSelectionDone = React.useRef(false);
+
+    useEffect(() => {
+        // On mount, select last president and last date once
+        if (!initialSelectionDone.current && presidents.length > 0) {
+            const lastIndex = presidents.length - 1;
+            const lastPresident = presidents[lastIndex];
+            const lastDate = lastPresident.dates && lastPresident.dates.length > 0 ? lastPresident.dates[lastPresident.dates.length - 1].date : null;
+
+            dispatch(setSelectedIndex(lastIndex));
+            if (lastDate) {
+                dispatch(setSelectedDate(lastDate));
+            }
+            initialSelectionDone.current = true;
+
+            // Scroll last president into view smoothly
+            setTimeout(() => {
+                scrollRef.current?.children[lastIndex]?.scrollIntoView({
+                    behavior: "smooth",
+                    inline: "center",
+                });
+            }, 100);
+        }
+    }, [dispatch]);
 
     useEffect(() => {
         const container = scrollRef.current;
@@ -52,11 +75,25 @@ export default function PresidencyTimeline() {
     };
 
     return (
-        <Box sx={{ position: "relative", display: "flex", alignItems: "center", maxWidth: "100%", overflow: "hidden" }}>
-            <IconButton onClick={() => scroll("left")} sx={{ zIndex: 10, mt: -7 }} aria-label="scroll left">
+        <Box
+            sx={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                maxWidth: "100%",
+                overflow: "hidden",
+            }}
+        >
+            {/* Left scroll button */}
+            <IconButton
+                onClick={() => scroll("left")}
+                sx={{ zIndex: 10, mt: -7 }}
+                aria-label="scroll left"
+            >
                 <ArrowBackIosNewIcon />
             </IconButton>
 
+            {/* Background line */}
             <Box
                 sx={{
                     position: "absolute",
@@ -68,7 +105,8 @@ export default function PresidencyTimeline() {
                     zIndex: 0,
                 }}
             />
-            {/* Blue Line Between Avatar and GazetteTimeline */}
+
+            {/* Blue connecting line */}
             {selectedDate && (
                 <Box
                     sx={{
@@ -83,7 +121,6 @@ export default function PresidencyTimeline() {
                     }}
                 />
             )}
-
 
             <Box
                 ref={scrollRef}
@@ -112,20 +149,24 @@ export default function PresidencyTimeline() {
                             <Box
                                 onClick={() => {
                                     if (selectedIndex === index) {
-                                        // Clicking the same president again: clear gazette and deselect president
                                         dispatch(setSelectedIndex(null));
                                         dispatch(setSelectedDate(null));
                                     } else {
-                                        // New president selected: reset gazette too
                                         dispatch(setSelectedIndex(index));
-                                        dispatch(setSelectedDate(null));
+
+                                        const firstDate =
+                                            president.dates && president.dates.length > 0
+                                                ? president.dates[0].date
+                                                : null;
+
+                                        dispatch(setSelectedDate(firstDate));
+
                                         scrollRef.current?.children[index]?.scrollIntoView({
                                             behavior: "smooth",
                                             inline: "center",
                                         });
                                     }
                                 }}
-
                                 sx={{
                                     cursor: "pointer",
                                     textAlign: "center",
@@ -143,14 +184,20 @@ export default function PresidencyTimeline() {
                                     sx={{
                                         width: 40,
                                         height: 40,
-                                        border: isSelected ? `3px solid ${colors.timelineLineActive}` : `2px solid ${colors.inactiveBorderColor}`,
+                                        border: isSelected
+                                            ? `3px solid ${colors.timelineLineActive}`
+                                            : `2px solid ${colors.inactiveBorderColor}`,
                                         margin: "auto",
                                         backgroundColor: "white",
                                         filter: isSelected ? "none" : "grayscale(50%)",
                                     }}
                                 />
-                                <Typography variant="body2" sx={{ mt: 1, color: "black" }}>{president.name}</Typography>
-                                <Typography variant="caption" sx={{ color: "gray" }}>{president.year}</Typography>
+                                <Typography variant="body2" sx={{ mt: 1, color: "black" }}>
+                                    {president.name}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: "gray" }}>
+                                    {president.year}
+                                </Typography>
                             </Box>
 
                             {isSelected && (
@@ -167,9 +214,14 @@ export default function PresidencyTimeline() {
                 })}
             </Box>
 
-            <IconButton onClick={() => scroll("right")} sx={{ zIndex: 10, mt: -7 }} aria-label="scroll right">
+            {/* Right scroll button */}
+            <IconButton
+                onClick={() => scroll("right")}
+                sx={{ zIndex: 10, mt: -7 }}
+                aria-label="scroll right"
+            >
                 <ArrowForwardIosIcon />
             </IconButton>
         </Box>
-    );
+    )
 }

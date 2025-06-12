@@ -21,7 +21,7 @@ export const presidents = [
         dates: [
             { date: "2024-01-01" },
             { date: "2024-03-15" },
-            { date: "2024-06-13" },
+            { date: "2024-0-13" },
         ]
     },
     {

@@ -6,9 +6,10 @@ import { presidents } from '../presidents';
 
 
 const OrgChart = () => {
-
     const { selectedIndex, selectedDate } = useSelector((state) => state.presidency);
     const selectedPresident = selectedIndex !== null ? presidents[selectedIndex] : null;
+
+    
     return (
         <>
             <Box
