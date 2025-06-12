@@ -153,7 +153,7 @@ export default function PresidencyTimeline() {
                                 <Typography variant="caption" sx={{ color: "gray" }}>{president.year}</Typography>
                             </Box>
 
-                            {isSelected && selectedIndex !== null && (
+                            {isSelected && (
                                 <Box sx={{ display: "flex", alignItems: "center", mt: -4, ml: -12, mr: -12 }}>
                                     <GazetteTimeline
                                         data={president.dates}

@@ -1,15 +1,5 @@
 export const presidents = [
-    {
-        name: "Maitripala Sirisena",
-        year: "2015–2019",
-        image:
-            "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQ81rAgch6umHN8b0vOk6OQDgeumC2Mlb4kU7GNm2lC8uUrjJfh5IykCTJRnK_LE77JMFc_JBtquU9a8G2SsW2vMcBt5AdvHVwwsNW30Fo",
-        dates: [
-            { date: "2024-01-01" },
-            { date: "2024-08-15" },
-            { date: "2024-06-11" },
-        ]
-    },
+   
     {
         name: "Gotabaya Rajapaksa",
         year: "2019–2022",
@@ -18,10 +8,10 @@ export const presidents = [
         dates: [
             { date: "2024-01-01" },
             { date: "2024-03-15" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
-            { date: "2024-06-12" },
+            { date: "2024-06-14" },
+            { date: "2024-06-15" },
+            { date: "2024-06-16" },
+            { date: "2024-06-18" },
         ]
     },
     {
@@ -31,7 +21,7 @@ export const presidents = [
         dates: [
             { date: "2024-01-01" },
             { date: "2024-03-15" },
-            { date: "2024-00-13" },
+            { date: "2024-06-13" },
         ]
     },
     {
