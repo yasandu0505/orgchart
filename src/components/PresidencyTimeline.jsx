@@ -120,7 +120,7 @@ export default function PresidencyTimeline() {
                     gap: 14,
                     padding: 4,
                     paddingLeft: 6,
-                    paddingRight: 16,
+                    paddingRight: 14,
                     flexWrap: "nowrap",
                     scrollBehavior: "smooth",
                     flexGrow: 1,

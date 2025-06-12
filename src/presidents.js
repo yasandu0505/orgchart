@@ -1,5 +1,5 @@
 export const presidents = [
-   
+
     {
         name: "Gotabaya Rajapaksa",
         year: "2019–2022",
@@ -19,13 +19,13 @@ export const presidents = [
         year: "2022–2024",
         image: "https://unp.lk/assets/main/images/ranil/president-ranil.jpg",
         dates: [
-            { date: "2024-01-01" },
+            { date: "2024-01-01", },
             { date: "2024-03-15" },
             { date: "2024-07-13" },
-             { date: "2024-06-15" },
+            { date: "2024-06-15" },
             { date: "2024-06-16" },
             { date: "2024-06-18" },
-             { date: "2024-06-19" }
+            { date: "2024-06-19" }
 
         ]
     },
@@ -35,12 +35,105 @@ export const presidents = [
         image:
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdOoGPxjbGmDh3erxJupQRQRIDT7IwIBNwbw&s",
         dates: [
-            { date: "2024-01-01" },
-            { date: "2024-03-15" },
-            { date: "2024-06-14" },
-             { date: "2024-01-09" },
-          
+            {
+                date: "2024-01-01", ministerList: [
+                    {
+                        name: "Minister of Sports",
+                        headMinister: "Minister Miniha name",
+                        deputyMinister: "Deputy Minister Miniha name",
+                        stateMinister: "State Minister Miniha name",
+                        departments: [
+                            { name: "Department of Finance" },
+                            { name: "Department of Revenue" }
+                        ]
+                    },
+                    {
+                        name: "Minister of Youth Affairs",
+                        headMinister: "Minister Miniha name",
+                        deputyMinister: "Deputy Minister Miniha name",
+                        stateMinister: "State Minister Miniha name",
+                        departments: [
+                            { name: "Department of Finance" },
+                            { name: "Department of Revenue" }
+                        ]
+                    }
+                ]
+            },
+            {
+                date: "2024-03-15", ministerList: [
+                    {
+                        name: "Minister of Mass Media",
+                        headMinister: "Minister Miniha name",
+                        deputyMinister: "Deputy Minister Miniha name",
+                        stateMinister: "State Minister Miniha name",
+                        departments: [
+                            { name: "Department of Finance" },
+                            { name: "Department of Revenue" }
+                        ]
+                    },
+                    {
+                        name: "Minister of Geology",
+                        headMinister: "Minister Miniha name",
+                        deputyMinister: "Deputy Minister Miniha name",
+                        stateMinister: "State Minister Miniha name",
+                        departments: [
+                            { name: "Department of Finance" },
+                            { name: "Department of Revenue" }
+                        ]
+                    }
+                ]
+            },
+            {
+                date: "2024-06-14", ministerList: [
+                    {
+                        name: "Minister of Environment",
+                        headMinister: "Minister Miniha name",
+                        deputyMinister: "Deputy Minister Miniha name",
+                        stateMinister: "State Minister Miniha name",
+                        departments: [
+                            { name: "Department of Finance" },
+                            { name: "Department of Revenue" }
+                        ]
+                    },
+                    {
+                        name: "Minister of Welfare",
+                        headMinister: "Minister Miniha name",
+                        deputyMinister: "Deputy Minister Miniha name",
+                        stateMinister: "State Minister Miniha name",
+                        departments: [
+                            { name: "Department of Finance" },
+                            { name: "Department of Revenue" }
+                        ]
+                    }
+                ]
+            },
+            {
+                date: "2024-01-09",
+                ministerList: [
+                    {
+                        name: "Minister of Finance",
+                        headMinister: "Minister Miniha name",
+                        deputyMinister: "Deputy Minister Miniha name",
+                        stateMinister: "State Minister Miniha name",
+                        departments: [
+                            { name: "Department of Finance" },
+                            { name: "Department of Revenue" }
+                        ]
+                    },
+                    {
+                        name: "Minister of Education",
+                        headMinister: "Minister Miniha name",
+                        deputyMinister: "Deputy Minister Miniha name",
+                        stateMinister: "State Minister Miniha name",
+                        departments: [
+                            { name: "Department of Finance" },
+                            { name: "Department of Revenue" }
+                        ]
+                    }
+                ]
+            },
+
         ]
     },
-    
+
 ];
