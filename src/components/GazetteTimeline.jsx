@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Box, Typography } from "@mui/material";
+import colors from "../assets/colors";
 
-export default function GazetteTimeline({ data, onSelectDate, triggerExpand }) {
+export default function GazetteTimeline({ data, onSelectDate, triggerExpand, onMeasureStart }) {
     const [selectedIndex, setSelectedIndex] = React.useState(0);
     const [expanded, setExpanded] = React.useState(false);
     const containerRef = React.useRef(null);
@@ -11,56 +12,38 @@ export default function GazetteTimeline({ data, onSelectDate, triggerExpand }) {
 
     React.useEffect(() => {
         setExpanded(false);
-        const timer = setTimeout(() => {
-            setExpanded(true);
-        }, 50);
+        const timer = setTimeout(() => setExpanded(true), 50);
         return () => clearTimeout(timer);
     }, [triggerExpand]);
 
-    const handleClick = (index) => {
-        setSelectedIndex(index);
-        onSelectDate(data[index].date);
-    };
-
     React.useEffect(() => {
-        if (!containerRef.current || !dotRefs.current[selectedIndex]) return;
+        if (!containerRef.current || !dotRefs.current[0]) return;
 
         const containerRect = containerRef.current.getBoundingClientRect();
-        const firstDot = dotRefs.current[0]?.getBoundingClientRect();
+        const firstDot = dotRefs.current[0].getBoundingClientRect();
         const selectedDot = dotRefs.current[selectedIndex]?.getBoundingClientRect();
+
+        const centerX = firstDot.left + firstDot.width / 2;
+        if (onMeasureStart) onMeasureStart(centerX);
 
         if (firstDot && selectedDot) {
             const left = firstDot.left - containerRect.left + firstDot.width / 2;
             const right = selectedDot.left - containerRect.left + selectedDot.width / 2;
             const width = Math.abs(right - left);
-            setLineStyle({
-                left: Math.min(left, right),
-                width,
-            });
+            setLineStyle({ left: Math.min(left, right), width });
         }
-    }, [selectedIndex, data]);
+    }, [selectedIndex, data, onMeasureStart]);
 
-    if (!data || data.length === 0) {
-        return <Typography>No dates to display</Typography>;
-    }
+    if (!data || data.length === 0) return <Typography>No dates to display</Typography>;
 
     return (
-        <Box
-            sx={{
-                overflow: "hidden",
-                py: 4,
-                width: "100%",
-                position: "relative",
-            }}
-            ref={containerRef}
-        >
-            {/* Animated connecting line */}
+        <Box sx={{ overflow: "hidden", py: 4, width: "100%", position: "relative" }} ref={containerRef}>
             <Box
                 sx={{
                     position: "absolute",
                     height: "2.5px",
-                    backgroundColor: "#2593B8",
-                    top: 37.5, // adjust to align vertically with dot centers
+                    backgroundColor: colors.timelineLineActive,
+                    top: 37.2,
                     transition: "left 0.3s ease, width 0.3s ease",
                     ...lineStyle,
                 }}
@@ -82,7 +65,10 @@ export default function GazetteTimeline({ data, onSelectDate, triggerExpand }) {
                     return (
                         <Box
                             key={item.date}
-                            onClick={() => handleClick(index)}
+                            onClick={() => {
+                                setSelectedIndex(index);
+                                onSelectDate(item.date);
+                            }}
                             sx={{
                                 cursor: "pointer",
                                 textAlign: "center",
@@ -98,7 +84,7 @@ export default function GazetteTimeline({ data, onSelectDate, triggerExpand }) {
                                     width: 10,
                                     height: 10,
                                     borderRadius: "50%",
-                                    backgroundColor: isSelected ? "#2593B8" : "#444",
+                                    backgroundColor: isSelected ? colors.dotColorActive : colors.dotColorInactive,
                                     border: "2px solid white",
                                     margin: "auto",
                                 }}
@@ -108,7 +94,7 @@ export default function GazetteTimeline({ data, onSelectDate, triggerExpand }) {
                                 sx={{
                                     mt: 1,
                                     whiteSpace: "nowrap",
-                                    color: isSelected ? "#2593B8" : "#444",
+                                    color: isSelected ? colors.dotColorActive : colors.dotColorInactive,
                                     fontSize: "0.8rem",
                                 }}
                             >

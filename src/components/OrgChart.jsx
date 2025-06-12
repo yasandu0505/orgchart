@@ -1,5 +1,6 @@
 import { Box, Button, Card, Stack, TextField } from '@mui/material';
 import PresidencyTimeline from './PresidencyTimeline';
+import colors from '../assets/colors';
 
 const OrgChart = () => {
     return (
@@ -8,7 +9,7 @@ const OrgChart = () => {
                 sx={{
                     width: '100vw',
                     minHeight: '100vh',
-                    backgroundColor: '#f5f5f5',
+                    backgroundColor: colors.backgroundPrimary,
                 }}
             >
 
@@ -29,17 +30,17 @@ const OrgChart = () => {
                         size="small"
                         fullWidth
                         sx={{
-                            input: { color: '#0d47a1' },
-                            label: { color: '#0d47a1' },
+                            input: { color: colors.textSearch },
+                            label: { color: colors.textSearch },
                             '& .MuiOutlinedInput-root': {
                                 '& fieldset': {
                                     borderColor: '#1565c0',
                                 },
                                 '&:hover fieldset': {
-                                    borderColor: '#0d47a1',
+                                    borderColor: colors.textSearch,
                                 },
                                 '&.Mui-focused fieldset': {
-                                    borderColor: '#0d47a1',
+                                    borderColor: colors.textSearch,
                                 },
                             },
                         }}
@@ -51,7 +52,7 @@ const OrgChart = () => {
                             minWidth: 120,
                             height: '40px',
                             fontWeight: 600,
-                            backgroundColor: '#0d47a1',
+                            backgroundColor: colors.textSearch,
                             color: '#fff',
                             textTransform: 'none',
                             '&:hover': {
@@ -64,9 +65,7 @@ const OrgChart = () => {
                 </Box>
 
                 <PresidencyTimeline />
-
-
-
+                
                 {/* Centered button row */}
                 <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: 2, padding: 2 }}>
                     <Stack direction="row" spacing={3}>
