@@ -25,6 +25,9 @@ const presidents = [
             { date: "2024-01-01" },
             { date: "2024-03-15" },
             { date: "2024-06-12" },
+            { date: "2024-06-12" },
+            { date: "2024-06-12" },
+            { date: "2024-06-12" },
         ]
     },
     {
@@ -48,8 +51,6 @@ const presidents = [
             { date: "2024-06-14" },
         ]
     },
-
-
 ];
 
 export default function PresidencyTimeline() {
@@ -156,6 +157,7 @@ export default function PresidencyTimeline() {
                                     transition: "all 0.3s ease",
                                     minWidth: 100,
                                     flexShrink: 0,
+                                    position: "relative", // allow absolute children
                                 }}
                             >
                                 <Avatar
@@ -176,6 +178,23 @@ export default function PresidencyTimeline() {
                                 <Typography variant="caption" sx={{ color: "gray" }}>
                                     {president.year}
                                 </Typography>
+
+                                {/* Line extending to the right */}
+                                {/* {isSelected && (
+                                    <Box
+                                        sx={{
+                                            position: "absolute",
+                                            top: "26px", // adjust as needed to align with avatar center
+                                            left: "67%", // start at horizontal center
+                                            transform: "translateX(0)", // no shift
+                                            height: "1.5px",
+                                            width: "87px",
+                                            backgroundColor: "#1976d2",
+                                            transition: "width 0.3s ease",
+                                            zIndex: -1, // behind the avatar
+                                        }}
+                                    />
+                                )} */}
                             </Box>
 
                             {isSelected && (
@@ -188,6 +207,7 @@ export default function PresidencyTimeline() {
                             )}
                         </React.Fragment>
                     );
+
                 })}
 
             </Box>
