@@ -43,8 +43,77 @@ export const presidents = [
                         deputyMinister: "Deputy Minister Miniha name",
                         stateMinister: "State Minister Miniha name",
                         departments: [
-                            { name: "Department of Finance" },
-                            { name: "Department of Revenue" }
+                            { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                                { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                                { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                                { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                                { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                                { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                                { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                                { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                                { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                                { name: "Department of Finance",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Sports and Youth Affairs", headMinister:"Name SAYA Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Sports, Child and Youth Affairs", headMinister:"Name SACYA Miniha"},
+                                ]
+                             },
+                            { name: "Department of Revenue",
+                                history:[
+                                    {date: "2024-01-01", minister: "Minister of Inland revenue", headMinister:"Name IR Miniha"},
+                                    {date: "2024-02-01", minister: "Minister of Revenue", headMinister:"Name R Miniha"},
+                                     {date: "2024-02-03", minister: "Minisr of Revenue", headMinister:"Name R Miiha"},
+                                      {date: "2024-02-04", minister: "Miniser of Revenue", headMinister:"Name R Miniha"},
+                                       {date: "2024-02-07", minister: "Mister of Revenue", headMinister:"Name RMiniha"},
+                                    
+                                ]
+                             },
+                             
                         ]
                     },
                     {

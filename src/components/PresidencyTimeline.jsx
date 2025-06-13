@@ -43,7 +43,7 @@ export default function PresidencyTimeline() {
         }
     }, [dispatch]);
 
-    
+
 
     const handleDotMeasure = (dotX) => {
         if (avatarRef.current) {
@@ -151,7 +151,7 @@ export default function PresidencyTimeline() {
 
                                         dispatch(setSelectedDate(firstDate));
 
-                                       
+
                                     }
                                 }}
                                 sx={{

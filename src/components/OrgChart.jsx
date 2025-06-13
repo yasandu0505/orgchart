@@ -5,6 +5,9 @@ import colors from '../assets/colors';
 import { useSelector } from 'react-redux';
 import { presidents } from '../presidents';
 import { useState } from 'react';
+import DepartmentHistoryTimeline from './DepartmentHistoryTimeline';
+import MinistryDrawerContent from './MinistryDrawerContent';
+
 
 const OrgChart = () => {
     const { selectedIndex, selectedDate } = useSelector((state) => state.presidency);
@@ -148,7 +151,7 @@ const OrgChart = () => {
             {/* Card Grid for Modern View */}
             {view === 'modern' && selectedDate != null && (
                 <Box sx={{ px: 4, pb: 4 }}>
-                    <Card sx={{ p: 3, overflowX: 'auto' }}>
+                    <Box sx={{ p: 3, overflowX: 'auto' }}>
                         {selectedDate && (
                             <Box sx={{ textAlign: 'center', mb: 3 }}>
                                 <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
@@ -175,7 +178,7 @@ const OrgChart = () => {
                                 </Grid>
                             ))}
                         </Grid>
-                    </Card>
+                    </Box>
                 </Box>
             )}
 
@@ -204,8 +207,6 @@ const OrgChart = () => {
                             <Box width={75} /> // keeps spacing consistent when back button isn't shown
                         )}
 
-
-
                         {/* Close button */}
                         <IconButton onClick={handleDrawerClose}>
                             <CloseIcon />
@@ -215,39 +216,17 @@ const OrgChart = () => {
                     {/* Content */}
                     <Box sx={{ flexGrow: 1 }}>
                         {drawerMode === 'ministry' && selectedCard && (
-                            <>
-                                <Typography variant="h6">{selectedDate}</Typography>
-                                <Typography variant="h6" gutterBottom>{selectedCard.title}</Typography>
-                                <Typography variant="body2">Minister: {selectedCard.headMinister}</Typography>
-                                <Typography variant="body2">Deputy Minister: {selectedCard.deputyMinister}</Typography>
-                                <Typography variant="body2" gutterBottom>State Minister: {selectedCard.stateMinister}</Typography>
-
-                                <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>Departments</Typography>
-                                <Stack spacing={1}>
-                                    {selectedCard.departments?.map((dep, idx) => (
-                                        <Button
-                                            key={idx}
-                                            variant="outlined"
-                                            size="small"
-                                            sx={{ justifyContent: 'flex-start' }}
-                                            fullWidth
-                                            onClick={() => handleDepartmentClick(dep)}
-                                        >
-                                            {dep.name}
-                                        </Button>
-                                    ))}
-                                </Stack>
-                            </>
+                            <MinistryDrawerContent
+                                selectedCard={selectedCard}
+                                selectedDate={selectedDate}
+                                onDepartmentClick={handleDepartmentClick}
+                            />
                         )}
 
                         {drawerMode === 'department' && selectedDepartment && (
-                            <>
-                                <Typography variant="h6">{selectedDepartment.name}</Typography>
-                                <Typography variant="body2" sx={{ mt: 1 }}>
-                                    More details about the department can go here.
-                                </Typography>
-                            </>
+                            <DepartmentHistoryTimeline selectedDepartment={selectedDepartment} />
                         )}
+
                     </Box>
                 </Box>
             </Drawer>
