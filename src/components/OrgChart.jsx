@@ -1,19 +1,18 @@
-import { Box, Button, Card, Stack, TextField, Grid, Typography, Drawer, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Box, Button, Card, Stack, TextField, Typography } from '@mui/material';
 import PresidencyTimeline from './PresidencyTimeline';
 import colors from '../assets/colors';
 import { useSelector } from 'react-redux';
 import { presidents } from '../presidents';
 import { useState } from 'react';
-import DepartmentHistoryTimeline from './DepartmentHistoryTimeline';
-import MinistryDrawerContent from './MinistryDrawerContent';
+import InfoTab from './InfoTab';
+import MinistryCardGrid from './MinistryCardGrid';
 
 
 const OrgChart = () => {
     const { selectedIndex, selectedDate } = useSelector((state) => state.presidency);
     const selectedPresident = selectedIndex !== null ? presidents[selectedIndex] : null;
 
-    const [view, setView] = useState('');
+    const [view, setView] = useState('modern');
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [selectedCard, setSelectedCard] = useState(null);
     const [drawerMode, setDrawerMode] = useState('ministry');
@@ -43,23 +42,6 @@ const OrgChart = () => {
         setSelectedDepartment(dep);
         setDrawerMode('department');
     };
-
-
-    const ministryCards = (() => {
-        if (!selectedPresident || !selectedDate) return [];
-
-        const dateEntry = selectedPresident.dates.find(d => d.date === selectedDate);
-        if (!dateEntry || !Array.isArray(dateEntry.ministerList)) return [];
-
-        return dateEntry.ministerList.map((minister, index) => ({
-            id: index,
-            title: minister.name,
-            headMinister: minister.headMinister,
-            deputyMinister: minister.deputyMinister,
-            stateMinister: minister.stateMinister,
-            departments: minister.departments,
-        }));
-    })();
 
     return (
         <Box
@@ -103,25 +85,8 @@ const OrgChart = () => {
                 </Button>
             </Box>
 
-            <Box sx={{ display: "flex" }}>
-                <PresidencyTimeline />
-            </Box>
 
-            {/* Selected Info Card */}
-            <Box sx={{ padding: 2, textAlign: 'center' }}>
-                <Card sx={{ m: 2 }}>
-                    <Box sx={{ padding: 2 }}>
-                        {selectedPresident && (
-                            <>
-                                <Typography>{selectedPresident.name}</Typography>
-                                <Typography>Term: {selectedPresident.year}</Typography>
-                            </>
-                        )}
-                    </Box>
-                </Card>
-            </Box>
-
-            {/* View Buttons */}
+{/* View Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, px: 2 }}>
                 <Stack direction="row" spacing={3}>
                     <Button
@@ -147,89 +112,47 @@ const OrgChart = () => {
                     </Button>
                 </Stack>
             </Box>
+            <Box sx={{ display: "flex" , mt: 5}}>
+                <PresidencyTimeline />
+            </Box>
+
+            {/* Selected Info Card */}
+            <Box sx={{ padding: 2, textAlign: 'center' }}>
+                <Card sx={{ m: 2 }}>
+                    <Box sx={{ padding: 2 }}>
+                        {selectedPresident && (
+                            <>
+                                <Typography>{selectedPresident.name}</Typography>
+                                <Typography>Term: {selectedPresident.year}</Typography>
+                            </>
+                        )}
+                    </Box>
+                </Card>
+            </Box>
+
+            
 
             {/* Card Grid for Modern View */}
             {view === 'modern' && selectedDate != null && (
-                <Box sx={{ px: 4, pb: 4 }}>
-                    <Box sx={{ p: 3, overflowX: 'auto' }}>
-                        {selectedDate && (
-                            <Box sx={{ textAlign: 'center', mb: 3 }}>
-                                <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                                    Gazette Date
-                                </Typography>
-                                <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                                    {selectedDate}
-                                </Typography>
-                            </Box>
-                        )}
+                <MinistryCardGrid
+                    selectedPresident={selectedPresident}
+                    selectedDate={selectedDate}
+                    onCardClick={handleCardClick}
+                />
 
-                        <Grid container spacing={2}>
-                            {ministryCards.map((card) => (
-                                <Grid key={card.id} item xs={12} sm={6} md={4}>
-                                    <Card
-                                        sx={{ p: 2, cursor: 'pointer', boxShadow: 3, '&:hover': { boxShadow: 6 } }}
-                                        onClick={() => handleCardClick(card)}
-                                    >
-                                        <Typography variant="h6">{card.title}</Typography>
-                                        <Typography variant="body2">Minister: {card.headMinister}</Typography>
-                                        <Typography variant="body2">Deputy Minister: {card.deputyMinister}</Typography>
-                                        <Typography variant="body2">State Minister: {card.stateMinister}</Typography>
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Box>
-                </Box>
             )}
 
             {/* Right Drawer */}
-            <Drawer
-                anchor="right"
-                open={drawerOpen}
+            <InfoTab
+                drawerOpen={drawerOpen}
+                drawerMode={drawerMode}
+                selectedCard={selectedCard}
+                selectedDepartment={selectedDepartment}
+                selectedDate={selectedDate}
                 onClose={handleDrawerClose}
-            >
-                <Box sx={{ width: 500, p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    {/* Header with back and close buttons */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            mb: 2,
-                        }}
-                    >
-                        {/* Back button only in department mode */}
-                        {drawerMode === 'department' ? (
-                            <Button onClick={() => setDrawerMode('ministry')}>
-                                ← Back
-                            </Button>
-                        ) : (
-                            <Box width={75} /> // keeps spacing consistent when back button isn't shown
-                        )}
-
-                        {/* Close button */}
-                        <IconButton onClick={handleDrawerClose}>
-                            <CloseIcon />
-                        </IconButton>
-                    </Box>
-
-                    {/* Content */}
-                    <Box sx={{ flexGrow: 1 }}>
-                        {drawerMode === 'ministry' && selectedCard && (
-                            <MinistryDrawerContent
-                                selectedCard={selectedCard}
-                                selectedDate={selectedDate}
-                                onDepartmentClick={handleDepartmentClick}
-                            />
-                        )}
-
-                        {drawerMode === 'department' && selectedDepartment && (
-                            <DepartmentHistoryTimeline selectedDepartment={selectedDepartment} />
-                        )}
-
-                    </Box>
-                </Box>
-            </Drawer>
+                onBack={() => setDrawerMode('ministry')}
+                onDepartmentClick={handleDepartmentClick}
+            />
 
         </Box>
     );

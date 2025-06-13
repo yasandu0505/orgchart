@@ -13,7 +13,6 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate, onDepartmentClick }
                 p: 3,
                 backgroundColor: "none",
                 mt: -5,
-
             }}
         >
             {/* Date */}
@@ -42,23 +41,30 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate, onDepartmentClick }
             <Stack spacing={1} mb={2}>
                 {selectedCard.headMinister && (
                     <Box display="flex" alignItems="center">
-                        <PersonIcon fontSize="small" sx={{ mr: 1 }} />
+                        <PersonIcon fontSize="small" sx={{ mr: 1, color: colors.backgroundSecondary, minWidth: '20px' }} />
                         <Typography variant="body1">
                             <strong>Minister:</strong> {selectedCard.headMinister}
                         </Typography>
                     </Box>
                 )}
                 {selectedCard.deputyMinister && (
-                    <Typography variant="body2" sx={{ pl: 4 }}>
-                        <strong>Deputy:</strong> {selectedCard.deputyMinister}
-                    </Typography>
+                    <Box display="flex" alignItems="center">
+                        <PersonIcon fontSize="small" sx={{ mr: 1, color: colors.backgroundSecondary, minWidth: '20px' }} />
+                        <Typography variant="body2">
+                            <strong>Deputy:</strong> {selectedCard.deputyMinister}
+                        </Typography>
+                    </Box>
                 )}
                 {selectedCard.stateMinister && (
-                    <Typography variant="body2" sx={{ pl: 4 }}>
-                        <strong>State:</strong> {selectedCard.stateMinister}
-                    </Typography>
+                    <Box display="flex" alignItems="center">
+                        <PersonIcon fontSize="small" sx={{ mr: 1, color: colors.backgroundSecondary, minWidth: '20px' }} />
+                        <Typography variant="body2">
+                            <strong>State:</strong> {selectedCard.stateMinister}
+                        </Typography>
+                    </Box>
                 )}
             </Stack>
+
 
             <Divider sx={{ my: 2 }} />
 
@@ -74,18 +80,18 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate, onDepartmentClick }
                         size="small"
                         sx={{
                             justifyContent: 'flex-start',
-                            backgroundColor: colors.buttonLight || '#e3f2fd',
+                            backgroundColor: colors.backgroundPrimary,
                             color: 'primary.main',
                             textTransform: 'none',
                             '&:hover': {
-                                backgroundColor: '#bbdefb',
+                                backgroundColor: colors.buttonLight,
                             },
                             fontWeight: 500,
                         }}
                         fullWidth
                         onClick={() => onDepartmentClick(dep)}
                     >
-                        <WorkIcon fontSize="small" sx={{ mr: 1 }} />
+                        <WorkIcon fontSize="small" sx={{ mr: 1, color: colors.backgroundSecondary }} />
                         {dep.name}
                     </Button>
                 ))}

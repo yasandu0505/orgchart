@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {Typography,Paper,Avatar,} from '@mui/material';
+import colors from '../assets/colors';
 import {Timeline,TimelineItem,TimelineOppositeContent,TimelineSeparator,TimelineDot,TimelineConnector,TimelineContent,} from '@mui/lab';
 
 const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
@@ -48,13 +49,14 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                         sx={{
                                             width: 2,
                                             height: 2,
-                                            boxShadow: '0 0 6px rgba(25, 118, 210, 0.7)',
+                                            boxShadow: `0 0 6px rgba(25, 118, 210, 0.7)`,
                                             animation: 'pulse 2.5s infinite',
-                                            background: 'linear-gradient(45deg, #2196f3, #21cbf3)',
+                                            backgroundColor: colors.backgroundSecondary,
+                                            background: `linear-gradient(45deg,${colors.dotColorActive}, #21cbf3)`,
                                         }}
                                     />
                                     {idx < arr.length - 1 && (
-                                        <TimelineConnector sx={{ bgcolor: '#1976d2', height: 2 }} />
+                                        <TimelineConnector sx={{ bgcolor: colors.timelineLineActive, height: 2 }} />
                                     )}
                                 </TimelineSeparator>
 
@@ -81,7 +83,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                                 gap: 8,
                                             }}
                                         >
-                                            <Avatar sx={{ bgcolor: 'primary.main', width: 30, height: 30, fontSize: 14 }}>
+                                            <Avatar sx={{ bgcolor: colors.backgroundSecondary, width: 30, height: 30, fontSize: 14 }}>
                                                 {entry.minister ? entry.minister.charAt(0).toUpperCase() : '?'}
                                             </Avatar>
                                             <div style={{ flexGrow: 1 }}>
