@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import OrgChart from "./components/orgchart";
+import OrgChart from "./components/OrgChart";
 import ModernView from "./components/modernView";
 import Home from "./components/home";
 import Error404 from "./components/404Error";
