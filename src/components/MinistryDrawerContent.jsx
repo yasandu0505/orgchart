@@ -31,7 +31,7 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate, onDepartmentClick }
 
             {/* Ministry Name */}
             <Box display="flex" alignItems="center" mb={2}>
-                <ApartmentIcon color="primary" sx={{ mr: 1 }} />
+                <ApartmentIcon color="primary" sx={{ mr: 1, color: colors.backgroundSecondary }} />
                 <Typography variant="h5" sx={{ fontWeight: 600 }}>
                     {selectedCard.title}
                 </Typography>

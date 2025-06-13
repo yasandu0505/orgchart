@@ -86,33 +86,33 @@ const OrgChart = () => {
             </Box>
 
 
-{/* View Buttons */}
+            {/* View Buttons */}
             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, px: 2 }}>
                 <Stack direction="row" spacing={3}>
-                    <Button
-                        variant={view === 'classic' ? 'contained' : 'outlined'}
-                        color="primary"
-                        onClick={() => handleViewChange('classic')}
-                    >
-                        Classic
-                    </Button>
-                    <Button
-                        variant={view === 'modern' ? 'contained' : 'outlined'}
-                        color="primary"
-                        onClick={() => handleViewChange('modern')}
-                    >
-                        Modern
-                    </Button>
-                    <Button
-                        variant={view === 'compare' ? 'contained' : 'outlined'}
-                        color="primary"
-                        onClick={() => handleViewChange('compare')}
-                    >
-                        Compare
-                    </Button>
+                    {['classic', 'modern', 'compare'].map((type) => (
+                        <Button
+                            key={type}
+                            variant={view === type ? 'contained' : 'outlined'}
+                            onClick={() => handleViewChange(type)}
+                            sx={{
+                                color: view === type ? '#fff' : colors.primary,
+                                backgroundColor: view === type ? colors.primary : 'transparent',
+                                borderColor: colors.primary,
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                '&:hover': {
+                                    backgroundColor: view === type ? colors.primary : `${colors.primary}22`, // light hover tint
+                                    borderColor: colors.primary,
+                                },
+                            }}
+                        >
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                        </Button>
+                    ))}
                 </Stack>
             </Box>
-            <Box sx={{ display: "flex" , mt: 5}}>
+
+            <Box sx={{ display: "flex", mt: 5 }}>
                 <PresidencyTimeline />
             </Box>
 
@@ -130,7 +130,7 @@ const OrgChart = () => {
                 </Card>
             </Box>
 
-            
+
 
             {/* Card Grid for Modern View */}
             {view === 'modern' && selectedDate != null && (
