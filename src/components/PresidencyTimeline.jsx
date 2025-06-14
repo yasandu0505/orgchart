@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import GazetteTimeline from "./GazetteTimeline";
 import colors from "../assets/colors";
 import { presidents } from "../presidents";
 import { useSelector, useDispatch } from "react-redux";
@@ -14,26 +13,22 @@ export default function PresidencyTimeline() {
     const selectedDate = useSelector((state) => state.presidency.selectedDate);
     const scrollRef = useRef(null);
     const avatarRef = useRef(null);
-    const [lineProps, setLineProps] = useState({ left: 0, width: 0 });
-    const [centerContent, setCenterContent] = useState(false);
+    const dotRef = useRef(null);
+    const [lineStyle, setLineStyle] = useState(null);
 
-    // This flag ensures we only do the initial auto-selection once
-    const initialSelectionDone = React.useRef(false);
+
+    const initialSelectionDone = useRef(false);
 
     useEffect(() => {
-        // On mount, select last president and last date once
         if (!initialSelectionDone.current && presidents.length > 0) {
             const lastIndex = presidents.length - 1;
             const lastPresident = presidents[lastIndex];
-            const lastDate = lastPresident.dates && lastPresident.dates.length > 0 ? lastPresident.dates[lastPresident.dates.length - 1].date : null;
+            const lastDate = lastPresident.dates?.[lastPresident.dates.length - 1]?.date || null;
 
             dispatch(setSelectedIndex(lastIndex));
-            if (lastDate) {
-                dispatch(setSelectedDate(lastDate));
-            }
+            if (lastDate) dispatch(setSelectedDate(lastDate));
             initialSelectionDone.current = true;
 
-            // Scroll last president into view smoothly
             setTimeout(() => {
                 scrollRef.current?.children[lastIndex]?.scrollIntoView({
                     behavior: "smooth",
@@ -43,18 +38,6 @@ export default function PresidencyTimeline() {
         }
     }, [dispatch]);
 
-
-
-    const handleDotMeasure = (dotX) => {
-        if (avatarRef.current) {
-            const avatarRect = avatarRef.current.getBoundingClientRect();
-            const avatarCenterX = avatarRect.left + avatarRect.width / 2;
-            const left = Math.min(avatarCenterX, dotX);
-            const width = Math.abs(avatarCenterX - dotX);
-            setLineProps({ left, width });
-        }
-    };
-
     const scroll = (direction) => {
         if (!scrollRef.current) return;
         const scrollAmount = 100;
@@ -63,6 +46,50 @@ export default function PresidencyTimeline() {
             behavior: "smooth",
         });
     };
+
+    const drawLine = () => {
+        if (!avatarRef.current || !dotRef.current || !scrollRef.current) {
+            setLineStyle(null);
+            return;
+        }
+
+        const avatarBox = avatarRef.current.getBoundingClientRect();
+        const dotBox = dotRef.current.getBoundingClientRect();
+        const containerBox = scrollRef.current.getBoundingClientRect();
+
+        // Start X = right edge of avatar
+        const startX = avatarBox.left + avatarBox.width;
+
+        // End X = center of dot (small circle)
+        const endX = dotBox.left + dotBox.width / 2 + 34;
+
+        // Vertical alignment calculation
+        const containerHeight = containerBox.height;
+        const top = containerHeight / 2 - 30;
+
+        setLineStyle({
+            left: startX - containerBox.left,
+            width: endX - startX,
+            top,
+        });
+    };
+
+    useEffect(() => {
+        drawLine();
+    }, [selectedIndex, selectedDate]);
+
+    useEffect(() => {
+        drawLine();
+
+        window.addEventListener("resize", drawLine);
+        const scrollContainer = scrollRef.current;
+        scrollContainer?.addEventListener("scroll", drawLine);
+
+        return () => {
+            window.removeEventListener("resize", drawLine);
+            scrollContainer?.removeEventListener("scroll", drawLine);
+        };
+    }, []);
 
     return (
         <Box
@@ -74,16 +101,11 @@ export default function PresidencyTimeline() {
                 overflow: "hidden",
             }}
         >
-            {/* Left scroll button */}
-            <IconButton
-                onClick={() => scroll("left")}
-                sx={{ zIndex: 10, mt: -7 }}
-                aria-label="scroll left"
-            >
+            <IconButton onClick={() => scroll("left")} sx={{ zIndex: 10, mt: -7 }}>
                 <ArrowBackIosNewIcon />
             </IconButton>
 
-            {/* Background line */}
+            {/* Background timeline line */}
             <Box
                 sx={{
                     position: "absolute",
@@ -91,23 +113,23 @@ export default function PresidencyTimeline() {
                     left: 50,
                     right: 50,
                     height: "3px",
-                    backgroundColor: "#ccc",
+                    backgroundColor: colors.timelineColor,
                     zIndex: 0,
                 }}
             />
 
-            {/* Blue connecting line */}
-            {selectedDate && (
+            {/* Blue connector line */}
+            {lineStyle && selectedIndex !== null && selectedDate && (
                 <Box
                     sx={{
                         position: "absolute",
-                        top: "50.2px",
                         height: "3px",
                         backgroundColor: colors.timelineLineActive,
-                        left: lineProps.left,
-                        width: lineProps.width,
-                        transition: "left 0.3s ease, width 0.3s ease",
+                        top: `${lineStyle.top}px`,
+                        left: `${lineStyle.left}px`,
+                        width: `${lineStyle.width}px`,
                         zIndex: 1,
+                        transition: "left 0.3s ease, width 0.3s ease",
                     }}
                 />
             )}
@@ -129,29 +151,30 @@ export default function PresidencyTimeline() {
                     "&::-webkit-scrollbar": { display: "none" },
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
-                    justifyContent: centerContent ? "center" : "start",
                 }}
             >
                 {presidents.map((president, index) => {
                     const isSelected = index === selectedIndex;
                     return (
-                        <React.Fragment key={index}>
+                        <Box
+                            key={index}
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 2,
+                                flexShrink: 0,
+                                transition: "all 0.3s ease",
+                            }}
+                        >
                             <Box
                                 onClick={() => {
-                                    if (selectedIndex === index) {
+                                    if (isSelected) {
                                         dispatch(setSelectedIndex(null));
                                         dispatch(setSelectedDate(null));
                                     } else {
                                         dispatch(setSelectedIndex(index));
-
-                                        const firstDate =
-                                            president.dates && president.dates.length > 0
-                                                ? president.dates[0].date
-                                                : null;
-
-                                        dispatch(setSelectedDate(firstDate));
-
-
+                                        const firstDate = president.dates?.[0]?.date;
+                                        if (firstDate) dispatch(setSelectedDate(firstDate));
                                     }
                                 }}
                                 sx={{
@@ -159,9 +182,7 @@ export default function PresidencyTimeline() {
                                     textAlign: "center",
                                     transform: isSelected ? "scale(1.3)" : "scale(1)",
                                     transition: "all 0.3s ease",
-                                    minWidth: 100,
-                                    flexShrink: 0,
-                                    position: "relative",
+                                    minWidth: 80,
                                 }}
                             >
                                 <Avatar
@@ -174,8 +195,8 @@ export default function PresidencyTimeline() {
                                         border: isSelected
                                             ? `3px solid ${colors.timelineLineActive}`
                                             : `2px solid ${colors.inactiveBorderColor}`,
-                                        margin: "auto",
                                         backgroundColor: "white",
+                                        margin: "auto",
                                         filter: isSelected ? "none" : "grayscale(50%)",
                                     }}
                                 />
@@ -187,28 +208,70 @@ export default function PresidencyTimeline() {
                                 </Typography>
                             </Box>
 
-                            {isSelected && (
-                                <Box sx={{ display: "flex", alignItems: "center", mt: -4, ml: -12, mr: -12 }}>
-                                    <GazetteTimeline
-                                        data={president.dates}
-                                        onSelectDate={(date) => dispatch(setSelectedDate(date))}
-                                        onMeasureStart={handleDotMeasure}
-                                    />
+                            {isSelected && president.dates?.length > 0 && (
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 2,
+                                        transition: "all 0.3s ease",
+                                        ml: 1,
+                                        pr: 2,
+                                    }}
+                                >
+                                    {president.dates.map((item) => {
+                                        const isDateSelected = item.date === selectedDate;
+                                        return (
+                                            <Box
+                                                key={item.date}
+                                                onClick={() => dispatch(setSelectedDate(item.date))}
+                                                sx={{
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    alignItems: "center",
+                                                    cursor: "pointer",
+                                                    transform: isDateSelected ? "scale(1.1)" : "scale(1)",
+                                                    transition: "transform 0.2s ease",
+                                                    mt: "-32px",
+                                                }}
+                                            >
+                                                <Box
+                                                    ref={isDateSelected ? dotRef : null}
+                                                    sx={{
+                                                        width: 10,
+                                                        height: 10,
+                                                        borderRadius: "50%",
+                                                        backgroundColor: isDateSelected
+                                                            ? colors.dotColorActive
+                                                            : colors.dotColorInactive,
+                                                        border: "2px solid white",
+                                                    }}
+                                                />
+                                                <Typography
+                                                    variant="caption"
+                                                    sx={{
+                                                        mt: 0.5,
+                                                        color: isDateSelected
+                                                            ? colors.dotColorActive
+                                                            : colors.dotColorInactive,
+                                                        fontSize: "0.7rem",
+                                                    }}
+                                                >
+                                                    {item.date}
+                                                </Typography>
+                                            </Box>
+                                        );
+                                    })}
                                 </Box>
                             )}
-                        </React.Fragment>
+                        </Box>
                     );
                 })}
             </Box>
 
-            {/* Right scroll button */}
-            <IconButton
-                onClick={() => scroll("right")}
-                sx={{ zIndex: 10, mt: -7 }}
-                aria-label="scroll right"
-            >
+            <IconButton onClick={() => scroll("right")} sx={{ zIndex: 10, mt: -7 }}>
                 <ArrowForwardIosIcon />
             </IconButton>
         </Box>
-    )
+    );
 }
