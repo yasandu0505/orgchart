@@ -1,6 +1,6 @@
 
 const colors = {
-  backgroundPrimary: '#f5f5f5',
+  backgroundPrimary: '#F8FAFF',
   backgroundSecondary: '#2593B8',
   backgroundTertiary:'rgba(25, 164, 210, 0.4)',
   
@@ -11,13 +11,13 @@ const colors = {
   textSearch:'#0d47a1',
 
   // Dots / Timeline / UI
-  dotColorActive: '#2593B8', // Blue
-  dotColorInactive: '#444', // Grey
-  timelineLineActive: '#2593B8', // Blue
+  dotColorActive: '#081D53', // Blue
+  dotColorInactive: '#999', // Grey
+  timelineLineActive: '#081D53', // Blue
   timelineColor: '#ccc',
 
   // Buttons / Accents
-  primary: '#2593B8',
+  primary: '#03045e',
   secondary: '#9c27b0',
   success: '#4caf50',
   warning: '#ff9800',
@@ -25,6 +25,9 @@ const colors = {
 
   // Misc
   inactiveBorderColor: 'gray',
+
+  //main colors
+  white: "#ffffff"
 };
 
 export default colors;

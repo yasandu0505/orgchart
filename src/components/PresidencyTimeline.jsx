@@ -3,27 +3,29 @@ import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import colors from "../assets/colors";
-import { presidents } from "../presidents";
 import { useSelector, useDispatch } from "react-redux";
-import { setSelectedIndex, setSelectedDate } from "../store/presidencySlice";
+import { setSelectedIndex, setSelectedDate, setSelectedPresident} from "../store/presidencySlice";
+import utils from "../utils/utils";
 
 export default function PresidencyTimeline() {
     const dispatch = useDispatch();
+    const presidents = useSelector((state) => state.presidency.presidentList);
+    const selectedPresident = useSelector((state) => state.presidency.selectedPresident);
     const selectedIndex = useSelector((state) => state.presidency.selectedIndex);
     const selectedDate = useSelector((state) => state.presidency.selectedDate);
+    const {gazetteData} = useSelector((state) => state.gazettes);
     const scrollRef = useRef(null);
     const avatarRef = useRef(null);
     const dotRef = useRef(null);
     const [lineStyle, setLineStyle] = useState(null);
 
-
     const initialSelectionDone = useRef(false);
 
+
     useEffect(() => {
-        if (!initialSelectionDone.current && presidents.length > 0) {
+        if (!initialSelectionDone.current && presidents.length > 0 && gazetteData.length > 0) {
             const lastIndex = presidents.length - 1;
-            const lastPresident = presidents[lastIndex];
-            const lastDate = lastPresident.dates?.[lastPresident.dates.length - 1]?.date || null;
+            const lastDate = selectedDate.date;
 
             dispatch(setSelectedIndex(lastIndex));
             if (lastDate) dispatch(setSelectedDate(lastDate));
@@ -36,7 +38,7 @@ export default function PresidencyTimeline() {
                 });
             }, 100);
         }
-    }, [dispatch]);
+    }, [gazetteData,selectedDate, dispatch]);
 
     const scroll = (direction) => {
         if (!scrollRef.current) return;
@@ -99,6 +101,7 @@ export default function PresidencyTimeline() {
                 alignItems: "center",
                 maxWidth: "100%",
                 overflow: "hidden",
+                width: "80%",
             }}
         >
             <IconButton onClick={() => scroll("left")} sx={{ zIndex: 10, mt: -7 }}>
@@ -112,7 +115,7 @@ export default function PresidencyTimeline() {
                     top: "calc(50% - 30px)",
                     left: 50,
                     right: 50,
-                    height: "3px",
+                    height: "2px",
                     backgroundColor: colors.timelineColor,
                     zIndex: 0,
                 }}
@@ -123,7 +126,7 @@ export default function PresidencyTimeline() {
                 <Box
                     sx={{
                         position: "absolute",
-                        height: "3px",
+                        height: "5px",
                         backgroundColor: colors.timelineLineActive,
                         top: `${lineStyle.top}px`,
                         left: `${lineStyle.left}px`,
@@ -151,10 +154,12 @@ export default function PresidencyTimeline() {
                     "&::-webkit-scrollbar": { display: "none" },
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
+
                 }}
             >
                 {presidents.map((president, index) => {
                     const isSelected = index === selectedIndex;
+                    // console.log('selected index : ', selectedIndex)
                     return (
                         <Box
                             key={index}
@@ -172,8 +177,9 @@ export default function PresidencyTimeline() {
                                         dispatch(setSelectedIndex(null));
                                         dispatch(setSelectedDate(null));
                                     } else {
+                                        dispatch(setSelectedPresident(president));
                                         dispatch(setSelectedIndex(index));
-                                        const firstDate = president.dates?.[0]?.date;
+                                        const firstDate = gazetteData?.[0]?.date;
                                         if (firstDate) dispatch(setSelectedDate(firstDate));
                                     }
                                 }}
@@ -193,7 +199,7 @@ export default function PresidencyTimeline() {
                                         width: 40,
                                         height: 40,
                                         border: isSelected
-                                            ? `3px solid ${colors.timelineLineActive}`
+                                            ? `4px solid ${colors.timelineLineActive}`
                                             : `2px solid ${colors.inactiveBorderColor}`,
                                         backgroundColor: "white",
                                         margin: "auto",
@@ -201,14 +207,14 @@ export default function PresidencyTimeline() {
                                     }}
                                 />
                                 <Typography variant="body2" sx={{ mt: 1, color: "black" }}>
-                                    {president.name}
+                                     {utils.extractNameFromProtobuf(president.name)}
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: "gray" }}>
-                                    {president.year}
+                                  { selectedPresident && selectedPresident.created.split("-")[0]}
                                 </Typography>
                             </Box>
 
-                            {isSelected && president.dates?.length > 0 && (
+                            {isSelected && gazetteData?.length > 0 && (
                                 <Box
                                     sx={{
                                         display: "flex",
@@ -219,7 +225,7 @@ export default function PresidencyTimeline() {
                                         pr: 2,
                                     }}
                                 >
-                                    {president.dates.map((item) => {
+                                    {gazetteData.map((item) => {
                                         const isDateSelected = item.date === selectedDate;
                                         return (
                                             <Box
@@ -238,13 +244,13 @@ export default function PresidencyTimeline() {
                                                 <Box
                                                     ref={isDateSelected ? dotRef : null}
                                                     sx={{
-                                                        width: 10,
-                                                        height: 10,
+                                                        width: 15,
+                                                        height: 15,
                                                         borderRadius: "50%",
                                                         backgroundColor: isDateSelected
                                                             ? colors.dotColorActive
                                                             : colors.dotColorInactive,
-                                                        border: "2px solid white",
+                                                        border: "3px solid white",
                                                     }}
                                                 />
                                                 <Typography
@@ -254,7 +260,8 @@ export default function PresidencyTimeline() {
                                                         color: isDateSelected
                                                             ? colors.dotColorActive
                                                             : colors.dotColorInactive,
-                                                        fontSize: "0.7rem",
+                                                        fontSize: "0.75rem",
+                                                        fontWeight: isDateSelected ? "bold" : ""
                                                     }}
                                                 >
                                                     {item.date}
