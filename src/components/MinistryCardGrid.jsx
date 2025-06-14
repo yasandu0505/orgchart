@@ -1,5 +1,3 @@
-// src/components/MinistryCardGrid.jsx
-
 import { Box, Grid, Typography } from '@mui/material';
 import MinistryCard from './MinistryCard';
 import colors from '../assets/colors';
@@ -26,14 +24,23 @@ const MinistryCardGrid = ({ selectedPresident, selectedDate, onCardClick }) => {
                     <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
                         Gazette Date
                     </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.textSecondary}}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.textSecondary }}>
                         {selectedDate}
                     </Typography>
                 </Box>
 
-                <Grid container spacing={2}>
+                <Grid container columns={12} columnSpacing={2} rowSpacing={2}>
                     {ministryCards.map((card) => (
-                        <Grid key={card.id} item xs={12} sm={6} md={4}>
+                        <Grid
+                            key={card.id}
+                            sx={{
+                                gridColumn: {
+                                    xs: 'span 12',
+                                    sm: 'span 6',
+                                    md: 'span 4',
+                                },
+                            }}
+                        >
                             <MinistryCard card={card} onClick={onCardClick} />
                         </Grid>
                     ))}
