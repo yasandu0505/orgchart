@@ -14,6 +14,7 @@ const colors = {
   dotColorActive: '#2593B8', // Blue
   dotColorInactive: '#444', // Grey
   timelineLineActive: '#2593B8', // Blue
+  timelineColor: '#ccc',
 
   // Buttons / Accents
   primary: '#2593B8',

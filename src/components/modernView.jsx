@@ -112,7 +112,7 @@ const ModernView = () => {
                 </Stack>
             </Box>
 
-            <Box sx={{ display: "flex", mt: 5 }}>
+            <Box sx={{ display: "flex", mt: 5 , justifyContent: "center"}}>
                 <PresidencyTimeline />
             </Box>
 
