@@ -1,357 +1,252 @@
-"use client"
+import React, { useEffect, useRef } from 'react';
+import { MessageCircle, BarChart3, Lightbulb, Calendar, Users, AlertTriangle, ChevronRight, Building2, User } from 'lucide-react';
+import * as d3 from 'd3';
+import { useNavigate } from 'react-router-dom';
 
-import { useState, useEffect, useRef } from "react"
+const Home = () => {
+  const navigate = useNavigate();
+  const svgRef = useRef();
 
-// Custom icon components using SVG
-const ChevronRight = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="9,18 15,12 9,6"></polyline>
-  </svg>
-)
-
-const Network = () => (
-  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="2"></circle>
-    <path d="m16.24 7.76-1.41 1.41"></path>
-    <path d="m15.07 13.05-.78-.78"></path>
-    <path d="m16.24 16.24-1.41-1.41"></path>
-    <path d="m7.76 16.24 1.41-1.41"></path>
-    <path d="m8.93 10.95.78.78"></path>
-    <path d="m7.76 7.76 1.41 1.41"></path>
-    <circle cx="12" cy="2" r="1"></circle>
-    <circle cx="12" cy="22" r="1"></circle>
-    <circle cx="22" cy="12" r="1"></circle>
-    <circle cx="2" cy="12" r="1"></circle>
-    <circle cx="5.64" cy="5.64" r="1"></circle>
-    <circle cx="18.36" cy="18.36" r="1"></circle>
-    <circle cx="5.64" cy="18.36" r="1"></circle>
-    <circle cx="18.36" cy="5.64" r="1"></circle>
-  </svg>
-)
-
-const Globe = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="2" x2="22" y1="12" y2="12"></line>
-    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-  </svg>
-)
-
-const Building = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
-    <path d="M6 12H4a2 2 0 0 0-2 2v8h20v-8a2 2 0 0 0-2-2h-2"></path>
-  </svg>
-)
-
-const MapPin = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-    <circle cx="12" cy="10" r="3"></circle>
-  </svg>
-)
-
-const Shield = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-  </svg>
-)
-
-const Users = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-    <circle cx="9" cy="7" r="4"></circle>
-    <path d="m22 21-3.7-3.7a2.5 2.5 0 0 0-3.6 0L12 21"></path>
-    <circle cx="17" cy="11" r="3"></circle>
-  </svg>
-)
-
-const Database = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-    <path d="M3 5v14a9 3 0 0 0 18 0V5"></path>
-    <path d="M3 12a9 3 0 0 0 18 0"></path>
-  </svg>
-)
-
-export default function Home() {
-  const [hoveredBox, setHoveredBox] = useState(null)
-  const canvasRef = useRef(null)
-
-  // Node connection animation
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    // Clear previous content
+    d3.select(svgRef.current).selectAll("*").remove();
 
-    const ctx = canvas.getContext("2d")
-    const nodes = []
-    const connections = []
-    const nodeCount = 30
+    // Sample government hierarchy data
+    const data = {
+      name: "Prime Minister",
+      children: [
+        {
+          name: "Finance Ministry",
+          children: [
+            { name: "Dept-A" },
+            { name: "Dept-B" }
+          ]
+        },
+        {
+          name: "Health Ministry",
+          children: [
+            { name: "Dept-A" },
+            { name: "Dept-B" }
+          ]
+        },
+        {
+          name: "Education Ministry",
+          children: [
+            { name: "Dept-A" },
+            { name: "Dept-B" }
+          ]
+        }
+      ]
+    };
 
-    // Set canvas dimensions
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
+    const width = 400;
+    const height = 250;
 
-    resizeCanvas()
-    window.addEventListener("resize", resizeCanvas)
+    const svg = d3.select(svgRef.current)
+      .attr("width", width)
+      .attr("height", height);
+
+    const root = d3.hierarchy(data);
+    const treeLayout = d3.tree().size([width - 40, height - 40]);
+    treeLayout(root);
+
+    // Create links
+    svg.selectAll(".link")
+      .data(root.links())
+      .enter()
+      .append("path")
+      .attr("class", "link")
+      .attr("d", d3.linkVertical()
+        .x(d => d.x + 20)
+        .y(d => d.y + 20))
+      .attr("fill", "none")
+      .attr("stroke", "#94a3b8")
+      .attr("stroke-width", 2);
 
     // Create nodes
-    for (let i = 0; i < nodeCount; i++) {
-      nodes.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2 + 1,
-        vx: Math.random() * 0.5 - 0.25,
-        vy: Math.random() * 0.5 - 0.25,
-        color: `rgba(${Math.floor(Math.random() * 100 + 100)}, ${Math.floor(Math.random() * 100 + 150)}, ${Math.floor(Math.random() * 55 + 200)}, ${Math.random() * 0.5 + 0.2})`,
-      })
-    }
+    const nodes = svg.selectAll(".node")
+      .data(root.descendants())
+      .enter()
+      .append("g")
+      .attr("class", "node")
+      .attr("transform", d => `translate(${d.x + 20}, ${d.y + 20})`);
 
-    // Create connections between nodes
-    for (let i = 0; i < nodeCount; i++) {
-      for (let j = i + 1; j < nodeCount; j++) {
-        if (Math.random() > 0.85) {
-          connections.push([i, j])
-        }
-      }
-    }
+    nodes.append("circle")
+      .attr("r", 6)
+      .attr("fill", d => d.depth === 0 ? "#3b82f6" : d.depth === 1 ? "#8b5cf6" : "#06b6d4");
 
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
+    nodes.append("text")
+      .attr("dy", -10)
+      .attr("text-anchor", "middle")
+      .style("font-size", "10px")
+      .style("font-weight", "500")
+      .style("fill", "#374151")
+      .text(d => d.data.name);
 
-      // Update and draw connections
-      connections.forEach(([i, j]) => {
-        const nodeA = nodes[i]
-        const nodeB = nodes[j]
-        const dx = nodeB.x - nodeA.x
-        const dy = nodeB.y - nodeA.y
-        const distance = Math.sqrt(dx * dx + dy * dy)
+  }, []);
 
-        if (distance < 200) {
-          ctx.beginPath()
-          ctx.moveTo(nodeA.x, nodeA.y)
-          ctx.lineTo(nodeB.x, nodeB.y)
-          ctx.strokeStyle = `rgba(56, 189, 248, ${0.1 * (1 - distance / 200)})`
-          ctx.lineWidth = 0.5
-          ctx.stroke()
-        }
-      })
-
-      // Update and draw nodes
-      nodes.forEach((node) => {
-        // Update position
-        node.x += node.vx
-        node.y += node.vy
-
-        // Bounce off edges
-        if (node.x < 0 || node.x > canvas.width) node.vx *= -1
-        if (node.y < 0 || node.y > canvas.height) node.vy *= -1
-
-        // Draw node
-        ctx.beginPath()
-        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2)
-        ctx.fillStyle = node.color
-        ctx.fill()
-      })
-
-      requestAnimationFrame(animate)
-    }
-
-    animate()
-
-    return () => {
-      window.removeEventListener("resize", resizeCanvas)
-    }
-  }, [])
-
-  const onExplore = () => {
-    console.log("Explore clicked")
-  }
-
-  const governmentLevels = [
-    {
-      id: "state",
-      title: "State Government",
-      icon: Building,
-      description: "Governors, State Legislature, Courts",
-      gradient: "from-purple-500/20 to-pink-500/20",
-    },
-    {
-      id: "agencies",
-      title: "Agencies & Depts",
-      icon: Shield,
-      description: "Federal agencies and departments",
-      gradient: "from-orange-500/20 to-red-500/20",
-    },
-    {
-      id: "officials",
-      title: "Key Officials",
-      icon: Users,
-      description: "Elected representatives and appointees",
-      gradient: "from-indigo-500/20 to-blue-500/20",
-    },
-  ]
-
-  const BoxComponent = ({ box }) => {
-    const Icon = box.icon
-    const isHovered = hoveredBox === box.id
-
-    return (
-      <div
-        className={`relative group cursor-pointer transition-all duration-500 transform ${
-          isHovered ? "scale-105" : "scale-100"
-        }`}
-        onMouseEnter={() => setHoveredBox(box.id)}
-        onMouseLeave={() => setHoveredBox(null)}
-      >
-        {/* Glow effect */}
-        <div
-          className={`absolute inset-0 rounded-xl bg-gradient-to-r ${box.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl`}
-        />
-
-        {/* Main box */}
-        <div
-          className={`relative backdrop-blur-sm bg-gray-900/40 border rounded-xl p-6 transition-all duration-300 ${
-            isHovered
-              ? "border-cyan-400/50 shadow-lg shadow-cyan-400/20"
-              : "border-gray-700/50 hover:border-gray-600/50"
-          }`}
-        >
-          {/* Animated border */}
-          <div
-            className={`absolute inset-0 rounded-xl transition-opacity duration-300 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-cyan-400/20 to-transparent animate-pulse" />
-          </div>
-
-          <div className="relative z-10">
-            <div className="flex items-center space-x-3 mb-3">
-              <div
-                className={`p-2 rounded-lg transition-colors duration-300 ${
-                  isHovered ? "bg-cyan-400/20" : "bg-gray-800/50"
-                }`}
-              >
-                <Icon
-                  className={`w-5 h-5 transition-colors duration-300 ${isHovered ? "text-cyan-400" : "text-gray-400"}`}
-                />
-              </div>
-              <h3
-                className={`font-semibold transition-colors duration-300 ${
-                  isHovered ? "text-cyan-400" : "text-gray-200"
-                }`}
-              >
-                {box.title}
-              </h3>
-            </div>
-            <p className="text-sm text-gray-400 leading-relaxed">{box.description}</p>
-          </div>
-        </div>
-      </div>
-    )
+  const handleExplore = () => {
+    navigate("/modern-view");
   }
 
   return (
-    <div className="min-h-screen w-full flex bg-gray-950 relative overflow-hidden">
-      {/* Node connection animation canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" />
+    <div className="min-h-screen bg-gray-50 py-12 px-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            Navigate Your{' '}
+            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              Government Hierarchy
+            </span>
+            , <br />
+            No Matter Where You Stand
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Understand your role, track policy implementations, and collaborate effectively 
+            with GovTrack - the comprehensive governance management platform for public servants.
+          </p>
+          <button className="bg-black text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-800 transition-colors" onClick={handleExplore}>
+            Begin Exploration
+          </button>
+        </div>
 
-      {/* Animated background grid */}
-      <div className="absolute inset-0 opacity-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.3) 1px, transparent 0)`,
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
-
-      {/* Animated particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-cyan-400/30 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center px-6 py-12 relative z-10">
-        {/* Left side content */}
-        <div className="w-full md:w-7/12 pr-0 md:pr-8 mb-12 md:mb-0">
-          <div className="text-left max-w-2xl">
-            {/* Main title with gradient */}
-            <div className="mb-8">
-              <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent leading-tight">
-                Explore Your
-              </h1>
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent leading-tight">
-                Government Structure
-              </h1>
-            </div>
-
-            {/* Subtitle */}
-            <p className="text-lg md:text-xl text-gray-400 mb-12 leading-relaxed">
-              Navigate through the complex layers of government with our intelligent mapping system. Discover
-              connections, understand hierarchies, and explore the network that shapes our democracy.
-            </p>
-
-            {/* Central network icon */}
-            {/* <div className="mb-12 flex justify-start">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-blue-500/20 rounded-full blur-xl animate-pulse"></div>
-                <div className="relative bg-gray-900/50 backdrop-blur-sm p-6 rounded-full border border-cyan-400/30">
-                  <Network className="w-12 h-12 text-cyan-400" />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Left Section - Classic View */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
+              Classic View<br />
+              <span className="text-sm font-normal text-gray-600">D3.js Powered Tree Diagram</span>
+            </h3>
+            
+            <div className="flex flex-col items-center">
+              <svg ref={svgRef}></svg>
+              <div className="mt-4 text-center">
+                <p className="text-sm text-gray-600 mb-2">Interactive Government Hierarchy</p>
+                <div className="flex items-center justify-center space-x-4 text-xs">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span className="text-gray-600">Executive</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                    <span className="text-gray-600">Ministry</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+                    <span className="text-gray-600">Department</span>
+                  </div>
                 </div>
               </div>
-            </div> */}
-
-            {/* CTA Button */}
-            <button
-              onClick={onExplore}
-              className="group relative px-12 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-full font-semibold text-white text-lg transition-all duration-300 hover:from-cyan-500 hover:to-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-cyan-400/25"
-            >
-              <span className="flex items-center space-x-2">
-                <span>Begin Exploration</span>
-                <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-              </span>
-
-              {/* Button glow effect */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300"></div>
-            </button>
-          </div>
-        </div>
-
-        {/* Right side content */}
-        <div className="w-full md:w-5/12 space-y-10">
-          {/* Government Levels */}
-          <div className="space-y-4">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-gray-300 mb-2">Government Levels</h2>
-              <div className="w-12 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500"></div>
             </div>
-            <div className="space-y-4">
-              {governmentLevels.map((box) => (
-                <BoxComponent key={box.id} box={box} />
-              ))}
+          </div>
+
+          {/* Center Section - Modern View */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
+              Modern View<br />
+              <span className="text-sm font-normal text-gray-600">Easy Navigation Interface</span>
+            </h3>
+            
+            <div className="space-y-3">
+              {/* Executive Level */}
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border-l-4 border-blue-500">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Building2 className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Executive Branch</h4>
+                      <p className="text-sm text-gray-600">Prime Minister's Office</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Ministry Level */}
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border-l-4 border-purple-500">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Users className="w-5 h-5 text-purple-600" />
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Ministry Level</h4>
+                      <p className="text-sm text-gray-600">3 Active Ministries</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Department Level */}
+              <div className="bg-gradient-to-r from-cyan-50 to-cyan-100 rounded-lg p-4 border-l-4 border-cyan-500">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <User className="w-5 h-5 text-cyan-600" />
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Department Level</h4>
+                      <p className="text-sm text-gray-600">8 Active Departments</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="bg-gray-50 rounded-lg p-3 mt-4">
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <p className="text-lg font-bold text-gray-900">847</p>
+                    <p className="text-xs text-gray-600">Total Positions</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-gray-900">23</p>
+                    <p className="text-xs text-gray-600">Active Projects</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Section - AI Insights */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
+              AI Powered Insights
+            </h3>
+            
+            {/* AI Query */}
+            <div className="bg-gray-100 rounded-lg p-4 mb-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <Lightbulb className="w-5 h-5 text-yellow-500" />
+                <span className="text-sm font-medium text-gray-800">
+                  What tasks are causing delays in my department?
+                </span>
+              </div>
+            </div>
+
+            <p className="text-sm font-semibold text-gray-900 mb-3">Top Delays Detected:</p>
+
+            {/* Delay Analysis */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <p className="text-sm font-medium text-gray-800 mb-2">Task:</p>
+              <p className="text-blue-600 font-medium mb-2">Budget Review for Social Programs</p>
+              <div className="flex items-center space-x-2 mb-2">
+                <AlertTriangle className="w-4 h-4 text-red-500" />
+                <span className="text-sm text-gray-600">
+                  Waiting on resource allocation approval.
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm text-green-600 font-medium">3 days overdue</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Gradient overlays for depth */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-gray-950 to-transparent pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-gray-950 to-transparent pointer-events-none"></div>
     </div>
-  )
-}
+  );
+};
+
+export default Home;
