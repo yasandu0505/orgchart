@@ -118,8 +118,12 @@ const Home = () => {
       `}</style>
       
       <div className="max-w-6xl mx-auto">
+        
         {/* Hero Section */}
         <div className="text-center mb-16">
+          <div class="text-center inline-flex items-center space-x-2 bg-blue-900/20 border border-blue-800/30 rounded-full px-4 py-1 text-blue-400 text-sm font-mono mb-4">
+                <span class="text-xs">OrgChart v0.1.0</span>
+            </div>
           <h1 className="text-5xl font-bold text-white mb-6">
             Navigate Your{' '}
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
