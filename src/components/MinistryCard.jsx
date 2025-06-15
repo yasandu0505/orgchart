@@ -29,12 +29,13 @@ const MinistryCard = ({ card, onClick }) => {
           direction="row"
           alignItems="center"
           spacing={1}
-          sx={{ px: 2, py: 1, backgroundColor: colors.primary }}
+          minHeight={50}
+          sx={{ px: 2, py: 1, backgroundColor: colors.backgroundSecondary }}
         >
           {/* <Avatar sx={{ bgcolor: colors.backgroundSecondary, width: 28, height: 28 }}>
                         <GroupsIcon fontSize="small" />
                     </Avatar> */}
-          <Typography variant="h6" sx={{ color: "#ffffff" }}>
+          <Typography variant="h7" sx={{ color: "#ffffff" }}>
             {card.name.split(":")[0]}
           </Typography>
         </Stack>

@@ -15,6 +15,7 @@ const fetchInitialGazetteData = async () => {
         }
       })
     })
+
     const responseForDepartment = await fetch("/v1/entities/search", {
       method: "POST",
       headers: {
@@ -27,6 +28,7 @@ const fetchInitialGazetteData = async () => {
         }
       })
     })
+    
     const responseForPerson = await fetch("/v1/entities/search", {
       method: "POST",
       headers: {
@@ -58,9 +60,9 @@ const fetchInitialGazetteData = async () => {
     const datesList2 = resultForPerson.body.map((item) => item.created?.split("T")[0]);
     const datesList3 = resultForDepartment.body.map((item) => item.created?.split("T")[0]);
 
-    console.log('date list 1',datesList1)
-    console.log('date list 2',datesList2)
-    console.log('date list 3',datesList3)
+    // console.log('date list 1',datesList1)
+    // console.log('date list 2',datesList2)
+    // console.log('date list 3',datesList3)
 
     const mergedDateList1 = datesList1.concat(datesList2);
     const mergedDateList2 = mergedDateList1.concat(datesList3).sort();
@@ -105,7 +107,7 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
       },
       body: JSON.stringify({
         relatedEntityId: "",
-        startTime: `${selectedDate}T00:00:00Z`,
+        startTime: `${selectedDate.date}T00:00:00Z`,
         endTime: "",
         id: "",
         name: "AS_MINISTER"
@@ -123,14 +125,14 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
       .filter(relation => relation.relatedEntityId)
       .map(relation => relation.relatedEntityId)
 
-    // console.log('Active ministry IDs:', activeMinistryIds)
+    console.log('Active ministry IDs:', activeMinistryIds)
 
     // Map active ministry IDs with the protobuf data to get ministry names
     const activeMinistries = allMinistryData
       .filter(ministry => activeMinistryIds.includes(ministry.id))
       .map(ministry => {
         let name = ministry.name
-        
+
         try {
           const parsed = JSON.parse(ministry.name)
           if (parsed?.value) {
@@ -149,7 +151,7 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
         }
       })
 
-    // console.log('Active ministries with names:', activeMinistries)
+    console.log('Active ministries with names:', activeMinistries)
 
     return {
       name: "Government",
@@ -247,7 +249,7 @@ const fetchAllDepartments = async () => {
 } 
 
 const fetchAllMinistries = async () => {
-    // Fetch all department protobuf data
+    // Fetch all ministries protobuf data
     const response = await fetch("/v1/entities/search", {
       method: "POST",
       headers: {
@@ -268,5 +270,4 @@ const fetchAllMinistries = async () => {
     return response;
 } 
 
-
-export default {fetchInitialGazetteData, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry, fetchAllDepartments, fetchPresidentsData};
+export default {fetchInitialGazetteData, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};

@@ -175,7 +175,7 @@ const ModernView = () => {
 
   const fetchAllMinistryData = async () => {
     try{
-      const response = await api.fetchAllDepartments();
+      const response = await api.fetchAllMinistries();
       const ministryList = await response.json();
       console.log("department fetched", ministryList.body);
       dispatch(setAllMinistryData(ministryList.body));

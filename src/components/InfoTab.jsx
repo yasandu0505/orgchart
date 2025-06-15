@@ -56,7 +56,7 @@ const InfoTab = ({
           {drawerMode === "ministry" && selectedCard && (
             <MinistryDrawerContent
               selectedCard={selectedCard}
-              selectedDate={selectedDate}
+              selectedDate={selectedDate.date}
               onDepartmentClick={onDepartmentClick}
             />
           )}

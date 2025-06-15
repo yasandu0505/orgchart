@@ -14,37 +14,19 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // console.log('selected date ', selectedDate)
-  // console.log('all ministry data ', allMinistryData)
-
-  // if (!selectedPresident || !selectedDate) return null;
-
-  // const dateEntry = gazetteData.find(d => d.date === selectedDate);
-  // if (!dateEntry || !Array.isArray(dateEntry.ministerList)) return null;
-
-  // console.log('date entry : ', dateEntry)
-
-  // const ministryCards = dateEntry.ministerList.map((minister, index) => ({
-  //     id: index,
-  //     title: minister.name,
-  //     headMinister: minister.headMinister,
-  //     deputyMinister: minister.deputyMinister,
-  //     stateMinister: minister.stateMinister,
-  //     departments: minister.departments,
-  // }));
-
   useEffect(() => {
-    console.log('selected date : ', selectedDate)
     fetchMinistryList();
-  }, [selectedDate]);
+  }, [selectedDate, allMinistryData]);
 
   const fetchMinistryList = async () => {
-    
-  if (!selectedDate || !allMinistryData || allMinistryData.length === 0) return;
+    if (!selectedDate || !allMinistryData || allMinistryData.length === 0)
+      return;
     try {
       setLoading(true);
       console.log("finding active ministry");
-      setActiveMinistryList([]); 
+      console.log("selected date : ", selectedDate);
+      console.log("all ministry details : ", allMinistryData);
+      setActiveMinistryList([]);
       const activeMinistry = await api.fetchActiveMinistries(
         selectedDate,
         allMinistryData
@@ -59,7 +41,23 @@ const MinistryCardGrid = ({ onCardClick }) => {
 
   return (
     <Box sx={{ px: 4, pb: 4 }}>
-      <Box sx={{ px: 20, py: 5, overflowX: "auto" }}>
+      <Box
+        sx={{
+          px: {
+            xs: 0,
+            sm: 0, 
+            md: 5, 
+            lg: 10, 
+            xl: 20
+          },
+          py: {
+            xs: 2,
+            sm: 3,
+            md: 5,
+          },
+          overflowX: "auto",
+        }}
+      >
         <Box sx={{ textAlign: "center", mb: 3 }}>
           <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
             Gazette Date
@@ -92,9 +90,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
         ) : (
           <Grid
             container
-            columns={12}
-            columnSpacing={2}
-            rowSpacing={2}
+            spacing={2}
             sx={{
               border: `2px solid ${colors.primary}15`,
               p: 2,
@@ -105,12 +101,20 @@ const MinistryCardGrid = ({ onCardClick }) => {
             {activeMinistryList && activeMinistryList.length > 0 ? (
               activeMinistryList.map((card) => (
                 <Grid
+                  item
                   key={card.id}
                   sx={{
-                    gridColumn: {
-                      xs: "span 12",
-                      sm: "span 6",
-                      md: "span 4",
+                    flexBasis: {
+                      xs: "100%",
+                      sm: "50%",
+                      md: "25%",
+                      lg: "16.66%",
+                    },
+                    maxWidth: {
+                      xs: "100%",
+                      sm: "50%",
+                      md: "25%",
+                      lg: "16.66%",
                     },
                   }}
                 >
@@ -123,10 +127,17 @@ const MinistryCardGrid = ({ onCardClick }) => {
                 </Grid>
               ))
             ) : (
-              <Box  sx={{width: "100%", display: "flex", justifyContent: "center"}}>
-                <Alert severity="info" sx={{backgroundColor: "transparent"}}>
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
                   <AlertTitle>Info</AlertTitle>
-                  No ministries in the goverment. Sometimes this can be the president appointed date.
+                  No ministries in the goverment. Sometimes this can be the
+                  president appointed date.
                 </Alert>
               </Box>
             )}
