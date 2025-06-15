@@ -45,6 +45,7 @@ const Home = () => {
       .attr("width", width)
       .attr("height", height);
 
+    
     const root = d3.hierarchy(data);
     const treeLayout = d3.tree().size([width - 40, height - 40]);
     treeLayout(root);
@@ -59,8 +60,8 @@ const Home = () => {
         .x(d => d.x + 20)
         .y(d => d.y + 20))
       .attr("fill", "none")
-      .attr("stroke", "#94a3b8")
-      .attr("stroke-width", 2);
+      .attr("stroke", "#FAF9F6")
+      .attr("stroke-width", 1.5)
 
     // Create nodes
     const nodes = svg.selectAll(".node")
@@ -79,7 +80,7 @@ const Home = () => {
       .attr("text-anchor", "middle")
       .style("font-size", "10px")
       .style("font-weight", "500")
-      .style("fill", "#374151")
+      .style("fill", "#94a3b8")
       .text(d => d.data.name);
   }, []);
 
