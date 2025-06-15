@@ -112,7 +112,7 @@ const MinistryDrawerContent = ({
           sx={{ mr: 1, color: colors.backgroundSecondary }}
         />
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          {selectedCard.name}
+          {selectedCard.name.split(":")[0]}
         </Typography>
       </Box>
 

@@ -34,15 +34,17 @@ const MinistryCardGrid = ({ onCardClick }) => {
   // }));
 
   useEffect(() => {
-    console.log(selectedDate);
+    console.log('selected date : ', selectedDate)
     fetchMinistryList();
   }, [selectedDate]);
 
   const fetchMinistryList = async () => {
+    
+  if (!selectedDate || !allMinistryData || allMinistryData.length === 0) return;
     try {
       setLoading(true);
       console.log("finding active ministry");
-      setActiveMinistryList([]);
+      setActiveMinistryList([]); 
       const activeMinistry = await api.fetchActiveMinistries(
         selectedDate,
         allMinistryData
@@ -51,7 +53,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
       setActiveMinistryList(activeMinistry.children);
       setLoading(false);
     } catch (e) {
-      console.log("");
+      console.log("error fetch ministry list : ", e.message);
     }
   };
 

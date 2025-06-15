@@ -63,6 +63,7 @@ const ModernView = () => {
     const initialFetchData = async () => {
       try {
         fetchPersonData();
+        fetchAllMinistryData();
         fetchAllDepartmentData();
       } catch (e) {
         console.error("Error loading initial data:", e.message);
@@ -71,10 +72,25 @@ const ModernView = () => {
     initialFetchData();
   }, []);
 
-  useEffect(() => {
-    clearCurrentLists();
-    // fetchMinistryList();
-  }, [selectedDate, selectedPresident]);
+  // useEffect(() => {
+  //   clearCurrentLists();
+  //   fetchMinistryList();
+  // }, [selectedDate, selectedPresident]);
+
+  //   const fetchMinistryList = async () => {
+  //   try {
+  //     setActiveMinistryList([]);
+  //     const activeMinistry = await api.fetchActiveMinistries(
+  //       selectedDate,
+  //       allMinistryData
+  //     );
+  //     console.log(activeMinistry.children)
+  //     setActiveMinistryList(activeMinistry.children);
+  //   } catch (e) {
+  //     console.log("");
+  //   }
+  // };
+
 
   const fetchPersonData = async () => {
     try {
@@ -131,10 +147,12 @@ const ModernView = () => {
         );
       }
 
+      console.log('date list : ', dates)
+
       const transformed = filteredDates.map((date) => ({ date: date }));
 
       dispatch(setGazetteData(transformed));
-      dispatch(setAllMinistryData(allMinistryData));
+      // dispatch(setAllMinistryData(allMinistryData));
 
       if (transformed.length > 0) {
         dispatch(setSelectedDate(transformed[transformed.length - 1]));
@@ -154,6 +172,17 @@ const ModernView = () => {
       console.log(`Error fetching department data : ${e.message}`);
     }
   };
+
+  const fetchAllMinistryData = async () => {
+    try{
+      const response = await api.fetchAllDepartments();
+      const ministryList = await response.json();
+      console.log("department fetched", ministryList.body);
+      dispatch(setAllMinistryData(ministryList.body));
+    }catch(e){
+      console.log(`Error fetching ministry data : ${e.message}`)
+    }
+  }
 
   const clearCurrentLists = () => {
     // setDepartmentListForMinistry([]);

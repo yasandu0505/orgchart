@@ -77,6 +77,8 @@ export default function PresidencyTimeline() {
     };
 
     useEffect(() => {
+        console.log('selected date to draw : ',selectedDate)
+        console.log('selected index to draw : ',selectedIndex)
         drawLine();
     }, [selectedIndex, selectedDate]);
 
@@ -120,7 +122,7 @@ export default function PresidencyTimeline() {
                     zIndex: 0,
                 }}
             />
-
+            
             {/* Blue connector line */}
             {lineStyle && selectedIndex !== null && selectedDate && (
                 <Box
@@ -226,7 +228,11 @@ export default function PresidencyTimeline() {
                                     }}
                                 >
                                     {gazetteData.map((item) => {
-                                        const isDateSelected = item.date === selectedDate;
+                                        console.log('item ', item)
+                                        console.log('selected date ', selectedDate)
+                                        const isDateSelected = item.date === selectedDate.date;
+                                        
+                                    console.log(' is date selected : ', isDateSelected)
                                         return (
                                             <Box
                                                 key={item.date}

@@ -35,7 +35,7 @@ const MinistryCard = ({ card, onClick }) => {
                         <GroupsIcon fontSize="small" />
                     </Avatar> */}
           <Typography variant="h6" sx={{ color: "#ffffff" }}>
-            {card.name}
+            {card.name.split(":")[0]}
           </Typography>
         </Stack>
 
