@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { MessageCircle, BarChart3, Lightbulb, Calendar, Users, AlertTriangle, ChevronRight, Building2, User, Network, Zap } from 'lucide-react';
 import * as d3 from 'd3';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const svgRef = useRef();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Clear previous content
@@ -60,7 +62,7 @@ const Home = () => {
         .x(d => d.x + 20)
         .y(d => d.y + 20))
       .attr("fill", "none")
-      .attr("stroke", "#FAF9F6")
+      .attr("stroke", "#94a3b8")
       .attr("stroke-width", 1.5)
 
     // Create nodes
@@ -85,8 +87,7 @@ const Home = () => {
   }, []);
 
   const handleExplore = () => {
-    // Navigate functionality would go here
-    console.log("Exploring modern view...");
+    navigate("/modern-view");
   }
 
   return (
