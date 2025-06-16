@@ -63,6 +63,7 @@ const MinistryDrawerContent = ({
       );
 
       const res1 = await response1.json();
+      console.log(res1)
       const res2 = await response2.json();
 
       const personSet = new Set(res1.map((person) => person.relatedEntityId));

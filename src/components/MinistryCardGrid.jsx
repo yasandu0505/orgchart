@@ -13,31 +13,57 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const { selectedDate } = useSelector((state) => state.presidency);
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const allPersonList = useSelector((state) => state.allPerson.allPerson);
+
 
   useEffect(() => {
     fetchMinistryList();
   }, [selectedDate, allMinistryData]);
 
-  const fetchMinistryList = async () => {
-    if (!selectedDate || !allMinistryData || allMinistryData.length === 0)
-      return;
-    try {
-      setLoading(true);
-      console.log("finding active ministry");
-      console.log("selected date : ", selectedDate);
-      console.log("all ministry details : ", allMinistryData);
-      setActiveMinistryList([]);
-      const activeMinistry = await api.fetchActiveMinistries(
-        selectedDate,
-        allMinistryData
-      );
-      console.log("active Ministry ", activeMinistry);
-      setActiveMinistryList(activeMinistry.children);
-      setLoading(false);
-    } catch (e) {
-      console.log("error fetch ministry list : ", e.message);
-    }
-  };
+const fetchMinistryList = async () => {
+  if (!selectedDate || !allMinistryData || allMinistryData.length === 0)
+    return;
+
+  try {
+    setLoading(true);
+    console.log("finding active ministry");
+    const activeMinistry = await api.fetchActiveMinistries(
+      selectedDate,
+      allMinistryData
+    );
+
+    const enrichedMinistries = await Promise.all(
+      activeMinistry.children.map(async (ministry) => {
+        const response = await api.fetchActiveRelationsForMinistry(
+          selectedDate.date,
+          ministry.id,
+          "AS_APPOINTED"
+        );
+        const res = await response.json();
+
+        const personSet = new Set(res.map((person) => person.relatedEntityId));
+        const personListInDetail = allPersonList.filter((person) =>
+          personSet.has(person.id)
+        );
+
+        const headMinisterName = personListInDetail[0]?.name || null;
+        console.log(headMinisterName)
+        return {
+          ...ministry,
+          headMinisterName, 
+        };
+      })
+    );
+
+    setActiveMinistryList(enrichedMinistries);
+    console.log(enrichedMinistries)
+    setLoading(false);
+  } catch (e) {
+    console.log("error fetch ministry list : ", e.message);
+    setLoading(false);
+  }
+};
+
 
   return (
     <Box sx={{ px: 4, pb: 4 }}>
@@ -45,9 +71,9 @@ const MinistryCardGrid = ({ onCardClick }) => {
         sx={{
           px: {
             xs: 0,
-            sm: 0, 
-            md: 5, 
-            lg: 10, 
+            sm: 0,
+            md: 5,
+            lg: 10,
             xl: 20
           },
           py: {

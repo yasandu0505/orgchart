@@ -41,16 +41,29 @@ const MinistryCard = ({ card, onClick }) => {
         </Stack>
 
         {/* Ministers */}
-        <Stack spacing={0.5} sx={{ p: 2 }}>
-          <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack spacing={0.5} sx={{ p: 1, minHeight: 60 }}>
+          <Stack direction="row" spacing={1}>
             <PersonIcon
-              sx={{ color: colors.backgroundSecondary }}
+              sx={{ color: colors.backgroundSecondary, alignSelf: "center" }}
               fontSize="small"
             />
-            <Typography variant="body2">
-              <strong>Minister :</strong> {card.headMinister || "—"}
-            </Typography>
+            <Stack direction="column" spacing={0}>
+              <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
+                Minister
+              </Typography>
+
+              {card.headMinisterName ? (
+                <Typography variant="subtitle2">
+                  {utils.extractNameFromProtobuf(card.headMinisterName)}
+                </Typography>
+              ) : (
+                <Typography variant="subtitle2" sx={{ color: colors.textMuted }}>
+                  Not Assigned
+                </Typography>
+              )}
+            </Stack>
           </Stack>
+
           {/* <Stack direction="row" alignItems="center" spacing={1}>
             <PersonIcon
               sx={{ color: colors.backgroundSecondary }}
