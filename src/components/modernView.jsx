@@ -1,10 +1,7 @@
 import React, { useEffect } from "react";
 import {
   Box,
-  Button,
   Card,
-  Stack,
-  TextField,
   Typography,
   Avatar,
 } from "@mui/material";
@@ -38,7 +35,6 @@ const ModernView = () => {
   //   const selectedPresident =
   //     selectedIndex !== null ? presidents[selectedIndex] : null;
 
-  const [view, setView] = useState("modern");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [drawerMode, setDrawerMode] = useState("ministry");
@@ -46,10 +42,6 @@ const ModernView = () => {
 
   //loading
   const [loading, setLoading] = useState(false);
-
-  const handleViewChange = (type) => {
-    setView(type);
-  };
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -200,7 +192,7 @@ const ModernView = () => {
   return (
     <Box
       sx={{
-        paddingTop: "10px",
+        paddingTop: "5vw",
         width: "100vw",
         minHeight: "100vh",
         backgroundColor: colors.backgroundPrimary,
@@ -249,45 +241,6 @@ const ModernView = () => {
         </Button>
       </Box> */}
 
-      {/* View Buttons */}
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Stack
-          direction="row"
-          spacing={2}
-          sx={{
-            border: `2px solid ${colors.primary}25`,
-            p: 2,
-            borderRadius: "50px",
-            backgroundColor: colors.white,
-          }}
-        >
-          {["modern", "classic"].map((type) => (
-            <Button
-              key={type}
-              variant={view === type ? "contained" : "outlined"}
-              onClick={() => handleViewChange(type)}
-              sx={{
-                color: view === type ? "#fff" : colors.primary,
-                backgroundColor: view === type ? colors.primary : "transparent",
-                borderColor: colors.primary,
-                textTransform: "none",
-                fontWeight: 600,
-                borderRadius: "50px",
-                px: 3,
-                py: 1,
-                "&:hover": {
-                  backgroundColor:
-                    view === type ? colors.primary : `${colors.primary}22`, // light hover tint
-                  borderColor: colors.primary,
-                },
-              }}
-            >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </Button>
-          ))}
-        </Stack>
-      </Box>
-
       {loading ? (
         <Box
           sx={{
@@ -318,6 +271,7 @@ const ModernView = () => {
               backgroundColor: colors.white,
             }}
           >
+
             {/* Selected Info Card */}
             <Box
               sx={{
@@ -525,7 +479,7 @@ const ModernView = () => {
             </Box>
 
             {/* Card Grid for Modern View */}
-            {view === "modern" && selectedDate != null && (
+            {selectedDate != null && (
               <MinistryCardGrid onCardClick={handleCardClick} />
             )}
           </Box>
