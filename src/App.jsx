@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import OrgChart from "./components/OrgChart";
-import ModernView from "./components/modernView";
-import Home from "./components/home";
-import Error404 from "./components/404Error";
+import OrgChart from "./components/orgchart.jsx";
+import ModernView from "./components/modernView.jsx";
+import Home from "./components/home.jsx";
+import Error404 from "./components/404Error.jsx";
 import './animations.css';
 
 const App = () => {

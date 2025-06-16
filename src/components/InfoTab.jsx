@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Button, Drawer, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import MinistryDrawerContent from './MinistryDrawerContent';
