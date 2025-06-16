@@ -85,7 +85,7 @@ const fetchMinistryList = async () => {
         }}
       >
         <Box sx={{ textAlign: "center", mb: 3 }}>
-          <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
+          <Typography variant="h7" sx={{ color: "text.secondary" }}>
             Gazette Date
           </Typography>
           <Typography
@@ -127,7 +127,6 @@ const fetchMinistryList = async () => {
             {activeMinistryList && activeMinistryList.length > 0 ? (
               activeMinistryList.map((card) => (
                 <Grid
-                  item
                   key={card.id}
                   sx={{
                     flexBasis: {

@@ -16,18 +16,18 @@ const fetchInitialGazetteData = async () => {
       })
     })
 
-    const responseForDepartment = await fetch("/v1/entities/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        kind: {
-          major: "Organisation",
-          minor: "department"
-        }
-      })
-    })
+    // const responseForDepartment = await fetch("/v1/entities/search", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: JSON.stringify({
+    //     kind: {
+    //       major: "Organisation",
+    //       minor: "department"
+    //     }
+    //   })
+    // })
     
     const responseForPerson = await fetch("/v1/entities/search", {
       method: "POST",
@@ -45,28 +45,74 @@ const fetchInitialGazetteData = async () => {
     if (!response.ok) {
       throw new Error(`API error: ${response.statusText}`)
     }
-    if(!responseForDepartment.ok){
-      throw new Error(`API error: ${responseForDepartment.statusText}`)
-    }
+    // if(!responseForDepartment.ok){
+    //   throw new Error(`API error: ${responseForDepartment.statusText}`)
+    // }
     if (!responseForPerson.ok) {
       throw new Error(`API error: ${responseForPerson.statusText}`)
     }
 
     const result = await response.json()
-    const resultForDepartment = await responseForDepartment.json()
+    // const resultForDepartment = await responseForDepartment.json()
     const resultForPerson = await responseForPerson.json()
 
     const datesList1 = result.body.map((item) => item.created?.split("T")[0]);
     const datesList2 = resultForPerson.body.map((item) => item.created?.split("T")[0]);
-    const datesList3 = resultForDepartment.body.map((item) => item.created?.split("T")[0]);
+    // const datesList3 = resultForDepartment.body.map((item) => item.created?.split("T")[0]);
+
+    const ministryIdList = result.body.map((item) => item.id);
+    console.log('ministry Id LIst : ', ministryIdList);
 
     // console.log('date list 1',datesList1)
     // console.log('date list 2',datesList2)
     // console.log('date list 3',datesList3)
 
-    const mergedDateList1 = datesList1.concat(datesList2);
-    const mergedDateList2 = mergedDateList1.concat(datesList3).sort();
-    const dates = Array.from(new Set(mergedDateList2))
+    const mergedDateList1 = datesList1.concat(datesList2).sort();
+    // const mergedDateList2 = mergedDateList1.concat(datesList3).sort();
+    const dates = Array.from(new Set(mergedDateList1))
+
+    console.log(dates[0])
+
+    var allResponses = [];
+
+    const relationPromises = ministryIdList.map(async (ministryId) => {
+      const response = await fetch(`/v1/entities/${ministryId}/relations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          relatedEntityId: "",
+          startTime: `${dates[0]}T00:00:00Z`,
+          endTime: "",
+          id: "",
+          name: "AS_DEPARTMENT"
+        })
+      });
+
+      // console.log('inside ministry response ', response)
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch relations for ministry ${ministryId}`);
+      }
+
+      const jsonResponse = await response.json();
+      console.log('all response json : ', allResponses)
+      allResponses.push(jsonResponse.body);
+
+      // return jsonResponse;
+    });
+
+    console.log('all response : ', allResponses)
+
+    // Wait for all requests to complete
+    // const allResponses = await Promise.all(relationPromises);
+    // console.log('inside all ministry response ', allResponses)
+    
+    // // Combine all responses into a single list
+    // const combinedRelations = allResponses.flatMap(response => response.body || []);
+
+    // console.log('combined relations ', combinedRelations)
     
     return { dates, allMinistryData: result.body }
   } catch (error) {
