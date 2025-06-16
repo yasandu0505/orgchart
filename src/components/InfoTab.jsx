@@ -1,8 +1,7 @@
-import React from 'react';
-import { Box, Button, Drawer, IconButton } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import MinistryDrawerContent from './MinistryDrawerContent';
-import DepartmentHistoryTimeline from './DepartmentHistoryTimeline';
+import { Box, Button, Drawer, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import MinistryDrawerContent from "./MinistryDrawerContent";
+import DepartmentHistoryTimeline from "./DepartmentHistoryTimeline";
 
 const InfoTab = ({
   drawerOpen,
@@ -16,17 +15,32 @@ const InfoTab = ({
 }) => {
   return (
     <Drawer anchor="right" open={drawerOpen} onClose={onClose}>
-      <Box sx={{ width: 500, p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box
+        sx={{
+          width: {
+            xs: 350,
+            sm: 450,
+            md: 650,
+            lg: 700,
+            xl: 750,
+          },
+          p: 2,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {/* Header */}
+
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
             mb: 2,
           }}
         >
-          {drawerMode === 'department' ? (
+          {drawerMode === "department" ? (
             <Button onClick={onBack}>← Back</Button>
           ) : (
             <Box width={75} /> // spacer
@@ -39,16 +53,18 @@ const InfoTab = ({
 
         {/* Content */}
         <Box sx={{ flexGrow: 1 }}>
-          {drawerMode === 'ministry' && selectedCard && (
+          {drawerMode === "ministry" && selectedCard && (
             <MinistryDrawerContent
               selectedCard={selectedCard}
-              selectedDate={selectedDate}
+              selectedDate={selectedDate.date}
               onDepartmentClick={onDepartmentClick}
             />
           )}
 
-          {drawerMode === 'department' && selectedDepartment && (
-            <DepartmentHistoryTimeline selectedDepartment={selectedDepartment} />
+          {drawerMode === "department" && selectedDepartment && (
+            <DepartmentHistoryTimeline
+              selectedDepartment={selectedDepartment}
+            />
           )}
         </Box>
       </Box>
