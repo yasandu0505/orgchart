@@ -4,7 +4,7 @@ import ModernView from "./components/modernView";
 import Home from "./components/home";
 import Error404 from "./components/404Error";
 import './index.css';
-
+import './animations.css';
 
 const App = () => {
   return(
