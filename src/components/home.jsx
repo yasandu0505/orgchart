@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { MessageCircle, BarChart3, Lightbulb, Calendar, Users, AlertTriangle, ChevronRight, Building2, User, Network, Zap } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { MessageCircle,Users, ChevronRight, Building2, User } from 'lucide-react';
 import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
 
