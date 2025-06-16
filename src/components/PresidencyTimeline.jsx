@@ -271,10 +271,10 @@ export default function PresidencyTimeline() {
                     </Box>
                   )}
 
-                  <Typography variant="body2" sx={{ mt: 1, color: "black" }}>
+                  <Typography variant="body2" sx={{ mt: 1, color: "black", fontFamily: "poppins", fontWeight: isSelected ? 600 : ""}}>
                     {utils.extractNameFromProtobuf(president.name)}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: "gray" }}>
+                  <Typography variant="caption" sx={{ color: "gray", fontFamily: "poppins" }}>
                     {selectedPresident &&
                       selectedPresident.created.split("-")[0]} - 
                   </Typography>
@@ -331,6 +331,7 @@ export default function PresidencyTimeline() {
                                 : colors.dotColorInactive,
                               fontSize: "0.75rem",
                               fontWeight: isDateSelected ? "bold" : "",
+                              fontFamily: "poppins"
                             }}
                           >
                             {item.date}

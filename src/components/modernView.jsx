@@ -308,97 +308,227 @@ const ModernView = () => {
             <PresidencyTimeline />
           </Box>
 
-          {/* Selected Info Card */}
           <Box
             sx={{
-              textAlign: "center",
-              width: "100%",
-              display: "flex",
-              justifyContent: "Center",
+              border: `2px solid ${colors.primary}10`,
+              p: 3,
+              mx:25,
+              my:2,
+              borderRadius: "15px",
+              backgroundColor: colors.white,
             }}
           >
-            <Card
+            {/* Selected Info Card */}
+            <Box
               sx={{
-                width: "25%",
-                p: 1,
-                m: 2,
-                marginRight: 1,
-                borderRadius: "10px",
+                textAlign: "left",
+                width: "100%",
+                display: "flex",
+                justifyContent: "Center",
               }}
             >
-              <Typography>President</Typography>
-              <Box sx={{ padding: 2 }}>
-                {selectedPresident && (
-                  <>
-                    <Box
-                      direction="row"
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
+              
+              <Card
+                sx={{
+                  width: {
+                    sm: "45%",
+                    lg: "25%",
+                  },
+                  marginRight: 1,
+                  border: `2px solid ${colors.secondary}50`,
+                  borderRadius: "15px",
+                  backgroundColor: colors.white,
+                  boxShadow: "none",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "175px",
+                    height: "35px",
+                    backgroundColor: `${colors.secondary}`,
+                    borderBottomRightRadius: "15px",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                      color: colors.white,
+                      fontSize: 18,
+                      textAlign: "center",
+                      justifyItems: "center",
+                      pt: "5px",
+                    }}
+                  >
+                    President
+                  </Typography>
+                </Box>
+                <Box sx={{ padding: 1 }}>
+                  {selectedPresident && (
+                    <>
                       <Box
+                        direction="row"
                         sx={{
-                          borderRadius: "50%",
+                          display: "flex",
+                          justifyContent: "left",
+                          ml: "20px",
+                          my: "10px",
                         }}
                       >
-                        <Avatar
-                          src={selectedPresident.imageUrl}
-                          alt={selectedPresident.name}
+                        <Box
                           sx={{
-                            width: 100,
-                            height: 100,
-                            border: "3px solid white",
-
-                            backgroundColor: "white",
-                            margin: "auto",
+                            borderRadius: "50%",
                           }}
-                        />
+                        >
+                          <Avatar
+                            src={selectedPresident.imageUrl}
+                            alt={selectedPresident.name}
+                            sx={{
+                              width: 75,
+                              height: 75,
+                              border: "3px solid white",
+                              backgroundColor: "white",
+                              margin: "auto",
+                            }}
+                          />
+                        </Box>
+                        <Box
+                          sx={{
+                            display: "block",
+                            justifyContent: "left",
+                            ml: "15px",
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: 20,
+                              whiteSpace: "normal",
+                              overflow: "visible",
+                              textOverflow: "unset",
+                              wordBreak: "break-word",
+                              fontFamily: "poppins",
+                              color: colors.textPrimary,
+                            }}
+                          >
+                            {utils.extractNameFromProtobuf(
+                              selectedPresident.name
+                            )}
+                          </Typography>
+                          <Typography
+                            sx={{ fontSize: 18, color: colors.textMuted }}
+                          >
+                            {selectedPresident.created.split("-")[0]} -
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box sx={{display: "block", justifyContent: "left"}}>
-                        <Typography>
-                          {utils.extractNameFromProtobuf(
-                            selectedPresident.name
-                          )}
-                        </Typography>
-                        <Typography>
-                          Year: {selectedPresident.created.split("-")[0]}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </>
-                )}
-              </Box>
-            </Card>
-            {/* <Card
-              sx={{
-                width: "25%",
-                p: 1,
-                m: 2,
-                marginLeft: 1,
-                borderRadius: "10px",
-              }}
-            >
-              <Typography>Prime Minister</Typography>
-              <Box sx={{ padding: 2 }}>
-                {selectedPresident && (
-                  <>
-                    <Typography>
-                      {utils.extractNameFromProtobuf(selectedPresident.name)}
-                    </Typography>
-                    <Typography>
-                      Year: {selectedPresident.created.split("-")[0]}
-                    </Typography>
-                  </>
-                )}
-              </Box>
-            </Card> */}
-          </Box>
+                    </>
+                  )}
+                </Box>
+              </Card>
+              <Card
+                sx={{
+                  width: {
+                    sm: "45%",
+                    lg: "25%",
+                  },
+                  marginRight: 1,
+                  border: `2px solid ${colors.secondary}50`,
+                  borderRadius: "15px",
+                  backgroundColor: colors.white,
+                  boxShadow: "none",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: "175px",
+                    height: "35px",
+                    backgroundColor: colors.secondary,
 
-          {/* Card Grid for Modern View */}
-          {view === "modern" && selectedDate != null && (
-            <MinistryCardGrid onCardClick={handleCardClick} />
-          )}
+                    borderBottomRightRadius: "15px",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                      color: colors.white,
+                      fontSize: 18,
+                      textAlign: "center",
+                      justifyItems: "center",
+                      pt: "5px",
+                    }}
+                  >
+                    Prime Minister
+                  </Typography>
+                </Box>
+                <Box sx={{ padding: 1 }}>
+                  {selectedPresident && (
+                    <>
+                      <Box
+                        direction="row"
+                        sx={{
+                          display: "flex",
+                          justifyContent: "left",
+                          ml: "20px",
+                          my: "10px",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            borderRadius: "50%",
+                          }}
+                        >
+                          <Avatar
+                            src={selectedPresident.imageUrl}
+                            alt={selectedPresident.name}
+                            sx={{
+                              width: 75,
+                              height: 75,
+                              border: "3px solid white",
+                              backgroundColor: "white",
+                              margin: "auto",
+                            }}
+                          />
+                        </Box>
+                        <Box
+                          sx={{
+                            display: "block",
+                            justifyContent: "left",
+                            ml: "15px",
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: 20,
+                              color: colors.textPrimary,
+                              whiteSpace: "normal", // allow wrapping
+                              overflow: "visible", // show overflow content
+                              textOverflow: "unset", // disable text truncation
+                              wordBreak: "break-word", // break long words if needed
+                            }}
+                          >
+                            {utils.extractNameFromProtobuf(
+                              selectedPresident.name
+                            )}
+                          </Typography>
+                          <Typography
+                            sx={{ fontSize: 18, color: colors.textMuted }}
+                          >
+                            {selectedPresident.created.split("-")[0]} - 
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </>
+                  )}
+                </Box>
+              </Card>
+            </Box>
+
+            {/* Card Grid for Modern View */}
+            {view === "modern" && selectedDate != null && (
+              <MinistryCardGrid onCardClick={handleCardClick} />
+            )}
+          </Box>
         </>
       )}
 

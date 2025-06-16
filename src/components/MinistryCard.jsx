@@ -2,7 +2,6 @@
 
 import { Card, Typography, Box, Stack, Avatar } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
-import GroupsIcon from "@mui/icons-material/Groups";
 import colors from "../assets/colors";
 import utils from "../utils/utils";
 
@@ -11,12 +10,15 @@ const MinistryCard = ({ card, onClick }) => {
     <Card
       sx={{
         cursor: "pointer",
-        boxShadow: 3,
-        borderLeft: ``,
+        boxShadow: "none",
+        border: `2px solid ${colors.backgroundSecondary}50`,
         transition: "box-shadow 0.2s",
         "&:hover": {
-          boxShadow: 2,
-          borderLeftColor: colors.backgroundSecondary,
+          border: `2px solid ${colors.backgroundSecondary}`,
+        },
+        "&:active": {
+          border: `2px solid ${colors.backgroundSecondary}`,
+          backgroundColor: "#ececf5",
         },
         backgroundColor: "#f9f9fc",
         borderRadius: "10px",
@@ -32,9 +34,6 @@ const MinistryCard = ({ card, onClick }) => {
           minHeight={50}
           sx={{ px: 2, py: 1, backgroundColor: colors.backgroundSecondary }}
         >
-          {/* <Avatar sx={{ bgcolor: colors.backgroundSecondary, width: 28, height: 28 }}>
-                        <GroupsIcon fontSize="small" />
-                    </Avatar> */}
           <Typography variant="h7" sx={{ color: "#ffffff" }}>
             {card.name.split(":")[0]}
           </Typography>
@@ -48,16 +47,19 @@ const MinistryCard = ({ card, onClick }) => {
               fontSize="small"
             />
             <Stack direction="column" spacing={0}>
-              <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
+              <Typography variant="subtitle2" sx={{ color: colors.textSecondary, fontFamily: "poppins" }}>
                 Minister
               </Typography>
 
               {card.headMinisterName ? (
-                <Typography variant="subtitle2">
+                <Typography variant="subtitle2" sx={{fontWeight: 600, color: colors.textPrimary, fontFamily: "poppins"}}>
                   {utils.extractNameFromProtobuf(card.headMinisterName)}
                 </Typography>
               ) : (
-                <Typography variant="subtitle2" sx={{ color: colors.textMuted }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{ color: colors.textMuted, fontFamily: "poppins" }}
+                >
                   Not Assigned
                 </Typography>
               )}

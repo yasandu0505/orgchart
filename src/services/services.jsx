@@ -10,25 +10,12 @@ const fetchInitialGazetteData = async () => {
       },
       body: JSON.stringify({
         kind: {
-          major: "Organisation",
-          minor: "minister"
+          major: "Document",
+          minor: "extgztorg"
         }
       })
     })
 
-    // const responseForDepartment = await fetch("/v1/entities/search", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   },
-    //   body: JSON.stringify({
-    //     kind: {
-    //       major: "Organisation",
-    //       minor: "department"
-    //     }
-    //   })
-    // })
-    
     const responseForPerson = await fetch("/v1/entities/search", {
       method: "POST",
       headers: {
@@ -36,8 +23,8 @@ const fetchInitialGazetteData = async () => {
       },
       body: JSON.stringify({
         kind: {
-          major: "Person",
-          minor: "citizen"
+          major: "Document",
+          minor: "extgztperson"
         }
       })
     })
@@ -45,15 +32,12 @@ const fetchInitialGazetteData = async () => {
     if (!response.ok) {
       throw new Error(`API error: ${response.statusText}`)
     }
-    // if(!responseForDepartment.ok){
-    //   throw new Error(`API error: ${responseForDepartment.statusText}`)
-    // }
+
     if (!responseForPerson.ok) {
       throw new Error(`API error: ${responseForPerson.statusText}`)
     }
 
     const result = await response.json()
-    // const resultForDepartment = await responseForDepartment.json()
     const resultForPerson = await responseForPerson.json()
 
     const datesList1 = result.body.map((item) => item.created?.split("T")[0]);

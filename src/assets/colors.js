@@ -5,19 +5,19 @@ const colors = {
   backgroundTertiary:'rgba(25, 164, 210, 0.4)',
   
   // Text
-  textPrimary: '#1a1a1a',
+  textPrimary: '#181818',
   textSecondary: '#2593B8',
   textMuted: '#999999',
   textSearch:'#0d47a1',
 
   // Dots / Timeline / UI
-  dotColorActive: '#081D53', // Blue
+  dotColorActive: '#11486B', // Blue
   dotColorInactive: '#999', // Grey
-  timelineLineActive: '#081D53', // Blue
+  timelineLineActive: '#11486B', // Blue
   timelineColor: '#ccc',
 
   // Buttons / Accents
-  primary: '#03045e',
+  primary: '#11486B',
   secondary: '#9c27b0',
   success: '#4caf50',
   warning: '#ff9800',

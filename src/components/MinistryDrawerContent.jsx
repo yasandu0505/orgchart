@@ -37,8 +37,6 @@ const MinistryDrawerContent = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log("deparmtnelkjl");
-    console.log(selectedMinistry);
     fetchPersonListAndDepListForMinistry(selectedMinistry);
   }, [selectedMinistry]);
 
@@ -63,7 +61,6 @@ const MinistryDrawerContent = ({
       );
 
       const res1 = await response1.json();
-      console.log(res1)
       const res2 = await response2.json();
 
       const personSet = new Set(res1.map((person) => person.relatedEntityId));
@@ -96,28 +93,30 @@ const MinistryDrawerContent = ({
       }}
     >
       {/* Date */}
-      <Typography variant="subtitle2" sx={{ color: "text.secondary", mb: 0.5 }}>
+      <Typography variant="h6" sx={{ color: "text.secondary",fontFamily: "poppins", }}>
         Gazette Date
       </Typography>
+      <Box>
       <Typography
-        variant="h6"
-        sx={{ fontWeight: "bold", color: "primary.main", mb: 2 }}
+        variant="h5"
+        sx={{color: colors.secondary, fontFamily:"poppins", fontWeight: "bold"}}
       >
         {selectedDate}
       </Typography>
+      </Box>
 
       {/* Ministry Name */}
-      <Box display="flex" alignItems="center" mb={2}>
+      <Box display="flex" alignItems="center" my={1}>
         <ApartmentIcon
           color="primary"
           sx={{ mr: 1, color: colors.backgroundSecondary }}
         />
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold", color: colors.textPrimary, fontFamily:"poppins" }}>
           {selectedCard.name.split(":")[0]}
         </Typography>
       </Box>
 
-      <Divider />
+      <Divider sx={{py:1}} />
 
       {loading ? (
         <Box
@@ -141,9 +140,9 @@ const MinistryDrawerContent = ({
           {/* Ministers */}
           <Typography
             variant="subtitle1"
-            sx={{ mt: 2, mb: 1, fontSize: "1.5rem", fontWeight: 600 }}
+            sx={{ mt: 2, fontSize: "1.25rem",  color: "text.primary", fontFamily:"poppins" }}
           >
-            Ministers
+            Minister
           </Typography>
 
           {/* Ministers */}
@@ -222,7 +221,7 @@ const MinistryDrawerContent = ({
           {/* Departments */}
           <Typography
             variant="subtitle1"
-            sx={{ mt: 2, mb: 1, fontSize: "1.5rem", fontWeight: 600 }}
+            sx={{ mt: 2, fontSize: "1.25rem",  color: "text.primary", fontFamily:"poppins" }}
           >
             Departments
           </Typography>
