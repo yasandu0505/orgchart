@@ -5,16 +5,14 @@ import Home from "./components/home";
 import Error404 from "./components/404Error";
 import Navbar from "./components/NavBar";
 import './index.css';
-
+import './animations.css';
 
 const App = () => {
   return(
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* <Route path="/orgchart" element={<OrgChart />} />
-        <Route path="/modern-view" element={<ModernView />} /> */}
-        <Route path="/chart" element={<Navbar/>} />
+        <Route path="/orgchart" element={<Navbar/>} />
         <Route path="*" element={<Error404 />} />
       </Routes>
     </Router>

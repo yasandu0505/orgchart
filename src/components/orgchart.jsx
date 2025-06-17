@@ -41,35 +41,35 @@ const extractNameFromProtobuf = (nameObj) => {
   }
 };
 
-// Convert raw ministerial data into tree format
-const transformRawDataToTree = (rawData) => {
-  const children = rawData.map((item) => {
-    let name = item.name;
-    const ministryId = item.id;
+// // Convert raw ministerial data into tree format
+// const transformRawDataToTree = (rawData) => {
+//   const children = rawData.map((item) => {
+//     let name = item.name
+//     const ministryId = item.id
 
-    try {
-      const parsed = JSON.parse(item.name);
-      if (parsed?.value) {
-        name = decodeHexString(parsed.value);
-      }
-    } catch (e) {
-      name = item.name;
-    }
+//     try {
+//       const parsed = JSON.parse(item.name)
+//       if (parsed?.value) {
+//         name = decodeHexString(parsed.value)
+//       }
+//     } catch (e) {
+//       name = item.name
+//     }
 
-    return {
-      name,
-      children: [],
-      id: ministryId,
-      type: "ministry",
-    };
-  });
+//     return {
+//       name,
+//       children: [],
+//       id: ministryId,
+//       type: "ministry",
+//     }
+//   })
 
-  return {
-    name: "Government",
-    children,
-    type: "root",
-  };
-};
+//   return {
+//     name: "Government",
+//     children,
+//     type: "root",
+//   }
+// }
 
 // Fetch active departments for a specific ministry with date filtering
 const fetchDepartments = async (ministryId, selectedDate) => {
