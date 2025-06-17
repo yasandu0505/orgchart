@@ -1,11 +1,13 @@
-"use client";
-
 import { useEffect, useState, useCallback } from "react";
 import TidyTree from "./TidyTree";
 import EventSlider from "./EventSlider";
 import { ErrorBoundary } from "react-error-boundary";
-import { Box } from "@mui/material";
-import colors from "../assets/colors";
+import './../index.css'
+import PresidencyTimeline from "./PresidencyTimeline";
+import { useSelector } from "react-redux";
+import { Satellite } from "lucide-react";
+import { setSelectedDate } from "../store/presidencySlice";
+import { dispatch } from "d3";
 
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
@@ -82,7 +84,7 @@ const fetchDepartments = async (ministryId, selectedDate) => {
       },
       body: JSON.stringify({
         relatedEntityId: "",
-        startTime: `${selectedDate}T00:00:00Z`,
+        startTime: `${selectedDate.date}T00:00:00Z`,
         endTime: "",
         id: "",
         name: "AS_DEPARTMENT",
@@ -167,31 +169,48 @@ const fetchDepartments = async (ministryId, selectedDate) => {
 // Fetch initial gazette dates and all ministry protobuf data
 const fetchInitialGazetteData = async () => {
   try {
-    const response = await fetch("/v1/entities/search", {
+    // const response = await fetch("/v1/entities/search", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     kind: {
+    //       major: "Organisation",
+    //       minor: "minister",
+    //     },
+    //   }),
+    // });
+
+    const responseForGazetteDates = await fetch("/v1/entities/search", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         kind: {
-          major: "Organisation",
-          minor: "minister",
+          major: "Document",
+          minor: "extgztorg",
         },
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
+    // if (!response.ok) {
+    //   throw new Error(`API error: ${response.statusText}`);
+    // }
+    if (!responseForGazetteDates.ok) {
+      throw new Error(`API error: ${responseForGazetteDates.statusText}`);
     }
 
-    const result = await response.json();
-    const dates = result.body
+    // const resultForAllMinistry = await response.json();
+    const resultForGazetteDates = await responseForGazetteDates.json();
+    const dates = resultForGazetteDates.body
       .map((item) => item.created?.split("T")[0])
       .filter((date) => !!date)
       .filter((value, index, self) => self.indexOf(value) === index)
       .sort();
 
-    return { dates, allMinistryData: result.body };
+    return { dates };
   } catch (error) {
     console.error("Error fetching initial gazette data from API:", error);
     return {
@@ -318,29 +337,32 @@ export default function OrgChart() {
   const [treeData, setTreeData] = useState(null);
   const [isTreeDataLoading, setIsTreeDataLoading] = useState(true);
   const [gazetteData, setGazetteData] = useState([]);
-  const [allMinistryData, setAllMinistryData] = useState([]);
+  // const [allMinistryData, setAllMinistryData] = useState([]);
   const [allData, setAllData] = useState({});
-  const [selectedDate, setSelectedDate] = useState(null);
+  // const [selectedDate, setSelectedDate] = useState(null);
   const [departmentData, setDepartmentData] = useState({});
   const [loadingDepartments, setLoadingDepartments] = useState(new Set());
   const [expandedMinistries, setExpandedMinistries] = useState(new Set());
+  const {selectedDate} = useSelector((state)=>state.presidency);
+  const { allMinistryData } = useSelector((state) => state.allMinistryData);
 
   useEffect(() => {
     const initializeApp = async () => {
       if (gazetteData.length === 0) {
-        const { dates, allMinistryData: ministryData } =
+        const { dates } =
           await fetchInitialGazetteData();
         setGazetteData(dates);
-        setAllMinistryData(ministryData);
 
         if (dates.length > 0) {
           const latestDate = dates[dates.length - 1];
+          console.log(latestDate);
           const activeMinistryTree = await fetchActiveMinistries(
             latestDate,
-            ministryData
+            allMinistryData
           );
+          console.log('this is the last date ',latestDate)
           setTreeData(activeMinistryTree);
-          setSelectedDate(latestDate);
+          dispatch(setSelectedDate(latestDate));
           setAllData({ [latestDate]: activeMinistryTree });
         }
 
@@ -353,23 +375,24 @@ export default function OrgChart() {
 
   const handleDateChange = async (date) => {
     setIsTreeDataLoading(true);
-    setSelectedDate(date);
+
     // Clear department data and expanded state when changing dates
     setDepartmentData({});
     setExpandedMinistries(new Set());
-
-    if (!allData[date]) {
+    if (!allData[date.date]) {
       const activeMinistryTree = await fetchActiveMinistries(
-        date,
+        date.date,
         allMinistryData
       );
-      setAllData((prev) => ({ ...prev, [date]: activeMinistryTree }));
+      setAllData((prev) => ({ ...prev, [date.date]: activeMinistryTree }));
       setTreeData(activeMinistryTree);
     } else {
-      setTreeData(allData[date]);
+      setTreeData(allData[date.date]);
     }
     setIsTreeDataLoading(false);
   };
+
+  useEffect(()=>{handleDateChange(selectedDate)},[selectedDate])
 
   // Fixed ministry click handler with proper toggle logic
   const handleMinistryClick = useCallback(
@@ -459,18 +482,20 @@ export default function OrgChart() {
         {/* Slider */}
         <div
           style={{
-            height: "120px",
-            backgroundColor: "#1e1e1e",
-            borderBottom: "1px solid #333",
-            padding: "20px",
-            flexShrink: 0,
+            // height: "120px",
+            // backgroundColor: "#1e1e1e",
+            // borderBottom: "1px solid #333",
+            // padding: "20px",
+            // flexShrink: 0,
             width: "100%",
             display: "flex",
+            justifyContent: "center",
             alignItems: "center",
           }}
         >
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             {gazetteData.length > 0 && (
+              // <PresidencyTimeline onDateChange={handleDateChange} mode="classic"/>
               <EventSlider
                 data={timelineData}
                 onSelectDate={handleDateChange}
@@ -490,20 +515,21 @@ export default function OrgChart() {
           }}
         >
           <ErrorBoundary FallbackComponent={ErrorFallback}>
-            {isTreeDataLoading ? (
+            {isTreeDataLoading && selectedDate ? (
               <div
                 style={{
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
                   height: "100%",
-                  color: "#fff",
+                  color: "#000",
+                  backgroundColor: "#fff"
                 }}
               >
                 <p>Loading...</p>
               </div>
             ) : (
-              <TidyTree
+                <TidyTree
                 data={treeData}
                 onMinistryClick={handleMinistryClick}
                 loadingDepartments={loadingDepartments}

@@ -55,40 +55,6 @@ const fetchInitialGazetteData = async () => {
     // const mergedDateList2 = mergedDateList1.concat(datesList3).sort();
     const dates = Array.from(new Set(mergedDateList1))
 
-    console.log(dates[0])
-
-    var allResponses = [];
-
-    const relationPromises = ministryIdList.map(async (ministryId) => {
-      const response = await fetch(`/v1/entities/${ministryId}/relations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          relatedEntityId: "",
-          startTime: `${dates[0]}T00:00:00Z`,
-          endTime: "",
-          id: "",
-          name: "AS_DEPARTMENT"
-        })
-      });
-
-      // console.log('inside ministry response ', response)
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch relations for ministry ${ministryId}`);
-      }
-
-      const jsonResponse = await response.json();
-      console.log('all response json : ', allResponses)
-      allResponses.push(jsonResponse.body);
-
-      // return jsonResponse;
-    });
-
-    console.log('all response : ', allResponses)
-
     // Wait for all requests to complete
     // const allResponses = await Promise.all(relationPromises);
     // console.log('inside all ministry response ', allResponses)

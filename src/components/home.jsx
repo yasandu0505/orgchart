@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { MessageCircle,Users, ChevronRight, Building2, User } from 'lucide-react';
 import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
+import './../index.css'
 
 const Home = () => {
   const svgRef = useRef();

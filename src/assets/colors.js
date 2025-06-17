@@ -13,11 +13,11 @@ const colors = {
   // Dots / Timeline / UI
   dotColorActive: '#11486B', // Blue
   dotColorInactive: '#999', // Grey
-  timelineLineActive: '#11486B', // Blue
+  timelineLineActive: '#155DFC', // Blue
   timelineColor: '#ccc',
 
   // Buttons / Accents
-  primary: '#11486B',
+  primary: '#155DFC',
   secondary: '#9c27b0',
   success: '#4caf50',
   warning: '#ff9800',

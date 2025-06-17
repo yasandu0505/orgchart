@@ -55,7 +55,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
           );
 
           const headMinisterName = personListInDetail[0]?.name || null;
-          console.log(headMinisterName);
           return {
             ...ministry,
             headMinisterName,

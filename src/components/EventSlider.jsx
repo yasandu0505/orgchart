@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Box, Slider, Typography } from "@mui/material";
+import PresidencyTimeline from "./PresidencyTimeline";
 
 export default function EventSlider({ data, onSelectDate, selectedDate }) {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
@@ -36,12 +37,14 @@ export default function EventSlider({ data, onSelectDate, selectedDate }) {
   };
 
   return (
-    <Box sx={{ width: "80%", margin: "auto", textAlign: "center" }}>
+
+    <>
       {/* <Typography variant="h6" gutterBottom>
         Event Timeline
       </Typography> */}
+      <PresidencyTimeline onDateChange={onSelectDate} mode="classic"/>
 
-      <Slider
+      {/* <Slider
         value={selectedIndex * stepSize}
         onChange={handleChange}
         step={null} // Only allow selecting predefined dates
@@ -88,12 +91,13 @@ export default function EventSlider({ data, onSelectDate, selectedDate }) {
             //opacity: 1
           },
         }}
-      />
+      /> */}
 
       {/* <Typography variant="body1" sx={{ marginBottom: 2 }}> */}
       {/* Selected Date:{" "} */}
       {/* {marks.find((mark) => mark.value === selectedValue)?.label}
       </Typography> */}
-    </Box>
+
+      </>
   );
 }

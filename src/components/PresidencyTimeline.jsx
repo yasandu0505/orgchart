@@ -123,6 +123,7 @@ export default function PresidencyTimeline() {
         sx={{
           position: "absolute",
           top: "calc(50% - 30px)",
+          width: "75%",
           left: 50,
           right: 50,
           height: "2px",

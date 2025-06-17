@@ -1,11 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  Box,
-  Card,
-  Typography,
-  Avatar,
-} from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
+import { Box, Card, Typography, Avatar } from "@mui/material";
 import PresidencyTimeline from "./PresidencyTimeline";
 import colors from "../assets/colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,17 +8,8 @@ import InfoTab from "./InfoTab";
 import MinistryCardGrid from "./MinistryCardGrid";
 import api from "../services/services";
 import utils from "../utils/utils";
-import { setAllPerson } from "../store/allPersonList";
-import {
-  setPresidentRelationList,
-  setPresidentList,
-  setSelectedPresident,
-  setSelectedDate,
-} from "../store/presidencySlice";
+import { setSelectedDate } from "../store/presidencySlice";
 import { setGazetteData } from "../store/gazetteDate";
-import { setAllMinistryData } from "../store/allMinistryData";
-import { setAllDepartmentData } from "../store/allDepartmentData";
-import presidentDetails from "./../assets/personImages.json";
 
 const ModernView = () => {
   const dispatch = useDispatch();
@@ -39,9 +24,6 @@ const ModernView = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [drawerMode, setDrawerMode] = useState("ministry");
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-
-  //loading
-  const [loading, setLoading] = useState(false);
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -63,69 +45,7 @@ const ModernView = () => {
   };
 
   useEffect(() => {
-    const initialFetchData = async () => {
-      setLoading(true);
-      try {
-        await fetchPersonData();
-        await fetchAllMinistryData();
-        await fetchAllDepartmentData();
-        setLoading(false);
-      } catch (e) {
-        console.error("Error loading initial data:", e.message);
-      }
-    };
-
-    initialFetchData();
-  }, []);
-
-  const fetchPersonData = async () => {
-    try {
-      const personResponse = await api.fetchAllPersons();
-      const personList = await personResponse.json();
-      dispatch(setAllPerson(personList.body));
-
-      //this is for president data
-      const presidentResponse = await api.fetchPresidentsData();
-      dispatch(setPresidentRelationList(presidentResponse));
-
-      const presidentSet = new Set(
-        presidentResponse.map((p) => p.relatedEntityId)
-      );
-
-      const presidentListInDetail = personList.body.filter((person) =>
-        presidentSet.has(person.id)
-      );
-
-      const enrichedPresidents = presidentListInDetail.map((president) => {
-        const matchedDetail = presidentDetails.find((detail) =>
-          detail.presidentName
-            .toLowerCase()
-            .includes(
-              utils
-                .extractNameFromProtobuf(president.name)
-                .split(":")[0]
-                .toLowerCase()
-            )
-        );
-
-        return {
-          ...president,
-          imageUrl: matchedDetail?.imageUrl || null, // fallback if no match
-        };
-      });
-
-      dispatch(setPresidentList(enrichedPresidents));
-      dispatch(
-        setSelectedPresident(enrichedPresidents[enrichedPresidents.length - 1])
-      );
-    } catch (e) {
-      console.log(`Error fetching person data : ${e.message}`);
-    }
-  };
-
-  useEffect(() => {
     if (selectedPresident?.created) {
-      clearCurrentLists();
       const matchedPresidentRelation = presidentRelationList.find(
         (obj) => obj.startTime == selectedPresident.created
       );
@@ -160,33 +80,6 @@ const ModernView = () => {
     } catch (e) {
       console.log(`Error fetching gazette data : ${e.message}`);
     }
-  };
-
-  const fetchAllDepartmentData = async () => {
-    try {
-      const response = await api.fetchAllDepartments();
-      const departmentList = await response.json();
-      console.log("department fetched", departmentList.body);
-      dispatch(setAllDepartmentData(departmentList.body));
-    } catch (e) {
-      console.log(`Error fetching department data : ${e.message}`);
-    }
-  };
-
-  const fetchAllMinistryData = async () => {
-    try {
-      const response = await api.fetchAllMinistries();
-      const ministryList = await response.json();
-      console.log("department fetched", ministryList.body);
-      dispatch(setAllMinistryData(ministryList.body));
-    } catch (e) {
-      console.log(`Error fetching ministry data : ${e.message}`);
-    }
-  };
-
-  const clearCurrentLists = () => {
-    // setDepartmentListForMinistry([]);
-    // setPersonListForMinistry([]);
   };
 
   return (
@@ -241,256 +134,232 @@ const ModernView = () => {
         </Button>
       </Box> */}
 
-      {loading ? (
+      <Box sx={{ display: "flex", mt: 5, justifyContent: "center" }}>
+        <PresidencyTimeline />
+      </Box>
+
+      <Box
+        sx={{
+          border: `2px solid ${colors.primary}10`,
+          p: 3,
+          mx: {
+            xs: 2,
+            xl: 5,
+          },
+          my: 2,
+          borderRadius: "15px",
+          backgroundColor: colors.white,
+        }}
+      >
+        {/* Selected Info Card */}
         <Box
           sx={{
-            paddingTop: "25vh",
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: colors.backgroundPrimary,
-            display: "flex",
-            justifyContent: "center",
-            justifyItems: "center",
+            textAlign: "left",
+            width: "100%",
+            display: {
+              xs: "block",
+              md: "flex",
+            },
+            justifyContent: "Center",
           }}
         >
-          <CircularProgress color="success" value={75} />
-        </Box>
-      ) : (
-        <>
-          <Box sx={{ display: "flex", mt: 5, justifyContent: "center" }}>
-            <PresidencyTimeline />
-          </Box>
-
-          <Box
+          <Card
             sx={{
-              border: `2px solid ${colors.primary}10`,
-              p: 3,
-              mx: {
-                xs: 2,
-                xl: 5,
+              width: {
+                sm: "45%",
+                lg: "25%",
               },
-              my:2,
+              marginRight: 1,
+              border: `2px solid ${colors.secondary}50`,
               borderRadius: "15px",
               backgroundColor: colors.white,
+              boxShadow: "none",
             }}
           >
-
-            {/* Selected Info Card */}
             <Box
               sx={{
-                textAlign: "left",
-                width: "100%",
-                display: {
-                  xs: "block",
-                  md: "flex"
-                },
-                justifyContent: "Center",
+                width: "175px",
+                height: "35px",
+                backgroundColor: `${colors.secondary}`,
+                borderBottomRightRadius: "15px",
               }}
             >
-              
-              <Card
+              <Typography
                 sx={{
-                  width: {
-                    sm: "45%",
-                    lg: "25%",
-                  },
-                  marginRight: 1,
-                  border: `2px solid ${colors.secondary}50`,
-                  borderRadius: "15px",
-                  backgroundColor: colors.white,
-                  boxShadow: "none",
+                  fontWeight: 600,
+                  color: colors.white,
+                  fontSize: 18,
+                  textAlign: "center",
+                  justifyItems: "center",
+                  pt: "5px",
                 }}
               >
-                <Box
-                  sx={{
-                    width: "175px",
-                    height: "35px",
-                    backgroundColor: `${colors.secondary}`,
-                    borderBottomRightRadius: "15px",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      color: colors.white,
-                      fontSize: 18,
-                      textAlign: "center",
-                      justifyItems: "center",
-                      pt: "5px",
-                    }}
-                  >
-                    President
-                  </Typography>
-                </Box>
-                <Box sx={{ padding: 1 }}>
-                  {selectedPresident && (
-                    <>
-                      <Box
-                        direction="row"
-                        sx={{
-                          display: "flex",
-                          justifyContent: "left",
-                          ml: "20px",
-                          my: "10px",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            borderRadius: "50%",
-                          }}
-                        >
-                          <Avatar
-                            src={selectedPresident.imageUrl}
-                            alt={selectedPresident.name}
-                            sx={{
-                              width: 75,
-                              height: 75,
-                              border: "3px solid white",
-                              backgroundColor: "white",
-                              margin: "auto",
-                            }}
-                          />
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "block",
-                            justifyContent: "left",
-                            ml: "15px",
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontWeight: 600,
-                              fontSize: 20,
-                              whiteSpace: "normal",
-                              overflow: "visible",
-                              textOverflow: "unset",
-                              wordBreak: "break-word",
-                              fontFamily: "poppins",
-                              color: colors.textPrimary,
-                            }}
-                          >
-                            {utils.extractNameFromProtobuf(
-                              selectedPresident.name
-                            )}
-                          </Typography>
-                          <Typography
-                            sx={{ fontSize: 18, color: colors.textMuted }}
-                          >
-                            {selectedPresident.created.split("-")[0]} -
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </>
-                  )}
-                </Box>
-              </Card>
-              <Card
-                sx={{
-                  width: {
-                    sm: "45%",
-                    lg: "25%",
-                  },
-                  marginRight: 1,
-                  border: `2px solid ${colors.secondary}50`,
-                  borderRadius: "15px",
-                  backgroundColor: colors.white,
-                  boxShadow: "none",
-                }}
-              >
-                <Box
-                  sx={{
-                    width: "175px",
-                    height: "35px",
-                    backgroundColor: colors.secondary,
-
-                    borderBottomRightRadius: "15px",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      color: colors.white,
-                      fontSize: 18,
-                      textAlign: "center",
-                      justifyItems: "center",
-                      pt: "5px",
-                    }}
-                  >
-                    Prime Minister
-                  </Typography>
-                </Box>
-                <Box sx={{ padding: 1 }}>
-                  {selectedPresident && (
-                    <>
-                      <Box
-                        direction="row"
-                        sx={{
-                          display: "flex",
-                          justifyContent: "left",
-                          ml: "20px",
-                          my: "10px",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            borderRadius: "50%",
-                          }}
-                        >
-                          <Avatar
-                            src={selectedPresident.imageUrl}
-                            alt={selectedPresident.name}
-                            sx={{
-                              width: 75,
-                              height: 75,
-                              border: "3px solid white",
-                              backgroundColor: "white",
-                              margin: "auto",
-                            }}
-                          />
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "block",
-                            justifyContent: "left",
-                            ml: "15px",
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              fontWeight: 600,
-                              fontSize: 20,
-                              color: colors.textPrimary,
-                              whiteSpace: "normal", // allow wrapping
-                              overflow: "visible", // show overflow content
-                              textOverflow: "unset", // disable text truncation
-                              wordBreak: "break-word", // break long words if needed
-                            }}
-                          >
-                            {utils.extractNameFromProtobuf(
-                              selectedPresident.name
-                            )}
-                          </Typography>
-                          <Typography
-                            sx={{ fontSize: 18, color: colors.textMuted }}
-                          >
-                            {selectedPresident.created.split("-")[0]} - 
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </>
-                  )}
-                </Box>
-              </Card>
+                President
+              </Typography>
             </Box>
+            <Box sx={{ padding: 1 }}>
+              {selectedPresident && (
+                <>
+                  <Box
+                    direction="row"
+                    sx={{
+                      display: "flex",
+                      justifyContent: "left",
+                      ml: "20px",
+                      my: "10px",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        borderRadius: "50%",
+                      }}
+                    >
+                      <Avatar
+                        src={selectedPresident.imageUrl}
+                        alt={selectedPresident.name}
+                        sx={{
+                          width: 75,
+                          height: 75,
+                          border: "3px solid white",
+                          backgroundColor: "white",
+                          margin: "auto",
+                        }}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "block",
+                        justifyContent: "left",
+                        ml: "15px",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: 20,
+                          whiteSpace: "normal",
+                          overflow: "visible",
+                          textOverflow: "unset",
+                          wordBreak: "break-word",
+                          fontFamily: "poppins",
+                          color: colors.textPrimary,
+                        }}
+                      >
+                        {utils.extractNameFromProtobuf(selectedPresident.name)}
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: 18, color: colors.textMuted }}
+                      >
+                        {selectedPresident.created.split("-")[0]} -
+                      </Typography>
+                    </Box>
+                  </Box>
+                </>
+              )}
+            </Box>
+          </Card>
+          <Card
+            sx={{
+              width: {
+                sm: "45%",
+                lg: "25%",
+              },
+              marginRight: 1,
+              border: `2px solid ${colors.secondary}50`,
+              borderRadius: "15px",
+              backgroundColor: colors.white,
+              boxShadow: "none",
+            }}
+          >
+            <Box
+              sx={{
+                width: "175px",
+                height: "35px",
+                backgroundColor: colors.secondary,
 
-            {/* Card Grid for Modern View */}
-            {selectedDate != null && (
-              <MinistryCardGrid onCardClick={handleCardClick} />
-            )}
-          </Box>
-        </>
-      )}
+                borderBottomRightRadius: "15px",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                  color: colors.white,
+                  fontSize: 18,
+                  textAlign: "center",
+                  justifyItems: "center",
+                  pt: "5px",
+                }}
+              >
+                Prime Minister
+              </Typography>
+            </Box>
+            <Box sx={{ padding: 1 }}>
+              {selectedPresident && (
+                <>
+                  <Box
+                    direction="row"
+                    sx={{
+                      display: "flex",
+                      justifyContent: "left",
+                      ml: "20px",
+                      my: "10px",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        borderRadius: "50%",
+                      }}
+                    >
+                      <Avatar
+                        src={selectedPresident.imageUrl}
+                        alt={selectedPresident.name}
+                        sx={{
+                          width: 75,
+                          height: 75,
+                          border: "3px solid white",
+                          backgroundColor: "white",
+                          margin: "auto",
+                        }}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "block",
+                        justifyContent: "left",
+                        ml: "15px",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: 20,
+                          color: colors.textPrimary,
+                          whiteSpace: "normal", // allow wrapping
+                          overflow: "visible", // show overflow content
+                          textOverflow: "unset", // disable text truncation
+                          wordBreak: "break-word", // break long words if needed
+                        }}
+                      >
+                        {utils.extractNameFromProtobuf(selectedPresident.name)}
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: 18, color: colors.textMuted }}
+                      >
+                        {selectedPresident.created.split("-")[0]} -
+                      </Typography>
+                    </Box>
+                  </Box>
+                </>
+              )}
+            </Box>
+          </Card>
+        </Box>
+
+        {/* Card Grid for Modern View */}
+        {selectedDate != null && (
+          <MinistryCardGrid onCardClick={handleCardClick} />
+        )}
+      </Box>
 
       {/* Right Drawer */}
       <InfoTab

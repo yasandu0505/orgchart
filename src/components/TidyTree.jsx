@@ -186,7 +186,7 @@ const TidyTree = ({
       .attr("dy", "0.31em")
       .attr("x", 6)
       .attr("text-anchor", "start")
-      .text((d) => d.data.name)
+      .text((d) => d.data.name.split(":")[0])
       .attr("fill", "#F4F4F4")
       .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
 
@@ -457,7 +457,7 @@ const TidyTree = ({
       .attr("dy", "0.31em")
       .attr("x", 6)
       .attr("text-anchor", "start")
-      .text((d) => d.data.name)
+      .text((d) => d.data.name.split(":")[0])
       .attr("fill", "#F4F4F4")
       .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
       .on("click", (event, d) => {
@@ -517,10 +517,12 @@ const TidyTree = ({
     <div
       ref={containerRef}
       style={{
+        paddingTop: "30px",
+        paddingBottom: "30px",
         width: "100%",
         height: "100%",
         overflow: "auto",
-        backgroundColor: "#1e1e1e"
+        backgroundColor: "#ffffff"
       }}
     />
   )
