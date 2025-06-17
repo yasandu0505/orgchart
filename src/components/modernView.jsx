@@ -265,7 +265,10 @@ const ModernView = () => {
             sx={{
               border: `2px solid ${colors.primary}10`,
               p: 3,
-              mx:25,
+              mx: {
+                xs: 2,
+                xl: 5,
+              },
               my:2,
               borderRadius: "15px",
               backgroundColor: colors.white,
@@ -277,7 +280,10 @@ const ModernView = () => {
               sx={{
                 textAlign: "left",
                 width: "100%",
-                display: "flex",
+                display: {
+                  xs: "block",
+                  md: "flex"
+                },
                 justifyContent: "Center",
               }}
             >

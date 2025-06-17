@@ -33,7 +33,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
 
     try {
       setLoading(true);
-      console.log("finding active ministry");
       const activeMinistry = await api.fetchActiveMinistries(
         selectedDate,
         allMinistryData
@@ -65,7 +64,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
       );
 
       setActiveMinistryList(enrichedMinistries);
-      console.log(enrichedMinistries);
       setLoading(false);
     } catch (e) {
       console.log("error fetch ministry list : ", e.message);
@@ -92,15 +90,18 @@ const MinistryCardGrid = ({ onCardClick }) => {
           >
             Gazette Date
           </Typography>
-          <Divider >
-            <Chip label={selectedDate.date} sx={{
-              backgroundColor: "transparent",
-              fontWeight: "bold",
-              color: colors.textSecondary,
-              fontFamily: "poppins",
-              fontSize: 25,
-              P:1
-            }} />
+          <Divider>
+            <Chip
+              label={selectedDate.date}
+              sx={{
+                backgroundColor: "transparent",
+                fontWeight: "bold",
+                color: colors.textSecondary,
+                fontFamily: "poppins",
+                fontSize: 25,
+                P: 1,
+              }}
+            />
           </Divider>
         </Box>
 
@@ -126,7 +127,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
             container
             spacing={2}
             sx={{
-              // border: `2px solid ${colors.primary}15`,
               p: 1,
               borderRadius: "15px",
               backgroundColor: colors.white,
@@ -139,15 +139,15 @@ const MinistryCardGrid = ({ onCardClick }) => {
                   sx={{
                     flexBasis: {
                       xs: "100%",
-                      sm: "50%",
-                      md: "25%",
-                      lg: "16.66%",
+                      sm: "48%",
+                      md: "31.5%",
+                      lg: "23.5%",
                     },
                     maxWidth: {
                       xs: "100%",
-                      sm: "50%",
-                      md: "25%",
-                      lg: "16.66%",
+                      sm: "48%",
+                      md: "31.5%",
+                      lg: "23.5%",
                     },
                   }}
                 >
