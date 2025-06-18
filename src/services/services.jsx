@@ -269,4 +269,62 @@ const fetchAllMinistries = async () => {
     return response;
 } 
 
-export default {fetchInitialGazetteData, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};
+const fetchAllRelationsForMinistry = async (ministryId) => {
+  try {
+    const response = await fetch(`/v1/entities/${ministryId}/allrelations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    const json = await response.json();
+    return json; 
+
+  } catch (error) {
+    console.error(`Error fetching relations for ministry ID ${ministryId}:`, error);
+    return [];
+  }
+};
+
+
+const createDepartmentHistoryDictionary = async (allMinistryData) => {
+  const departmentHistory = {};
+
+  for (const ministry of allMinistryData) {
+    const ministryId = ministry.id;
+    console.log("current ministry id in loop:", ministryId)
+
+    
+    const allRelations = await fetchAllRelationsForMinistry(ministryId);
+
+
+    for (const relation of allRelations) {
+      if (relation.name === "AS_DEPARTMENT") {
+        const departmentId = relation.relatedEntityId;
+
+        if (!departmentHistory[departmentId]) {
+          departmentHistory[departmentId] = [];
+        }
+
+        if (!departmentHistory[departmentId].includes(ministryId)) {
+          departmentHistory[departmentId].push(ministryId);
+        }
+      }
+    }
+  }
+
+  return departmentHistory;
+};
+
+
+  
+
+
+
+
+export default {fetchInitialGazetteData, createDepartmentHistoryDictionary, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};
