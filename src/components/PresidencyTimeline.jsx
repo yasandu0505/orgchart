@@ -37,33 +37,36 @@ export default function PresidencyTimeline() {
   useEffect(() => {
     if (
       !initialSelectionDone.current &&
-      presidents.length > 0 &&
-      gazetteData.length > 0
+      presidents.length > 0
     ) {
-      const lastIndex = presidents.length - 1;
-      const lastDate = selectedDate;
-
-      dispatch(setSelectedIndex(lastIndex));
-      if (lastDate) dispatch(setSelectedDate(lastDate));
       initialSelectionDone.current = true;
+      const lastIndex = presidents.length - 1;
+      dispatch(setSelectedIndex(lastIndex));
+      dispatch(setSelectedPresident(presidents[lastIndex]));
+      if (gazetteData?.[0]) {
+        dispatch(setSelectedDate(gazetteData[0]));
+      }
+    }
+    updateScrollButtons()
+  }, [presidents, gazetteData]);
 
+  useEffect(() => {
+    if (selectedIndex !== null) {
       setTimeout(() => {
         const scrollContainer = scrollRef.current;
-        const lastItem = scrollContainer?.children[lastIndex];
-
+        const lastItem = scrollContainer?.children[selectedIndex];
         if (scrollContainer && lastItem) {
           const scrollLeft = lastItem.offsetLeft - scrollContainer.offsetLeft - 24;
-
           scrollContainer.scrollTo({
             left: scrollLeft,
             behavior: "smooth",
           });
-
-          updateScrollButtons(); 
+          updateScrollButtons();
         }
-      }, 100);
+      }, 50);
     }
-  }, [gazetteData, selectedDate, dispatch]);
+  }, [selectedIndex]);
+
 
   useEffect(() => {
     updateScrollButtons();
@@ -366,22 +369,22 @@ export default function PresidencyTimeline() {
           })}
       </Box>
 
-    
-        <IconButton
-          onClick={() => scroll("right")}
-          sx={{
-            zIndex: 2,
-            mt: -6.8,
+
+      <IconButton
+        onClick={() => scroll("right")}
+        sx={{
+          zIndex: 2,
+          mt: -6.8,
+          backgroundColor: colors.backgroundPrimary,
+          visibility: canScrollRight ? "visible" : "hidden",
+          borderRadius: "50%",
+          "&:hover": {
             backgroundColor: colors.backgroundPrimary,
-            visibility: canScrollRight ? "visible" : "hidden",
-            borderRadius: "50%",
-            "&:hover": {
-              backgroundColor: colors.backgroundPrimary,
-            },
-          }}
-        >
-          <ArrowForwardIosIcon />
-        </IconButton>
+          },
+        }}
+      >
+        <ArrowForwardIosIcon />
+      </IconButton>
     </Box>
   );
 }
