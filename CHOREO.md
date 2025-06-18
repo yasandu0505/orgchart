@@ -119,12 +119,12 @@ You **MUST** import the config file in your `index.html`:
 
 ---
 
-### 15. 🚀 Deploy Your Application
+### 12. 🚀 Deploy Your Application
 Click deploy and wait for the process to complete.
 
 ⏳ **Please be patient**: Deployment may take several minutes depending on your internet speed and application size.
 
-### 17. 🎉 Access Your Deployed App
+### 13. 🎉 Access Your Deployed App
 After successful deployment, you'll find your **Web App URL** in the Development box.
 
 ---
