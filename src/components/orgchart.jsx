@@ -10,6 +10,10 @@ import { colors } from "@mui/material";
 import { useThemeContext } from "../themeContext";
 import { ClipLoader } from "react-spinners";
 
+
+
+const apiUrl = 'http://localhost:8081'
+
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
   decodeURIComponent(hex.replace(/(..)/g, "%$1"));
@@ -78,7 +82,7 @@ const extractNameFromProtobuf = (nameObj) => {
 const fetchDepartments = async (ministryId, selectedDate) => {
   try {
     // Fetch active department relations for the ministry at the selected date
-    const response = await fetch(`/v1/entities/${ministryId}/relations`, {
+    const response = await fetch(`${apiUrl}/v1/entities/${ministryId}/relations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -93,7 +97,7 @@ const fetchDepartments = async (ministryId, selectedDate) => {
     });
 
     // Fetch all department protobuf data
-    const response2 = await fetch("/v1/entities/search", {
+    const response2 = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -185,7 +189,7 @@ const fetchInitialGazetteData = async () => {
     //   }),
     // });
 
-    const responseForGazetteDates = await fetch("/v1/entities/search", {
+    const responseForGazetteDates = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -233,7 +237,7 @@ const fetchActiveMinistries = async (
   governmentNodeId = "gov_01"
 ) => {
   try {
-    const response = await fetch(`/v1/entities/${governmentNodeId}/relations`, {
+    const response = await fetch(`${apiUrl}/v1/entities/${governmentNodeId}/relations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
