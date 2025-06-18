@@ -4,20 +4,14 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import colors from "../assets/colors";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  setSelectedIndex,
-  setSelectedDate,
-  setSelectedPresident,
-} from "../store/presidencySlice";
+import { setSelectedIndex, setSelectedDate, setSelectedPresident } from "../store/presidencySlice";
 import utils from "../utils/utils";
 import StyledBadge from "../assets/materialCustomAvatar";
 
 export default function PresidencyTimeline() {
   const dispatch = useDispatch();
   const presidents = useSelector((state) => state.presidency.presidentList);
-  const selectedPresident = useSelector(
-    (state) => state.presidency.selectedPresident
-  );
+  const selectedPresident = useSelector((state) => state.presidency.selectedPresident);
   const selectedIndex = useSelector((state) => state.presidency.selectedIndex);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
   const { gazetteData } = useSelector((state) => state.gazettes);
@@ -25,8 +19,20 @@ export default function PresidencyTimeline() {
   const avatarRef = useRef(null);
   const dotRef = useRef(null);
   const [lineStyle, setLineStyle] = useState(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const initialSelectionDone = useRef(false);
+
+  const updateScrollButtons = () => {
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+
+    setCanScrollLeft(scrollEl.scrollLeft > 0);
+    setCanScrollRight(
+      scrollEl.scrollLeft + scrollEl.clientWidth < scrollEl.scrollWidth - 1
+    );
+  };
 
   useEffect(() => {
     if (
@@ -42,13 +48,34 @@ export default function PresidencyTimeline() {
       initialSelectionDone.current = true;
 
       setTimeout(() => {
-        scrollRef.current?.children[lastIndex]?.scrollIntoView({
-          behavior: "smooth",
-          inline: "center",
-        });
+        const scrollContainer = scrollRef.current;
+        const lastItem = scrollContainer?.children[lastIndex];
+
+        if (scrollContainer && lastItem) {
+          const scrollLeft = lastItem.offsetLeft - scrollContainer.offsetLeft - 24;
+
+          scrollContainer.scrollTo({
+            left: scrollLeft,
+            behavior: "smooth",
+          });
+
+          updateScrollButtons(); 
+        }
       }, 100);
     }
   }, [gazetteData, selectedDate, dispatch]);
+
+  useEffect(() => {
+    updateScrollButtons();
+    const el = scrollRef.current;
+    el?.addEventListener("scroll", updateScrollButtons);
+    window.addEventListener("resize", updateScrollButtons);
+
+    return () => {
+      el?.removeEventListener("scroll", updateScrollButtons);
+      window.removeEventListener("resize", updateScrollButtons);
+    };
+  }, []);
 
   const scroll = (direction) => {
     if (!scrollRef.current) return;
@@ -69,13 +96,8 @@ export default function PresidencyTimeline() {
     const dotBox = dotRef.current.getBoundingClientRect();
     const containerBox = scrollRef.current.getBoundingClientRect();
 
-    // Start X = right edge of avatar
     const startX = avatarBox.left + avatarBox.width;
-
-    // End X = center of dot (small circle)
     const endX = dotBox.left + dotBox.width / 2 + 34;
-
-    // Vertical alignment calculation
     const containerHeight = containerBox.height;
     const top = containerHeight / 2 - 30;
 
@@ -114,16 +136,27 @@ export default function PresidencyTimeline() {
         width: "80%",
       }}
     >
-      <IconButton onClick={() => scroll("left")} sx={{ zIndex: 10, mt: -7 }}>
+      <IconButton
+        onClick={() => scroll("left")}
+        sx={{
+          zIndex: 2,
+          mt: -6.8,
+          backgroundColor: colors.backgroundPrimary,
+          visibility: canScrollLeft ? "visible" : "hidden",
+          borderRadius: "50%",
+          "&:hover": {
+            backgroundColor: colors.backgroundPrimary,
+          },
+        }}
+      >
         <ArrowBackIosNewIcon />
       </IconButton>
 
-      {/* Background timeline line */}
       <Box
         sx={{
           position: "absolute",
-          top: "calc(50% - 30px)",
-          width: "75%",
+          top: "calc(50% - 28px)",
+          width: "92%",
           left: 50,
           right: 50,
           height: "2px",
@@ -132,7 +165,6 @@ export default function PresidencyTimeline() {
         }}
       />
 
-      {/* Blue connector line */}
       {lineStyle && selectedIndex !== null && selectedDate && (
         <Box
           sx={{
@@ -183,7 +215,7 @@ export default function PresidencyTimeline() {
               >
                 <Box
                   onClick={() => {
-                    if (!isSelected){
+                    if (!isSelected) {
                       dispatch(setSelectedPresident(president));
                       dispatch(setSelectedIndex(index));
                       const firstDate = gazetteData?.[0]?.date;
@@ -199,12 +231,7 @@ export default function PresidencyTimeline() {
                   }}
                 >
                   {index === presidents.length - 1 ? (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
                       <StyledBadge
                         ref={isSelected ? avatarRef : null}
                         overlap="circular"
@@ -214,8 +241,6 @@ export default function PresidencyTimeline() {
                         }}
                         variant="dot"
                         sx={{
-                          // width: 50,
-                          // height: 50,
                           border: isSelected
                             ? `4px solid ${colors.timelineLineActive}`
                             : `2px solid ${colors.inactiveBorderColor}`,
@@ -240,12 +265,7 @@ export default function PresidencyTimeline() {
                       </StyledBadge>
                     </Box>
                   ) : (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
+                    <Box sx={{ display: "flex", justifyContent: "center" }}>
                       <Box
                         sx={{
                           border: isSelected
@@ -262,7 +282,6 @@ export default function PresidencyTimeline() {
                             width: 50,
                             height: 50,
                             border: "3px solid white",
-
                             backgroundColor: "white",
                             margin: "auto",
                             filter: isSelected ? "none" : "grayscale(50%)",
@@ -272,12 +291,12 @@ export default function PresidencyTimeline() {
                     </Box>
                   )}
 
-                  <Typography variant="body2" sx={{ mt: 1, color: "black", fontFamily: "poppins", fontWeight: isSelected ? 600 : ""}}>
+                  <Typography variant="body2" sx={{ mt: 1, color: "black", fontFamily: "poppins", fontWeight: isSelected ? 600 : "" }}>
                     {utils.extractNameFromProtobuf(president.name)}
                   </Typography>
                   <Typography variant="caption" sx={{ color: "gray", fontFamily: "poppins" }}>
                     {selectedPresident &&
-                      selectedPresident.created.split("-")[0]} - 
+                      selectedPresident.created.split("-")[0]} -
                   </Typography>
                 </Box>
 
@@ -292,7 +311,7 @@ export default function PresidencyTimeline() {
                       pr: 2,
                     }}
                   >
-                    {gazetteData.map((item, index) => {
+                    {gazetteData.map((item) => {
                       const isDateSelected = item.date === selectedDate.date;
 
                       return (
@@ -347,9 +366,22 @@ export default function PresidencyTimeline() {
           })}
       </Box>
 
-      <IconButton onClick={() => scroll("right")} sx={{ zIndex: 10, mt: -7 }}>
-        <ArrowForwardIosIcon />
-      </IconButton>
+    
+        <IconButton
+          onClick={() => scroll("right")}
+          sx={{
+            zIndex: 2,
+            mt: -6.8,
+            backgroundColor: colors.backgroundPrimary,
+            visibility: canScrollRight ? "visible" : "hidden",
+            borderRadius: "50%",
+            "&:hover": {
+              backgroundColor: colors.backgroundPrimary,
+            },
+          }}
+        >
+          <ArrowForwardIosIcon />
+        </IconButton>
     </Box>
   );
 }
