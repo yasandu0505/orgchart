@@ -11,7 +11,7 @@ import { useThemeContext } from "../themeContext";
 
 
 
-const apiUrl = "http://localhost:8081";
+const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
 
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
