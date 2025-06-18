@@ -17,7 +17,7 @@ const colors = {
   timelineColor: '#ccc',
 
   // Buttons / Accents
-  primary: '#155DFC',
+  primary: '#ffffff',
   secondary: '#9c27b0',
   success: '#4caf50',
   warning: '#ff9800',

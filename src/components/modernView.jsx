@@ -50,6 +50,8 @@ const ModernView = () => {
         (obj) => obj.startTime == selectedPresident.created
       );
       fetchGazetteData(matchedPresidentRelation);
+      console.log('matched president relation : ',matchedPresidentRelation)
+      console.log('selected president : ', selectedPresident)
     }
   }, [selectedPresident]);
 
@@ -74,6 +76,8 @@ const ModernView = () => {
       }
 
       const transformed = filteredDates.map((date) => ({ date: date }));
+
+      console.log('transform data : ', dates)
 
       dispatch(setGazetteData(transformed));
       // dispatch(setAllMinistryData(allMinistryData));
