@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { MessageCircle,Users, ChevronRight, Building2, User } from 'lucide-react';
 import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
+import Version from './version';
+import "../assets/chatbotCSS.css"
 
 const Home = () => {
   const svgRef = useRef();
@@ -90,40 +92,15 @@ const Home = () => {
     navigate("/modern-view");
   }
 
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-950 to-black py-12 px-6">
-      <style jsx>{`
-        .chat-scrollbar {
-          scrollbar-width: thin;
-          scrollbar-color: #374151 #1f2937;
-        }
-        
-        .chat-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        
-        .chat-scrollbar::-webkit-scrollbar-track {
-          background: #1f2937;
-          border-radius: 3px;
-        }
-        
-        .chat-scrollbar::-webkit-scrollbar-thumb {
-          background: #374151;
-          border-radius: 3px;
-        }
-        
-        .chat-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #4b5563;
-        }
-      `}</style>
-      
       <div className="max-w-6xl mx-auto">
         
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <div class="text-center inline-flex items-center space-x-2 bg-blue-900/20 border border-blue-800/30 rounded-full px-4 py-1 text-blue-400 text-sm font-mono mb-4">
-                <span class="text-xs">OrgChart v0.1.0</span>
-            </div>
+         <Version />
           <h1 className="text-5xl font-bold text-white mb-6">
             Navigate Your{' '}
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
