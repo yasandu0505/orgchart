@@ -1,122 +1,175 @@
+
 # 🚀 CHOREO Deployment Guide
 
 Welcome to the complete deployment guide for CHOREO! Follow these steps to successfully deploy your web application.
 
+---
+
 ## 🎯 Getting Started
 
-### 1. 🌐 Access the Choreo Console
-```bash
-https://console.choreo.dev/
-```
+### 1. 🌐 Access the Choreo Console  
+🔗 Visit: [https://console.choreo.dev/](https://console.choreo.dev/)  
 🔑 Sign in using your **Google**, **GitHub**, or **Microsoft** account.
 
-### 2. 🏢 Create an Organization
+---
+
+### 2. 🏢 Create an Organization  
 Set up your organization to manage your projects and components.
 
-### 3. 📁 Create a Project
+---
+
+### 3. 📁 Create a Project  
 Initialize a new project within your organization.
 
-### 4. 🧩 Create a Component
+---
+
+### 4. 🧩 Create a Component  
 Click on **Web Application Component** to start building your app.
 
-### 5. 🔗 Connect to Git Repository
+---
+
+### 5. 🔗 Connect to Git Repository  
 Select **Continue with GitHub** to link your code repository.
 
-### 6. 📂 Select Repository & Branch
-Choose your repository name and the desired branch for deployment.
+---
 
-### 7. ✨ Create and Deploy
-Initialize the creation and deployment process.
+### 6. 📂 Select Repository & Branch  
+Choose your **repository name** and the **desired branch** for deployment.
 
-### 8. 🔨 Monitor the Build Process
-Navigate to the **left side panel** → Click on **Build**
+---
 
+### 7. 🧾 Add Component Details  
+- **Display Name**  
+- **Name**  
+- **Description** (optional)
+
+---
+
+### 8. ⚙️ Choose Build Presets  
+Since this is a React app, choose the **React preset**.
+
+---
+
+### 9. 🏗️ Build Configuration  
+- **Build Command**:  
+  ```bash
+  npm install && npm run build
+  ```
+- **Build Path**:  
+  ```
+  dist
+  ```
+- **Node Version**:  
+  ```
+  18
+  ```
+
+---
+
+### 10. ✨ Create and Deploy  
+Click **Create and Deploy** to start the build and deployment process.
+
+---
+
+### 11. 🔨 Monitor the Build Process  
+Go to the **left sidebar** → Click on **Build**  
 🎉 You can now see your component building in real-time!
 
 ---
 
 ## 🚀 Post-Build Deployment
 
-### 9. 📦 Navigate to Deploy Section
-Go to the **left side panel** → Click on **Deploy**
+### 12. 📦 Navigate to the Deploy Section  
+Go to the **left sidebar** → Click on **Deploy**
 
-### 10. ⚙️ Access Deployment Options
-Click on the **dropdown arrow** of the Deploy button
+---
 
-You'll see the **Configure & Deploy** option.
+### 13. ⚙️ Access Deployment Options  
+Click the **dropdown arrow** on the Deploy button → Select **Configure & Deploy**
 
-### 11. 🛠️ Configuration Setup
+---
 
-A configuration window will open from the right side for mounting **config.js** to the public folder.
+### 14. 🛠️ Configuration Setup  
 
-#### 📝 Add Configuration Code:
+In the side panel, you’ll mount your `config.js` file to the **public** folder.
+
+#### 📝 Configuration Example:
 ```javascript
 window.configs = {
-    apiUrl: "{your service url from the choreo backend connection}",
-    version: "{Your version}"
-}
+  apiUrl: "{your service url from the Choreo backend connection}",
+  version: "{Your version}"
+};
 ```
 
-> 💡 **Pro Tip**: You can add any configuration needed for deployment, but ensure you've implemented logic to access these configs in your components.
+> 💡 **Pro Tip**: You can add any config values you need. Just ensure your app is using them properly.
 
-#### ⚠️ **Critical Requirement**
-You **MUST** import the config file in your `index.html`:
+---
+
+#### ⚠️ Critical Requirement: Add Script to `index.html`
+You **MUST** add the script tag to your `index.html`:
 
 ```html
-<script src="./public/config.js"></script>
+<script src="/config.js"></script>
 ```
 
-🚨 **Important**: If this script tag is missing, configurations won't work! Always check this first if you encounter errors.
+🚨 **Important**: If this tag is missing, `window.configs` will not be available in your app.
 
 ---
 
 ## 🧪 Testing Configuration Locally
 
-### Step-by-Step Testing:
+### ✅ Step-by-Step Local Testing
 
-1. **📁 Create Config File**
-   - Create `config.js` in your **public** folder
+1. **📁 Create `config.js` in your `public/` folder**
 
 2. **📝 Add Sample Configuration**
-   ```javascript
-   window.configs = {
-       version: "rc-0.1.0"
-   }
-   ```
+```javascript
+window.configs = {
+  version: "rc-0.1.0"
+};
+```
 
 3. **⚛️ Access Config in React Component**
-   ```javascript
-   useEffect(() => {
-       const version = window?.configs?.version ? window.configs.version : "v1";
-       console.log(version);
-   }, [])
-   ```
+```javascript
+useEffect(() => {
+  const version = window?.configs?.version ?? "v1";
+  console.log(version);
+}, []);
+```
 
-4. **🔍 Check Console**
-   Verify that the configuration is working properly.
+4. **🔍 Check the Console**  
+Ensure the configuration value logs correctly.
 
 ---
 
-### 12. 🚀 Deploy Your Application
-Click deploy and wait for the process to complete.
+## 🚀 Final Deployment
 
-⏳ **Please be patient**: Deployment may take several minutes depending on your internet speed and application size.
+### 15. 🚀 Deploy Your Application  
+Click **Deploy** and wait for the process to complete.
 
-### 13. 🎉 Access Your Deployed App
-After successful deployment, you'll find your **Web App URL** in the Development box.
+⏳ Deployment may take a few minutes depending on app size and internet speed.
+
+---
+
+### 16. 🎉 Access Your Deployed App  
+After deployment, your **Web App URL** will be available in the **Development** section.
 
 ---
 
 ## 🎊 Congratulations!
 
-Your CHOREO application is now successfully deployed and ready to use!
+Your CHOREO web application is now successfully deployed and live! 🚀🎉
 
 ---
 
 ### 📞 Need Help?
-If you encounter any issues during deployment, double-check:
-- ✅ Config file is properly created
-- ✅ Script tag is added to index.html
-- ✅ Configuration logic is implemented correctly
 
-**Happy Deploying!** 🚀✨
+If you run into any issues:
+
+- ✅ Check `config.js` is created properly
+- ✅ Ensure script tag is in `index.html`
+- ✅ Confirm config access logic is implemented correctly
+
+---
+
+**Happy Deploying!** ✨🌐💻
