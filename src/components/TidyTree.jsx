@@ -10,7 +10,7 @@ const TidyTree = ({
   expandedMinistries = new Set(),
 }) => {
   const containerRef = useRef(null)
-  const svgRef = useRef(null)
+  // const svgRef = useRef(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const treeRef = useRef(null)
   const rootRef = useRef(null)
@@ -139,7 +139,7 @@ const TidyTree = ({
     })
 
     const marginTop = 10
-    const marginRight = 10
+    // const marginRight = 10
     const marginBottom = 10
     const marginLeft = 40
     const height = right.x - left.x + marginTop + marginBottom
@@ -162,7 +162,7 @@ const TidyTree = ({
     const nodeEnter = node
       .enter()
       .append("g")
-      .attr("transform", (d) => `translate(${ministryNode.y},${ministryNode.x})`) // Start from ministry position
+      .attr("transform", () => `translate(${ministryNode.y},${ministryNode.x})`) // Start from ministry position
       .attr("data-id", (d) => d.data.id || "root")
       .attr("fill-opacity", 0)
       .attr("stroke-opacity", 0)

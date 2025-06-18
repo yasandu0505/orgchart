@@ -20,9 +20,7 @@ import { useSelector } from "react-redux";
 const MinistryDrawerContent = ({
   selectedCard,
   selectedDate,
-  onDepartmentClick,
 }) => {
-  if (!selectedCard) return null;
 
   const allPersonList = useSelector((state) => state.allPerson.allPerson);
   const allDepartmentList = useSelector(

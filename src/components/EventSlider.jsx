@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Box, Slider, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import PresidencyTimeline from "./PresidencyTimeline";
 
-export default function EventSlider({ data, onSelectDate, selectedDate }) {
+export default function EventSlider({ data, selectedDate }) {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   React.useEffect(() => {
@@ -20,21 +20,21 @@ export default function EventSlider({ data, onSelectDate, selectedDate }) {
   }
 
   // Spread values equally between 0 and 100
-  const stepSize = 100 / (data.length - 1);
-  const marks = data.map((item, index) => ({
-    value: index * stepSize,
-    label: item.date, // Show date as label
-  }));
+  // const stepSize = 100 / (data.length - 1);
+  // const marks = data.map((item, index) => ({
+  //   value: index * stepSize,
+  //   label: item.date, // Show date as label
+  // }));
 
-  const handleChange = (event, newValue) => {
-    const newIndex = Math.round(newValue / stepSize);
-    if (newIndex !== selectedIndex) {
-      setSelectedIndex(newIndex);
-      onSelectDate(data[newIndex].date);
-      console.log("EventSlider.jsx: data[newIndex].date:", data[newIndex].date);
-      console.log("EventSlider.jsx: Data:", data[newIndex]);
-    }
-  };
+  // const handleChange = (event, newValue) => {
+  //   const newIndex = Math.round(newValue / stepSize);
+  //   if (newIndex !== selectedIndex) {
+  //     setSelectedIndex(newIndex);
+  //     onSelectDate(data[newIndex].date);
+  //     console.log("EventSlider.jsx: data[newIndex].date:", data[newIndex].date);
+  //     console.log("EventSlider.jsx: Data:", data[newIndex]);
+  //   }
+  // };
 
   return (
 
@@ -42,7 +42,7 @@ export default function EventSlider({ data, onSelectDate, selectedDate }) {
       {/* <Typography variant="h6" gutterBottom>
         Event Timeline
       </Typography> */}
-      <PresidencyTimeline onDateChange={onSelectDate} mode="classic"/>
+      <PresidencyTimeline/>
 
       {/* <Slider
         value={selectedIndex * stepSize}
