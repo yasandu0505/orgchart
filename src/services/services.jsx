@@ -44,16 +44,18 @@ const fetchInitialGazetteData = async () => {
     const datesList2 = resultForPerson.body.map((item) => item.created?.split("T")[0]);
     // const datesList3 = resultForDepartment.body.map((item) => item.created?.split("T")[0]);
 
-    const ministryIdList = result.body.map((item) => item.id);
-    console.log('ministry Id LIst : ', ministryIdList);
+    // const ministryIdList = result.body.map((item) => item.id);
+    // console.log('ministry Id LIst : ', ministryIdList);
 
     // console.log('date list 1',datesList1)
     // console.log('date list 2',datesList2)
     // console.log('date list 3',datesList3)
 
     const mergedDateList1 = datesList1.concat(datesList2).sort();
+    // console.log('merged dates : ', mergedDateList1)
     // const mergedDateList2 = mergedDateList1.concat(datesList3).sort();
     const dates = Array.from(new Set(mergedDateList1))
+    // console.log('array from dates ' , dates)
 
     // Wait for all requests to complete
     // const allResponses = await Promise.all(relationPromises);
@@ -121,7 +123,7 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
       .filter(relation => relation.relatedEntityId)
       .map(relation => relation.relatedEntityId)
 
-    console.log('Active ministry IDs:', activeMinistryIds)
+    // console.log('Active ministry IDs:', activeMinistryIds)
 
     // Map active ministry IDs with the protobuf data to get ministry names
     const activeMinistries = allMinistryData
@@ -137,6 +139,7 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
         } catch (e) {
           // Use extractNameFromProtobuf as fallback
           name = utils.extractNameFromProtobuf(ministry.name) || ministry.name
+          console.log(e.message)
         }
 
         return {
@@ -147,7 +150,7 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
         }
       })
 
-    console.log('Active ministries with names:', activeMinistries)
+    // console.log('Active ministries with names:', activeMinistries)
 
     return {
       name: "Government",

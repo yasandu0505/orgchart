@@ -16,7 +16,7 @@ const ModernView = () => {
   const { selectedDate, selectedPresident, presidentRelationList } =
     useSelector((state) => state.presidency);
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
-  const presidents = useSelector((state) => state.presidency.presidentList);
+  // const presidents = useSelector((state) => state.presidency.presidentList);
   //   const selectedPresident =
   //     selectedIndex !== null ? presidents[selectedIndex] : null;
 
@@ -58,7 +58,11 @@ const ModernView = () => {
       const startTime = selectedPresident.startTime.split("T")[0];
       const endTime = selectedPresident.endTime.split("T")[0];
 
-      const { dates, allMinistryData } = await api.fetchInitialGazetteData();
+      const { dates } = await api.fetchInitialGazetteData();
+
+      // console.log('returned date : ',dates)
+      // console.log('start date : ',startTime);
+      // console.log('endTime : ', endTime)
 
       var filteredDates = [];
       if (endTime == "") {
@@ -258,7 +262,7 @@ const ModernView = () => {
               )}
             </Box>
           </Card>
-          <Card
+          {/* <Card
             sx={{
               width: {
                 sm: "45%",
@@ -352,7 +356,7 @@ const ModernView = () => {
                 </>
               )}
             </Box>
-          </Card>
+          </Card> */}
         </Box>
 
         {/* Card Grid for Modern View */}

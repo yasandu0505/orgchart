@@ -2,12 +2,10 @@ import { useEffect, useState, useCallback } from "react";
 import TidyTree from "./TidyTree";
 import EventSlider from "./EventSlider";
 import { ErrorBoundary } from "react-error-boundary";
-import './../index.css'
-import PresidencyTimeline from "./PresidencyTimeline";
-import { useSelector } from "react-redux";
-import { Satellite } from "lucide-react";
+import "./../index.css";
+import { useDispatch, useSelector } from "react-redux";
 import { setSelectedDate } from "../store/presidencySlice";
-import { dispatch } from "d3";
+import { setGazetteData } from "../store/gazetteDate";
 
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
@@ -116,8 +114,8 @@ const fetchDepartments = async (ministryId, selectedDate) => {
     const activeDepartmentRelations = await response.json();
     const departmentsWithName = await response2.json();
 
-    console.log("Active department relations:", activeDepartmentRelations);
-    console.log("Departments with name:", departmentsWithName);
+    // console.log("Active department relations:", activeDepartmentRelations);
+    // console.log("Departments with name:", departmentsWithName);
 
     // Extract the relatedEntityIds from the active department relations
     const activeDepartmentIds = activeDepartmentRelations
@@ -127,7 +125,7 @@ const fetchDepartments = async (ministryId, selectedDate) => {
       )
       .map((relation) => relation.relatedEntityId);
 
-    console.log("Active department IDs:", activeDepartmentIds);
+    // console.log("Active department IDs:", activeDepartmentIds);
 
     // Create a lookup map for department names
     const departmentNameMap = {};
@@ -140,11 +138,11 @@ const fetchDepartments = async (ministryId, selectedDate) => {
       });
     }
 
-    console.log("Department name map:", departmentNameMap);
+    // console.log("Department name map:", departmentNameMap);
 
     // Map active department IDs with the protobuf data to get department names
     const filteredDepartments = activeDepartmentIds
-      .filter((deptId) => departmentNameMap.hasOwnProperty(deptId))
+      .filter((deptId) => Object.prototype.hasOwnProperty.call(departmentNameMap, deptId))
       .map((deptId) => {
         const deptName = departmentNameMap[deptId];
         return {
@@ -155,7 +153,7 @@ const fetchDepartments = async (ministryId, selectedDate) => {
       })
       .filter((dept) => dept && dept.id && dept.name);
 
-    console.log("Filtered active departments:", filteredDepartments);
+    // console.log("Filtered active departments:", filteredDepartments);
     return filteredDepartments;
   } catch (error) {
     console.error(
@@ -210,6 +208,9 @@ const fetchInitialGazetteData = async () => {
       .filter((value, index, self) => self.indexOf(value) === index)
       .sort();
 
+    // const dispatch = useDispatch();
+    // dispatch(setGazetteData(dates));
+
     return { dates };
   } catch (error) {
     console.error("Error fetching initial gazette data from API:", error);
@@ -246,14 +247,14 @@ const fetchActiveMinistries = async (
     }
 
     const activeMinistryRelations = await response.json();
-    console.log("Active ministry relations:", activeMinistryRelations);
+    // console.log("Active ministry relations:", activeMinistryRelations);
 
     // Extract the relatedEntityIds from the response
     const activeMinistryIds = activeMinistryRelations
       .filter((relation) => relation.relatedEntityId)
       .map((relation) => relation.relatedEntityId);
 
-    console.log("Active ministry IDs:", activeMinistryIds);
+    // console.log("Active ministry IDs:", activeMinistryIds);
 
     // Map active ministry IDs with the protobuf data to get ministry names
     const activeMinistries = allMinistryData
@@ -269,6 +270,7 @@ const fetchActiveMinistries = async (
         } catch (e) {
           // Use extractNameFromProtobuf as fallback
           name = extractNameFromProtobuf(ministry.name) || ministry.name;
+          console.log(e.message)
         }
 
         return {
@@ -279,7 +281,7 @@ const fetchActiveMinistries = async (
         };
       });
 
-    console.log("Active ministries with names:", activeMinistries);
+    // console.log("Active ministries with names:", activeMinistries);
 
     return {
       name: "Government",
@@ -336,42 +338,57 @@ function ErrorFallback({ error, resetErrorBoundary }) {
 export default function OrgChart() {
   const [treeData, setTreeData] = useState(null);
   const [isTreeDataLoading, setIsTreeDataLoading] = useState(true);
-  const [gazetteData, setGazetteData] = useState([]);
+  // const [gazetteData, setGazetteData] = useState([]);
   // const [allMinistryData, setAllMinistryData] = useState([]);
   const [allData, setAllData] = useState({});
   // const [selectedDate, setSelectedDate] = useState(null);
   const [departmentData, setDepartmentData] = useState({});
   const [loadingDepartments, setLoadingDepartments] = useState(new Set());
   const [expandedMinistries, setExpandedMinistries] = useState(new Set());
-  const {selectedDate} = useSelector((state)=>state.presidency);
+  const { gazetteData } = useSelector((state) => state.gazettes);
+  const { selectedPresident,selectedDate, presidentRelationList } = useSelector((state) => state.presidency);
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const initializeApp = async () => {
-      if (gazetteData.length === 0) {
-        const { dates } =
-          await fetchInitialGazetteData();
-        setGazetteData(dates);
+      if (!selectedPresident?.created) return
+            const matchedPresidentRelation = presidentRelationList.find(
+        (obj) => obj.startTime == selectedPresident.created
+      )
 
-        if (dates.length > 0) {
-          const latestDate = dates[dates.length - 1];
-          console.log(latestDate);
-          const activeMinistryTree = await fetchActiveMinistries(
-            latestDate,
-            allMinistryData
-          );
-          console.log('this is the last date ',latestDate)
-          setTreeData(activeMinistryTree);
-          dispatch(setSelectedDate(latestDate));
-          setAllData({ [latestDate]: activeMinistryTree });
-        }
+      const startTime = matchedPresidentRelation.startTime.split("T")[0];
+      const endTime = matchedPresidentRelation.endTime.split("T")[0];
+      const { dates } = await fetchInitialGazetteData();
+      var filteredDates = [];
+      if (endTime == "") {
+        filteredDates = dates.filter((date) => date >= startTime);
+      } else {
+        filteredDates = dates.filter(
+          (date) => date >= startTime && date <= endTime
+        );}
+      const transform = filteredDates.map((date) => ({date: date}));
+      // console.log('filtered date list for : ', transform)
+      dispatch(setGazetteData(transform));
+      setGazetteData(dates);
 
-        setIsTreeDataLoading(false);
+      if (dates.length > 0) {
+        const latestDate = dates[dates.length - 1];
+        const activeMinistryTree = await fetchActiveMinistries(
+          latestDate,
+          allMinistryData
+        );
+        setTreeData(activeMinistryTree);
+        dispatch(setSelectedDate({date: latestDate}));
+        setAllData({ [latestDate]: activeMinistryTree });
       }
+
+      setIsTreeDataLoading(false);
     };
 
     initializeApp();
-  }, []);
+  }, [selectedPresident]);
 
   const handleDateChange = async (date) => {
     setIsTreeDataLoading(true);
@@ -392,7 +409,9 @@ export default function OrgChart() {
     setIsTreeDataLoading(false);
   };
 
-  useEffect(()=>{handleDateChange(selectedDate)},[selectedDate])
+  useEffect(() => {
+    handleDateChange(selectedDate);
+  }, [selectedDate]);
 
   // Fixed ministry click handler with proper toggle logic
   const handleMinistryClick = useCallback(
@@ -499,7 +518,6 @@ export default function OrgChart() {
               <EventSlider
                 data={timelineData}
                 onSelectDate={handleDateChange}
-                selectedDate={selectedDate}
               />
             )}
           </ErrorBoundary>
@@ -523,13 +541,13 @@ export default function OrgChart() {
                   alignItems: "center",
                   height: "100%",
                   color: "#000",
-                  backgroundColor: "#fff"
+                  backgroundColor: "#fff",
                 }}
               >
                 <p>Loading...</p>
               </div>
             ) : (
-                <TidyTree
+              <TidyTree
                 data={treeData}
                 onMinistryClick={handleMinistryClick}
                 loadingDepartments={loadingDepartments}

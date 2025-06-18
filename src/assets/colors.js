@@ -27,7 +27,8 @@ const colors = {
   inactiveBorderColor: 'gray',
 
   //main colors
-  white: "#ffffff"
+  white: "#ffffff",
+  green: "#3DD37B"
 };
 
 export default colors;

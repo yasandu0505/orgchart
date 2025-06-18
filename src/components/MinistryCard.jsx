@@ -4,8 +4,14 @@ import { Card, Typography, Box, Stack, Avatar } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import colors from "../assets/colors";
 import utils from "../utils/utils";
+import { useSelector } from "react-redux";
 
 const MinistryCard = ({ card, onClick }) => {
+
+  const {selectedPresident} = useSelector((state) => state.presidency);
+
+
+
   return (
     <Card
       sx={{
@@ -34,7 +40,7 @@ const MinistryCard = ({ card, onClick }) => {
           minHeight={50}
           sx={{ px: 2, py: 1, backgroundColor: colors.backgroundSecondary }}
         >
-          <Typography variant="h7" sx={{ color: "#ffffff" }}>
+          <Typography variant="h7" sx={{ color: "#ffffff" , fontWeight: 600}}>
             {card.name.split(":")[0]}
           </Typography>
         </Stack>
@@ -47,9 +53,20 @@ const MinistryCard = ({ card, onClick }) => {
               fontSize="small"
             />
             <Stack direction="column" spacing={0}>
-              <Typography variant="subtitle2" sx={{ color: colors.textSecondary, fontFamily: "poppins" }}>
+              {card.headMinisterName ? (
+               <Typography variant="subtitle2" sx={{ color: colors.textSecondary, fontFamily: "poppins", py:"5px", pr:"10px" }}>
                 Minister
               </Typography>
+              ) : (
+               <Box sx={{display: "flex"}}>
+                 <Typography variant="subtitle2" sx={{ color: colors.textSecondary, fontFamily: "poppins" , py:"5px",  pr:"8px"  }}>
+                 Minister
+              </Typography>
+                <Typography variant="subtitle2" sx={{ color: colors.textSecondary, fontFamily: "poppins", py:"5px", px: "8px", backgroundColor: `${colors.green}50`, borderRadius: "5px" }}>
+                President
+              </Typography>
+               </Box>
+              )}
 
               {card.headMinisterName ? (
                 <Typography variant="subtitle2" sx={{fontWeight: 600, color: colors.textPrimary, fontFamily: "poppins"}}>
@@ -58,9 +75,9 @@ const MinistryCard = ({ card, onClick }) => {
               ) : (
                 <Typography
                   variant="subtitle2"
-                  sx={{ color: colors.textMuted, fontFamily: "poppins" }}
+                  sx={{ color: colors.textPrimary, fontFamily: "poppins" }}
                 >
-                  Not Assigned
+                  {selectedPresident && utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]}
                 </Typography>
               )}
             </Stack>

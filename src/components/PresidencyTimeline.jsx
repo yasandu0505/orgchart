@@ -292,7 +292,7 @@ export default function PresidencyTimeline() {
                       pr: 2,
                     }}
                   >
-                    {gazetteData.map((item, index) => {
+                    {gazetteData.map((item) => {
                       const isDateSelected = item.date === selectedDate.date;
 
                       return (
