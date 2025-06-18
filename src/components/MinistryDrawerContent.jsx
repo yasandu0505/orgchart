@@ -143,34 +143,6 @@ const MinistryDrawerContent = ({
             Minister
           </Typography>
 
-          {/* Ministers */}
-          {/* <Stack spacing={1} mb={2}>
-                {selectedCard.headMinister && (
-                    <Box display="flex" alignItems="center">
-                        <PersonIcon fontSize="small" sx={{ mr: 1, color: colors.backgroundSecondary, minWidth: '20px' }} />
-                        <Typography variant="body1">
-                            <strong>Minister:</strong> {selectedCard.headMinister}
-                        </Typography>
-                    </Box>
-                )}
-                {selectedCard.deputyMinister && (
-                    <Box display="flex" alignItems="center">
-                        <PersonIcon fontSize="small" sx={{ mr: 1, color: colors.backgroundSecondary, minWidth: '20px' }} />
-                        <Typography variant="body2">
-                            <strong>Deputy:</strong> {selectedCard.deputyMinister}
-                        </Typography>
-                    </Box>
-                )}
-                {selectedCard.stateMinister && (
-                    <Box display="flex" alignItems="center">
-                        <PersonIcon fontSize="small" sx={{ mr: 1, color: colors.backgroundSecondary, minWidth: '20px' }} />
-                        <Typography variant="body2">
-                            <strong>State:</strong> {selectedCard.stateMinister}
-                        </Typography>
-                    </Box>
-                )}
-            </Stack> */}
-
           <Stack spacing={1} sx={{ mb: 2 }}>
             {personListForMinistry && personListForMinistry.length > 0 ? (
               personListForMinistry?.map((dep, idx) => (
@@ -242,7 +214,8 @@ const MinistryDrawerContent = ({
                       backgroundColor: colors.buttonLight,
                       boxShadow: "none",
                     },
-                    border: `1px solid ${colors.backgroundPrimary}10`
+                    border: `1px solid ${colors.backgroundPrimary}10`,
+                    textAlign: "start"
                   }}
                   fullWidth
                   // onClick={() => onDepartmentClick(dep)}

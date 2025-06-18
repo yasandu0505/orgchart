@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, IconButton } from "@mui/material";
 import colors from "../assets/colors";
 import ModernView from "./modernView";
 import OrgChart from "./orgchart";
@@ -16,7 +16,10 @@ import {
   setPresidentList,
   setSelectedPresident,
 } from "../store/presidencySlice";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useDispatch } from "react-redux";
+import { useThemeContext } from "../themeContext";
 
 function Navbar() {
   const [view, setView] = useState("modern");
@@ -25,6 +28,8 @@ function Navbar() {
   const handleViewChange = (type) => {
     setView(type);
   };
+
+  const { isDark, toggleTheme } = useThemeContext();
 
   useEffect(() => {
     const initialFetchData = async () => {
@@ -198,7 +203,9 @@ function Navbar() {
             ))}
           </Box>
           <Box sx={{ color: colors.textPrimary, flex: 1, textAlign: "right" }}>
-            DARK MODE
+            <IconButton sx={{ ml: 1 }} onClick={()=>{toggleTheme();console.log('is dark : ',isDark)}} color="inherit">
+              {isDark ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
           </Box>
         </Stack>
       </Box>
