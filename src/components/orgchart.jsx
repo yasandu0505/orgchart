@@ -12,7 +12,7 @@ import { ClipLoader } from "react-spinners";
 
 
 
-const apiUrl = 'http://localhost:8081'
+const apiUrl = "http://localhost:8081";
 
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
