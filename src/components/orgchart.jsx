@@ -6,6 +6,7 @@ import "./../index.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedDate } from "../store/presidencySlice";
 import { setGazetteData } from "../store/gazetteDate";
+import { colors } from "@mui/material";
 
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
@@ -305,8 +306,8 @@ function ErrorFallback({ error, resetErrorBoundary }) {
     <div
       style={{
         padding: "20px",
-        backgroundColor: "#1e1e1e",
-        color: "#fff",
+        backgroundColor: colors.backgroundColor,
+        color: colors.textPrimary,
         height: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -369,7 +370,6 @@ export default function OrgChart() {
           (date) => date >= startTime && date <= endTime
         );}
       const transform = filteredDates.map((date) => ({date: date}));
-      // console.log('filtered date list for : ', transform)
       dispatch(setGazetteData(transform));
       setGazetteData(dates);
 
@@ -527,7 +527,7 @@ export default function OrgChart() {
         <div
           style={{
             flex: 1,
-            backgroundColor: "#1e1e1e",
+            backgroundColor: colors.backgroundColor,
             overflow: "hidden",
             position: "relative",
           }}
@@ -540,8 +540,8 @@ export default function OrgChart() {
                   justifyContent: "center",
                   alignItems: "center",
                   height: "100%",
-                  color: "#000",
-                  backgroundColor: "#fff",
+                  color: colors.textPrimary,
+                  backgroundColor: colors.backgroundColor,
                 }}
               >
                 <p>Loading...</p>
