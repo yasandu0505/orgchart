@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { MessageCircle,Users, ChevronRight, Building2, User } from 'lucide-react';
 import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
+import './../index.css'
 import Version from './version';
 import "../assets/chatbotCSS.css"
 
@@ -89,7 +90,7 @@ const Home = () => {
   }, []);
 
   const handleExplore = () => {
-    navigate("/modern-view");
+    navigate("/orgchart");
   }
 
 

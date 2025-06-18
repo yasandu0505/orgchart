@@ -10,7 +10,7 @@ const TidyTree = ({
   expandedMinistries = new Set(),
 }) => {
   const containerRef = useRef(null)
-  const svgRef = useRef(null)
+  // const svgRef = useRef(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const treeRef = useRef(null)
   const rootRef = useRef(null)
@@ -139,7 +139,7 @@ const TidyTree = ({
     })
 
     const marginTop = 10
-    const marginRight = 10
+    // const marginRight = 10
     const marginBottom = 10
     const marginLeft = 40
     const height = right.x - left.x + marginTop + marginBottom
@@ -162,7 +162,7 @@ const TidyTree = ({
     const nodeEnter = node
       .enter()
       .append("g")
-      .attr("transform", (d) => `translate(${ministryNode.y},${ministryNode.x})`) // Start from ministry position
+      .attr("transform", () => `translate(${ministryNode.y},${ministryNode.x})`) // Start from ministry position
       .attr("data-id", (d) => d.data.id || "root")
       .attr("fill-opacity", 0)
       .attr("stroke-opacity", 0)
@@ -186,7 +186,7 @@ const TidyTree = ({
       .attr("dy", "0.31em")
       .attr("x", 6)
       .attr("text-anchor", "start")
-      .text((d) => d.data.name)
+      .text((d) => d.data.name.split(":")[0])
       .attr("fill", "#F4F4F4")
       .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
 
@@ -457,7 +457,7 @@ const TidyTree = ({
       .attr("dy", "0.31em")
       .attr("x", 6)
       .attr("text-anchor", "start")
-      .text((d) => d.data.name)
+      .text((d) => d.data.name.split(":")[0])
       .attr("fill", "#F4F4F4")
       .style("cursor", (d) => (d.data.type === "ministry" ? "pointer" : "default"))
       .on("click", (event, d) => {
@@ -517,10 +517,12 @@ const TidyTree = ({
     <div
       ref={containerRef}
       style={{
+        paddingTop: "30px",
+        paddingBottom: "30px",
         width: "100%",
         height: "100%",
         overflow: "auto",
-        backgroundColor: "#1e1e1e"
+        backgroundColor: "#ffffff"
       }}
     />
   )
