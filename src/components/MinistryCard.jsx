@@ -9,8 +9,8 @@ import { useThemeContext } from "../themeContext";
 
 const MinistryCard = ({ card, onClick }) => {
 
-  const {selectedPresident} = useSelector((state) => state.presidency);
-  const {colors} = useThemeContext();
+  const { selectedPresident } = useSelector((state) => state.presidency);
+  const { colors } = useThemeContext();
 
   return (
     <Card
@@ -40,7 +40,7 @@ const MinistryCard = ({ card, onClick }) => {
           minHeight={50}
           sx={{ px: 2, py: 1, backgroundColor: colors.backgroundSecondary }}
         >
-          <Typography variant="h7" sx={{ color: "#ffffff" , fontWeight: 600}}>
+          <Typography variant="h7" sx={{ color: "#ffffff", fontWeight: 600 }}>
             {card.name.split(":")[0]}
           </Typography>
         </Stack>
@@ -53,34 +53,50 @@ const MinistryCard = ({ card, onClick }) => {
               fontSize="small"
             />
             <Stack direction="column" spacing={0}>
-              {card.headMinisterName ? (
-               <Typography variant="subtitle2" sx={{ color: colors.textSecondary, fontFamily: "poppins", py:"5px", pr:"10px" }}>
-                Minister
-              </Typography>
-              ) : (
-               <Box sx={{display: "flex"}}>
-                 <Typography variant="subtitle2" sx={{ color: colors.textSecondary, fontFamily: "poppins" , py:"5px",  pr:"8px"  }}>
-                 Minister
-              </Typography>
-                <Typography variant="subtitle2" sx={{ color: colors.textSecondary, fontFamily: "poppins", py:"5px", px: "8px", backgroundColor: `${colors.green}50`, borderRadius: "5px" }}>
-                President
-              </Typography>
-               </Box>
-              )}
-
-              {card.headMinisterName ? (
-                <Typography variant="subtitle2" sx={{fontWeight: 600, color: colors.textPrimary, fontFamily: "poppins"}}>
-                  {utils.extractNameFromProtobuf(card.headMinisterName)}
-                </Typography>
+              {(!card.headMinisterName ||
+                (selectedPresident &&
+                  utils.extractNameFromProtobuf(card.headMinisterName) === utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0])
+              ) ? (
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ color: colors.textSecondary, fontFamily: "poppins", py: "5px", pr: "8px" }}
+                  >
+                    Minister
+                  </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      color: colors.textSecondary,
+                      fontFamily: "poppins",
+                      py: "5px",
+                      px: "8px",
+                      backgroundColor: `${colors.green}50`,
+                      borderRadius: "5px"
+                    }}
+                  >
+                    President
+                  </Typography>
+                </Box>
               ) : (
                 <Typography
                   variant="subtitle2"
-                  sx={{ color: colors.textPrimary, fontFamily: "poppins" }}
+                  sx={{ color: colors.textSecondary, fontFamily: "poppins", py: "5px", pr: "10px" }}
                 >
-                  {selectedPresident && utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]}
+                  Minister
                 </Typography>
               )}
+
+              <Typography
+                variant="subtitle2"
+                sx={{ fontWeight: 600, color: colors.textPrimary, fontFamily: "poppins" }}
+              >
+                {card.headMinisterName
+                  ? utils.extractNameFromProtobuf(card.headMinisterName)
+                  : (selectedPresident && utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0])}
+              </Typography>
             </Stack>
+
           </Stack>
         </Stack>
       </Stack>

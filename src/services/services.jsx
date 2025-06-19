@@ -297,7 +297,7 @@ const createDepartmentHistoryDictionary = async (allMinistryData) => {
 
   for (const ministry of allMinistryData) {
     const ministryId = ministry.id;
-    console.log("current ministry id in loop:", ministryId)
+    //console.log("current ministry id in loop:", ministryId)
 
     
     const allRelations = await fetchAllRelationsForMinistry(ministryId);
@@ -322,9 +322,11 @@ const createDepartmentHistoryDictionary = async (allMinistryData) => {
 };
 
 
+
+
   
 
 
 
 
-export default {fetchInitialGazetteData, createDepartmentHistoryDictionary, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};
+export default {fetchInitialGazetteData,fetchAllRelationsForMinistry, createDepartmentHistoryDictionary, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};

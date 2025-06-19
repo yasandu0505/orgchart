@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   allDepartmentData: [],
-  departmentHistory: {}  // <-- add this
+  departmentHistory: {}  
 };
 
 const allDepartmentDataSlice = createSlice({
@@ -13,7 +13,7 @@ const allDepartmentDataSlice = createSlice({
     setAllDepartmentData(state, action) {
       state.allDepartmentData = action.payload;
     },
-    setDepartmentHistory(state, action) {  // <-- add this
+    setDepartmentHistory(state, action) { 
       state.departmentHistory = action.payload;
     }
   }

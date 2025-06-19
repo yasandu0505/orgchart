@@ -6,11 +6,7 @@ import OrgChart from "./orgchart";
 import api from "./../services/services";
 import utils from "./../utils/utils";
 import { setAllMinistryData } from "../store/allMinistryData";
-import {
-  setAllDepartmentData,
-  setDepartmentHistory,
-} from "../store/allDepartmentData";
-import { useSelector } from "react-redux";
+import { setAllDepartmentData, setDepartmentHistory } from "../store/allDepartmentData";
 import presidentDetails from "./../assets/personImages.json";
 import { setAllPerson } from "../store/allPersonList";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -112,9 +108,9 @@ function Navbar() {
       const ministryList = await response.json();
       dispatch(setAllMinistryData(ministryList.body));
       console.log(ministryList.body);
-      // const dictionary = await api.createDepartmentHistoryDictionary(ministryList.body);
-      // dispatch(setDepartmentHistory(dictionary))
-      // console.log("Department History Dictionary:", dictionary);
+      const dictionary = await api.createDepartmentHistoryDictionary(ministryList.body);
+      dispatch(setDepartmentHistory(dictionary))
+      console.log("Department History Dictionary:", dictionary);
     } catch (e) {
       console.log(`Error fetching ministry data : ${e.message}`);
     }

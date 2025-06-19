@@ -19,20 +19,20 @@ import { useSelector } from "react-redux";
 
 import { useThemeContext } from "../themeContext";
 
-const MinistryDrawerContent = ({ selectedCard, selectedDate }) => {
+const MinistryDrawerContent = ({
+  selectedCard,
+  selectedDate,
+  onDepartmentClick
+}) => {
+
   const { colors } = useThemeContext();
 
   const allPersonList = useSelector((state) => state.allPerson.allPerson);
-  const allDepartmentList = useSelector(
-    (state) => state.allDepartmentData.allDepartmentData
-  );
-  const { selectedMinistry } = useSelector((state) => state.allMinistryData);
+  const allDepartmentList = useSelector((state) => state.allDepartmentData.allDepartmentData);
   const { selectedPresident } = useSelector((state) => state.presidency);
-
+  const { selectedMinistry } = useSelector((state) => state.allMinistryData);
   const [personListForMinistry, setPersonListForMinistry] = useState([]);
-  const [departmentListForMinistry, setDepartmentListForMinistry] = useState(
-    []
-  );
+  const [departmentListForMinistry, setDepartmentListForMinistry] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -166,39 +166,67 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate }) => {
 
           <Divider sx={{ py: 1 }} />
 
+
           <Stack spacing={1} sx={{ mb: 2 }}>
             {personListForMinistry && personListForMinistry.length > 0 ? (
-              personListForMinistry?.map((dep, idx) => (
-                <Button
-                  key={idx}
-                  variant="contained"
-                  size="medium"
-                  sx={{
-                    p: 1,
-                    boxShadow: "none",
-                    justifyContent: "flex-start",
-                    backgroundColor: colors.backgroundPrimary,
-                    color: "primary.main",
-                    textTransform: "none",
-                    "&:hover": {
-                      backgroundColor: colors.buttonLight,
+              personListForMinistry.map((dep, idx) => {
+                const depName = utils.extractNameFromProtobuf(dep.name);
+                const presidentName = selectedPresident
+                  ? utils.extractNameFromProtobuf(selectedPresident.name)
+                  : "";
+
+                const isPresident = depName === presidentName;
+
+                return (
+                  <Button
+                    key={idx}
+                    variant="contained"
+                    size="medium"
+                    sx={{
+                      p: 1,
                       boxShadow: "none",
-                    },
-                    border: `1px solid ${colors.backgroundPrimary}10`,
-                  }}
-                  fullWidth
-                  // onClick={() => onDepartmentClick(dep)}
-                >
-                  <PersonIcon
-                    fontSize="small"
-                    sx={{ mr: 1, color: colors.backgroundSecondary }}
-                  />
-                  <Typography sx={{ fontFamily: "poppins",  color: colors.textPrimary  }}>
-                    {utils.extractNameFromProtobuf(dep.name)}
-                  </Typography>
-                </Button>
-              ))
+                      justifyContent: "flex-start",
+                      backgroundColor: colors.backgroundPrimary,
+                      color: "primary.main",
+                      textTransform: "none",
+                      "&:hover": {
+                        backgroundColor: colors.buttonLight,
+                        boxShadow: "none",
+                      },
+                      border: `1px solid ${colors.backgroundPrimary}10`,
+                    }}
+                    fullWidth
+                  >
+                    <PersonIcon
+                      fontSize="small"
+                      sx={{ mr: 1, color: colors.backgroundSecondary }}
+                    />
+                    <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
+                      {depName}
+                    </Typography>
+
+                    {/* ✅ Show tag if this person is the president */}
+                    {isPresident && (
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          color: colors.textSecondary,
+                          fontFamily: "poppins",
+                          py: "5px",
+                          px: "8px",
+                          backgroundColor: `${colors.green}50`,
+                          borderRadius: "5px",
+                          mx: "5px"
+                        }}
+                      >
+                        President
+                      </Typography>
+                    )}
+                  </Button>
+                );
+              })
             ) : (
+              // ✅ Handle the empty list case: just show the president
               <Button
                 variant="contained"
                 size="medium"
@@ -216,7 +244,6 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate }) => {
                   border: `1px solid ${colors.backgroundPrimary}10`,
                 }}
                 fullWidth
-                // onClick={() => onDepartmentClick(dep)}
               >
                 <PersonIcon
                   fontSize="small"
@@ -242,6 +269,7 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate }) => {
               </Button>
             )}
           </Stack>
+
           {/* Departments */}
           <Typography
             variant="subtitle1"
@@ -259,7 +287,7 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate }) => {
           <Divider sx={{ py: 1 }} />
           <Stack spacing={1}>
             {departmentListForMinistry &&
-            departmentListForMinistry.length > 0 ? (
+              departmentListForMinistry.length > 0 ? (
               departmentListForMinistry?.map((dep, idx) => (
                 <Button
                   key={idx}
@@ -280,13 +308,13 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate }) => {
                     textAlign: "start",
                   }}
                   fullWidth
-                  // onClick={() => onDepartmentClick(dep)}
+                  onClick={() => onDepartmentClick(dep)}
                 >
                   <AccountBalanceIcon
                     fontSize="small"
                     sx={{ mr: 2, color: colors.backgroundSecondary }}
                   />
-                  <Typography sx={{ fontFamily: "poppins",  color: colors.textPrimary  }}>
+                  <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
                     {utils.extractNameFromProtobuf(dep.name)}
                   </Typography>
                 </Button>
