@@ -141,7 +141,7 @@ const MinistryDrawerContent = ({ selectedCard, selectedDate }) => {
           }}
         >
           <ClipLoader
-            color={"#000000"}
+            color={colors.timelineLineActive}
             loading={loading}
             size={25}
             aria-label="Loading Spinner"
