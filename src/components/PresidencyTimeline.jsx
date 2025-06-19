@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import colors from "../assets/colors";
+// import colors from "../assets/colors";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedIndex, setSelectedDate, setSelectedPresident } from "../store/presidencySlice";
 import utils from "../utils/utils";
 import StyledBadge from "../assets/materialCustomAvatar";
+import { useThemeContext } from "../themeContext";
 
 export default function PresidencyTimeline() {
   const dispatch = useDispatch();
@@ -23,6 +24,8 @@ export default function PresidencyTimeline() {
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   const initialSelectionDone = useRef(false);
+
+  const {colors} = useThemeContext();
 
   const updateScrollButtons = () => {
     const scrollEl = scrollRef.current;
@@ -247,7 +250,7 @@ export default function PresidencyTimeline() {
                           border: isSelected
                             ? `4px solid ${colors.timelineLineActive}`
                             : `2px solid ${colors.inactiveBorderColor}`,
-                          backgroundColor: "white",
+                          backgroundColor: colors.backgroundPrimary,
                           margin: "auto",
                           borderRadius: 50,
                           filter: isSelected ? "none" : "grayscale(50%)",
@@ -259,8 +262,8 @@ export default function PresidencyTimeline() {
                           sx={{
                             width: 50,
                             height: 50,
-                            border: "3px solid white",
-                            backgroundColor: "white",
+                            border: `3px solid ${colors.backgroundPrimary}`,
+                            backgroundColor: colors.backgroundPrimary,
                             margin: "auto",
                             filter: isSelected ? "none" : "grayscale(50%)",
                           }}
@@ -284,8 +287,8 @@ export default function PresidencyTimeline() {
                           sx={{
                             width: 50,
                             height: 50,
-                            border: "3px solid white",
-                            backgroundColor: "white",
+                            border: `3px solid ${colors.backgroundPrimary}`,
+                            backgroundColor: colors.backgroundColor,
                             margin: "auto",
                             filter: isSelected ? "none" : "grayscale(50%)",
                           }}
@@ -294,10 +297,10 @@ export default function PresidencyTimeline() {
                     </Box>
                   )}
 
-                  <Typography variant="body2" sx={{ mt: 1, color: "black", fontFamily: "poppins", fontWeight: isSelected ? 600 : "" }}>
+                  <Typography variant="body2" sx={{ mt: 1, color: colors.textPrimary, fontFamily: "poppins", fontWeight: isSelected ? 600 : "" }}>
                     {utils.extractNameFromProtobuf(president.name)}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: "gray", fontFamily: "poppins" }}>
+                  <Typography variant="caption" sx={{ color: colors.textMuted, fontFamily: "poppins" }}>
                     {selectedPresident &&
                       selectedPresident.created.split("-")[0]} -
                   </Typography>
@@ -342,7 +345,7 @@ export default function PresidencyTimeline() {
                               backgroundColor: isDateSelected
                                 ? colors.dotColorActive
                                 : colors.dotColorInactive,
-                              border: "3px solid white",
+                              border: `3px solid ${colors.backgroundPrimary}`,
                             }}
                           />
                           <Typography

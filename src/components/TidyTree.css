@@ -1,18 +1,17 @@
 .nodes text {
   -webkit-transition: fill, font-size 0.5s;
   transition: fill, font-size 0.5s;
-  font-size: 16px;
-  fill: #181818;
-  /* text-shadow: 0 1px 4px black; */
+  font-size: var(--text-font-size);
+  fill: var(--text-fill);
   stroke-linejoin: round;
   paint-order: stroke;
-  font-family: 'Poppins';
+  font-family: var(--font-family);
 }
 
 .nodes circle {
-  fill: #f3f3ff;
-  stroke: #2593b8;
-  stroke-width: 1.5px;
+  fill: var(--circle-fill);
+  stroke: var(--circle-stroke);
+  stroke-width: var(--circle-stroke-width);
   transition: all 0.3s ease;
 }
 
@@ -21,21 +20,21 @@
 }
 
 circle.highlight {
-  fill: #3DD37B !important;
-  stroke: #3DD37B !important;
-  stroke-width: 3px !important;
+  fill: var(--highlight-fill) !important;
+  stroke: var(--highlight-stroke) !important;
+  stroke-width: var(--highlight-stroke-width) !important;
 }
 
 text.highlight {
-  font-weight: 600 !important;
-  font-size: 18px !important;
-  fill: #181818 !important;
+  font-weight: var(--highlight-font-weight) !important;
+  font-size: var(--highlight-font-size) !important;
+  fill: var(--text-fill) !important;
 }
 
 path.highlight {
-  stroke: #3DD37B !important;
-  stroke-width: 3px !important;
-  stroke-opacity: 0.8 !important;
+  stroke: var(--highlight-stroke) !important;
+  stroke-width: var(--highlight-stroke-width) !important;
+  stroke-opacity: var(--highlight-stroke-opacity) !important;
 }
 
 .loading-indicator {

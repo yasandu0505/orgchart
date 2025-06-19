@@ -17,22 +17,22 @@ import { ClipLoader } from "react-spinners";
 import api from "././../services/services";
 import { useSelector } from "react-redux";
 
+import { useThemeContext } from "../themeContext";
+
 const MinistryDrawerContent = ({
   selectedCard,
   selectedDate,
   onDepartmentClick
 }) => {
 
-  const allPersonList = useSelector((state) => state.allPerson.allPerson);
-  const allDepartmentList = useSelector(
-    (state) => state.allDepartmentData.allDepartmentData
-  );
-  const { selectedMinistry } = useSelector((state) => state.allMinistryData);
+  const { colors } = useThemeContext();
 
+  const allPersonList = useSelector((state) => state.allPerson.allPerson);
+  const allDepartmentList = useSelector((state) => state.allDepartmentData.allDepartmentData);
+  const { selectedPresident } = useSelector((state) => state.presidency);
+  const { selectedMinistry } = useSelector((state) => state.allMinistryData);
   const [personListForMinistry, setPersonListForMinistry] = useState([]);
-  const [departmentListForMinistry, setDepartmentListForMinistry] = useState(
-    []
-  );
+  const [departmentListForMinistry, setDepartmentListForMinistry] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -87,35 +87,35 @@ const MinistryDrawerContent = ({
     <Box
       sx={{
         p: 2,
-        backgroundColor: "none",
+        backgroundColor: colors.backgroundPrimary,
         mt: -5,
       }}
     >
       {/* Date */}
-      <Typography variant="h6" sx={{ color: "text.secondary",fontFamily: "poppins", }}>
+      <Typography variant="h6" sx={{ color: colors.textSecondary, fontFamily: "poppins", }}>
         Gazette Date
       </Typography>
       <Box>
-      <Typography
-        variant="h5"
-        sx={{color: colors.secondary, fontFamily:"poppins", fontWeight: "bold"}}
-      >
-        {selectedDate}
-      </Typography>
+        <Typography
+          variant="h5"
+          sx={{ color: colors.secondary, fontFamily: "poppins", fontWeight: "bold" }}
+        >
+          {selectedDate}
+        </Typography>
       </Box>
 
       {/* Ministry Name */}
       <Box display="flex" alignItems="center" my={1}>
         <ApartmentIcon
-          color="primary"
+          color={colors.textPrimary}
           sx={{ mr: 1, color: colors.backgroundSecondary }}
         />
-        <Typography variant="h5" sx={{ fontWeight: "bold", color: colors.textPrimary, fontFamily:"poppins" }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold", color: colors.textPrimary, fontFamily: "poppins" }}>
           {selectedCard.name.split(":")[0]}
         </Typography>
       </Box>
 
-      <Divider sx={{py:1}} />
+      <Divider sx={{ py: 1 }} />
 
       {loading ? (
         <Box
@@ -139,14 +139,14 @@ const MinistryDrawerContent = ({
           {/* Ministers */}
           <Typography
             variant="subtitle1"
-            sx={{ mt: 2, fontSize: "1.25rem",  color: "text.primary", fontFamily:"poppins" }}
+            sx={{ mt: 2, fontSize: "1.25rem", color: colors.textPrimary, fontFamily: "poppins" }}
           >
             Minister
           </Typography>
 
           <Stack spacing={1} sx={{ mb: 2 }}>
             {personListForMinistry && personListForMinistry.length > 0 ? (
-              personListForMinistry?.map((dep, idx) => (
+              personListForMinistry.map((dep, idx) => (
                 <Button
                   key={idx}
                   variant="contained"
@@ -165,40 +165,57 @@ const MinistryDrawerContent = ({
                     border: `1px solid ${colors.backgroundPrimary}10`
                   }}
                   fullWidth
-                  
                 >
                   <PersonIcon
                     fontSize="small"
                     sx={{ mr: 1, color: colors.backgroundSecondary }}
                   />
-                  {utils.extractNameFromProtobuf(dep.name)}
+                  <Typography sx={{ fontFamily: "poppins" }}>
+                    {utils.extractNameFromProtobuf(dep.name)}
+                  </Typography>
                 </Button>
               ))
             ) : (
-              <Box>
-                <Alert
-                  severity="info"
-                  sx={{
-                    display: "flex",
-                    justifyContent: "left",
-                  }}
-                >
-                  <AlertTitle>Info</AlertTitle>
-                  No ministers assigned for the ministry
-                </Alert>
-              </Box>
+              <Button
+                variant="contained"
+                size="medium"
+                sx={{
+                  p: 1,
+                  boxShadow: "none",
+                  justifyContent: "flex-start",
+                  backgroundColor: colors.backgroundPrimary,
+                  color: "primary.main",
+                  textTransform: "none",
+                  "&:hover": {
+                    backgroundColor: colors.buttonLight,
+                    boxShadow: "none"
+                  },
+                  border: `1px solid ${colors.backgroundPrimary}10`
+                }}
+                fullWidth
+              >
+                <PersonIcon
+                  fontSize="small"
+                  sx={{ mr: 1, color: colors.backgroundSecondary }}
+                />
+                <Typography sx={{ fontFamily: "poppins" }}>
+                  {selectedPresident && utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]}
+                </Typography>
+              </Button>
             )}
           </Stack>
+
+
           {/* Departments */}
           <Typography
             variant="subtitle1"
-            sx={{ mt: 2, fontSize: "1.25rem",  color: "text.primary", fontFamily:"poppins" }}
+            sx={{ mt: 2, fontSize: "1.25rem", color: colors.textPrimary, fontFamily: "poppins" }}
           >
             Departments
           </Typography>
           <Stack spacing={1}>
             {departmentListForMinistry &&
-            departmentListForMinistry.length > 0 ? (
+              departmentListForMinistry.length > 0 ? (
               departmentListForMinistry?.map((dep, idx) => (
                 <Button
                   key={idx}
@@ -225,7 +242,10 @@ const MinistryDrawerContent = ({
                     fontSize="small"
                     sx={{ mr: 2, color: colors.backgroundSecondary }}
                   />
-                  {utils.extractNameFromProtobuf(dep.name)}
+                  <Typography sx={{ fontFamily: "poppins" }}>
+
+                    {utils.extractNameFromProtobuf(dep.name)}
+                  </Typography>
                 </Button>
               ))
             ) : (

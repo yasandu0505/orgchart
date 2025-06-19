@@ -2,7 +2,7 @@
 const colors = {
   backgroundPrimary: '#F8FAFF',
   backgroundSecondary: '#2593B8',
-  backgroundTertiary:'rgba(25, 164, 210, 0.4)',
+  backgroundWhite:'#fff',
   
   // Text
   textPrimary: '#181818',
@@ -11,13 +11,16 @@ const colors = {
   textSearch:'#0d47a1',
 
   // Dots / Timeline / UI
-  dotColorActive: '#11486B', // Blue
+  dotColorActive: '#0E3ABF', // Blue
   dotColorInactive: '#999', // Grey
-  timelineLineActive: '#155DFC', // Blue
-  timelineColor: '#ccc',
+  timelineLineActive: '#0E3ABF', // Blue
+  timelineColor: '#cccccc',
+
+  ministryCardBorderHover: "#2593B8",
+  ministryCardClickedActive: "#2593B8",
 
   // Buttons / Accents
-  primary: '#155DFC',
+  primary: '#0E3ABF',
   secondary: '#9c27b0',
   success: '#4caf50',
   warning: '#ff9800',
@@ -28,7 +31,8 @@ const colors = {
 
   //main colors
   white: "#ffffff",
-  green: "#3DD37B"
+  green: "#3DD37B",
+  purple: "#AD46FF"   
 };
 
 export default colors;

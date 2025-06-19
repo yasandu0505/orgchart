@@ -8,12 +8,13 @@ import {
   Chip,
 } from "@mui/material";
 import MinistryCard from "./MinistryCard";
-import colors from "../assets/colors";
+// import colors from "../assets/colors";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import api from "./../services/services";
 import { ClipLoader } from "react-spinners";
 import { setSelectedMinistry } from "../store/allMinistryData";
+import { useThemeContext } from "../themeContext";
 
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
@@ -22,6 +23,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [loading, setLoading] = useState(false);
   const allPersonList = useSelector((state) => state.allPerson.allPerson);
+  const {colors} = useThemeContext();
 
   useEffect(() => {
     fetchMinistryList();
@@ -85,13 +87,14 @@ const MinistryCardGrid = ({ onCardClick }) => {
         <Box sx={{ textAlign: "center", mb: 2 }}>
           <Typography
             variant="h6"
-            sx={{ color: "text.secondary", fontFamily: "poppins" }}
+            sx={{ color: colors.textPrimary, fontFamily: "poppins" }}
           >
             Gazette Date
           </Typography>
           <Divider>
             <Chip
               label={selectedDate.date}
+              
               sx={{
                 backgroundColor: "transparent",
                 fontWeight: "bold",
@@ -114,7 +117,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
             }}
           >
             <ClipLoader
-              color={"#000000"}
+              color={colors.timelineLineActive}
               loading={loading}
               size={25}
               aria-label="Loading Spinner"
@@ -128,7 +131,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
             sx={{
               p: 1,
               borderRadius: "15px",
-              backgroundColor: colors.white,
+              backgroundColor: colors.backgroundColor,
             }}
           >
             {activeMinistryList && activeMinistryList.length > 0 ? (
@@ -136,6 +139,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
                 <Grid
                   key={card.id}
                   sx={{
+                    display: 'grid',
                     flexBasis: {
                       xs: "100%",
                       sm: "48%",
@@ -167,7 +171,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
                 }}
               >
                 <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
-                  <AlertTitle sx={{ fontFamily: "poppins" }}>
+                  <AlertTitle sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
                     Info: No ministries in the goverment. Sometimes this can be
                     the president appointed date.
                   </AlertTitle>

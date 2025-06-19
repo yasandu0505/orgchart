@@ -47,8 +47,8 @@ const fetchInitialGazetteData = async () => {
     // const ministryIdList = result.body.map((item) => item.id);
     // console.log('ministry Id LIst : ', ministryIdList);
 
-    // console.log('date list 1',datesList1)
-    // console.log('date list 2',datesList2)
+    console.log('date list 1',datesList1)
+    console.log('date list 2',datesList2)
     // console.log('date list 3',datesList3)
 
     const mergedDateList1 = datesList1.concat(datesList2).sort();
