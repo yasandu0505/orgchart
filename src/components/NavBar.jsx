@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, Button, Stack, Typography, IconButton } from "@mui/material";
 import colors from "../assets/colors";
 import ModernView from "./modernView";
 import OrgChart from "./orgchart";
 import api from "./../services/services";
 import utils from "./../utils/utils";
 import { setAllMinistryData } from "../store/allMinistryData";
-import { setAllDepartmentData } from "../store/allDepartmentData";
+import { setAllDepartmentData, setDepartmentHistory } from "../store/allDepartmentData";
 import presidentDetails from "./../assets/personImages.json";
 import { setAllPerson } from "../store/allPersonList";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -15,7 +15,11 @@ import {
   setPresidentList,
   setSelectedPresident,
 } from "../store/presidencySlice";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useDispatch } from "react-redux";
+import { useThemeContext } from "../themeContext";
+import { ClipLoader } from "react-spinners";
 
 function Navbar() {
   const [view, setView] = useState("modern");
@@ -25,6 +29,8 @@ function Navbar() {
     setView(type);
   };
 
+  const { isDark, toggleTheme, colors } = useThemeContext();
+
   useEffect(() => {
     const initialFetchData = async () => {
       setLoading(true);
@@ -32,6 +38,7 @@ function Navbar() {
         await fetchPersonData();
         await fetchAllMinistryData();
         await fetchAllDepartmentData();
+
         setLoading(false);
       } catch (e) {
         console.error("Error loading initial data:", e.message);
@@ -101,13 +108,20 @@ function Navbar() {
       const response = await api.fetchAllMinistries();
       const ministryList = await response.json();
       dispatch(setAllMinistryData(ministryList.body));
+      console.log(ministryList.body);
+      const dictionary = await api.createDepartmentHistoryDictionary(ministryList.body);
+      dispatch(setDepartmentHistory(dictionary))
+      console.log("Department History Dictionary:", dictionary);
     } catch (e) {
       console.log(`Error fetching ministry data : ${e.message}`);
     }
   };
 
   return (
-    <>
+    <Box  sx={{
+          width: "100%",
+          backgroundColor: colors.backgroundPrimary
+        }}>
       {/* View Buttons */}
       {/* <Box>
         <div
@@ -126,24 +140,18 @@ function Navbar() {
       </Box> */}
       <Box
         sx={{
-          position: "fixed",
-          top: 10,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "98%",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          zIndex: 1000,
+          width: "100%",
+          backgroundColor: colors.backgroundPrimary
         }}
       >
         <Stack
           direction="row"
           spacing={2}
           sx={{
-            width: "100%",
-            border: `2px solid ${colors.primary}25`,
-            p: 2,
+            // width: "100%",
+            border: `2px solid ${colors.textPrimary}25`,
+            px: 5,
+            py: 2,
             borderRadius: "50px",
             backgroundColor: `${colors.backgroundPrimary}99`,
             justifyItems: "center",
@@ -151,6 +159,15 @@ function Navbar() {
             WebkitBackdropFilter: "blur(10px)",
             justifyContent: "center",
             alignItems: "center",
+            position: "fixed",
+            top: 10,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "98%",
+            display: "flex",
+            // justifyContent: "space-between",
+            // alignItems: "center",
+            zIndex: 1000,
           }}
         >
           <Typography
@@ -190,7 +207,16 @@ function Navbar() {
             ))}
           </Box>
           <Box sx={{ color: colors.textPrimary, flex: 1, textAlign: "right" }}>
-            DARK MODE
+            <IconButton
+              sx={{ ml: 1 }}
+              onClick={() => {
+                toggleTheme();
+                console.log("is dark : ", isDark);
+              }}
+              color="inherit"
+            >
+              {isDark ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
           </Box>
         </Stack>
       </Box>
@@ -207,7 +233,13 @@ function Navbar() {
             justifyItems: "center",
           }}
         >
-          <CircularProgress color="success" value={75} />
+          <ClipLoader
+              color={colors.timelineLineActive}
+              loading={loading}
+              size={50}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
         </Box>
       ) : (
         <>
@@ -222,7 +254,7 @@ function Navbar() {
           )}
         </>
       )}
-    </>
+    </Box>
   );
 }
 

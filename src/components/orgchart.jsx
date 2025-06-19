@@ -6,6 +6,9 @@ import "./../index.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedDate } from "../store/presidencySlice";
 import { setGazetteData } from "../store/gazetteDate";
+import { colors } from "@mui/material";
+import { useThemeContext } from "../themeContext";
+import { ClipLoader } from "react-spinners";
 
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
@@ -142,7 +145,9 @@ const fetchDepartments = async (ministryId, selectedDate) => {
 
     // Map active department IDs with the protobuf data to get department names
     const filteredDepartments = activeDepartmentIds
-      .filter((deptId) => Object.prototype.hasOwnProperty.call(departmentNameMap, deptId))
+      .filter((deptId) =>
+        Object.prototype.hasOwnProperty.call(departmentNameMap, deptId)
+      )
       .map((deptId) => {
         const deptName = departmentNameMap[deptId];
         return {
@@ -270,7 +275,7 @@ const fetchActiveMinistries = async (
         } catch (e) {
           // Use extractNameFromProtobuf as fallback
           name = extractNameFromProtobuf(ministry.name) || ministry.name;
-          console.log(e.message)
+          console.log(e.message);
         }
 
         return {
@@ -305,8 +310,8 @@ function ErrorFallback({ error, resetErrorBoundary }) {
     <div
       style={{
         padding: "20px",
-        backgroundColor: "#1e1e1e",
-        color: "#fff",
+        backgroundColor: colors.backgroundColor,
+        color: colors.textPrimary,
         height: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -346,17 +351,22 @@ export default function OrgChart() {
   const [loadingDepartments, setLoadingDepartments] = useState(new Set());
   const [expandedMinistries, setExpandedMinistries] = useState(new Set());
   const { gazetteData } = useSelector((state) => state.gazettes);
-  const { selectedPresident,selectedDate, presidentRelationList } = useSelector((state) => state.presidency);
+  const { selectedPresident, selectedDate, presidentRelationList } =
+    useSelector((state) => state.presidency);
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
+  const [loading, setLoading] = useState(false);
+
+  const { colors } = useThemeContext();
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     const initializeApp = async () => {
-      if (!selectedPresident?.created) return
-            const matchedPresidentRelation = presidentRelationList.find(
+      if (!selectedPresident?.created) return;
+      setLoading(true);
+      const matchedPresidentRelation = presidentRelationList.find(
         (obj) => obj.startTime == selectedPresident.created
-      )
+      );
 
       const startTime = matchedPresidentRelation.startTime.split("T")[0];
       const endTime = matchedPresidentRelation.endTime.split("T")[0];
@@ -367,9 +377,9 @@ export default function OrgChart() {
       } else {
         filteredDates = dates.filter(
           (date) => date >= startTime && date <= endTime
-        );}
-      const transform = filteredDates.map((date) => ({date: date}));
-      // console.log('filtered date list for : ', transform)
+        );
+      }
+      const transform = filteredDates.map((date) => ({ date: date }));
       dispatch(setGazetteData(transform));
       setGazetteData(dates);
 
@@ -380,7 +390,7 @@ export default function OrgChart() {
           allMinistryData
         );
         setTreeData(activeMinistryTree);
-        dispatch(setSelectedDate({date: latestDate}));
+        dispatch(setSelectedDate({ date: latestDate }));
         setAllData({ [latestDate]: activeMinistryTree });
       }
 
@@ -473,20 +483,22 @@ export default function OrgChart() {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <div
-        style={{
-          position: "fixed",
-          top: 100,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-      >
-        {/* Header */}
-        {/* <div
+      <div>
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            backgroundColor: colors.backgroundPrimary,
+          }}
+        >
+          {/* Header */}
+          {/* <div
           style={{
             height: "50px",
             padding: "10px 20px",
@@ -498,64 +510,71 @@ export default function OrgChart() {
           <h2 style={{ margin: 0, color: "#fff" }}>Organization Chart</h2>
         </div> */}
 
-        {/* Slider */}
-        <div
-          style={{
-            // height: "120px",
-            // backgroundColor: "#1e1e1e",
-            // borderBottom: "1px solid #333",
-            // padding: "20px",
-            // flexShrink: 0,
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            {gazetteData.length > 0 && (
-              // <PresidencyTimeline onDateChange={handleDateChange} mode="classic"/>
-              <EventSlider
-                data={timelineData}
-                onSelectDate={handleDateChange}
-              />
-            )}
-          </ErrorBoundary>
-        </div>
-
-        {/* Tree */}
-        <div
-          style={{
-            flex: 1,
-            backgroundColor: "#1e1e1e",
-            overflow: "hidden",
-            position: "relative",
-          }}
-        >
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            {isTreeDataLoading && selectedDate ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%",
-                  color: "#000",
-                  backgroundColor: "#fff",
-                }}
-              >
-                <p>Loading...</p>
-              </div>
-            ) : (
-              <TidyTree
-                data={treeData}
-                onMinistryClick={handleMinistryClick}
-                loadingDepartments={loadingDepartments}
-                departmentData={departmentData}
-                expandedMinistries={expandedMinistries}
-              />
-            )}
-          </ErrorBoundary>
+          {/* Slider */}
+          <div
+            style={{
+              // height: "120px",
+              // backgroundColor: "#1e1e1e",
+              // borderBottom: "1px solid #333",
+              // padding: "20px",
+              // flexShrink: 0,
+              paddingTop: "138px",
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: colors.backgroundPrimary,
+            }}
+          >
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              {gazetteData.length > 0 && (
+                <EventSlider
+                  data={timelineData}
+                  onSelectDate={handleDateChange}
+                />
+              )}
+            </ErrorBoundary>
+          </div>
+          {/* Tree */}
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: colors.backgroundPrimary,
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
+            <ErrorBoundary FallbackComponent={ErrorFallback}>
+              {isTreeDataLoading && selectedDate ? (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                    color: colors.textPrimary,
+                    backgroundColor: colors.backgroundColor,
+                  }}
+                >
+                  <ClipLoader
+                    color={colors.timelineLineActive}
+                    loading={isTreeDataLoading}
+                    size={25}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                  />
+                </div>
+              ) : (
+                <TidyTree
+                  data={treeData}
+                  onMinistryClick={handleMinistryClick}
+                  loadingDepartments={loadingDepartments}
+                  departmentData={departmentData}
+                  expandedMinistries={expandedMinistries}
+                />
+              )}
+            </ErrorBoundary>
+          </div>
         </div>
       </div>
     </ErrorBoundary>

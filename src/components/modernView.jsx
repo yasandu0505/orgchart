@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Box, Card, Typography, Avatar } from "@mui/material";
 import PresidencyTimeline from "./PresidencyTimeline";
-import colors from "../assets/colors";
+// import colors from "../assets/colors";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import InfoTab from "./InfoTab";
@@ -10,12 +10,14 @@ import api from "../services/services";
 import utils from "../utils/utils";
 import { setSelectedDate } from "../store/presidencySlice";
 import { setGazetteData } from "../store/gazetteDate";
+import { useThemeContext } from "../themeContext";
 
 const ModernView = () => {
   const dispatch = useDispatch();
   const { selectedDate, selectedPresident, presidentRelationList } =
     useSelector((state) => state.presidency);
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
+  const presidencyRelationList = useSelector((state) => state.presidency.presidentRelationList)
   // const presidents = useSelector((state) => state.presidency.presidentList);
   //   const selectedPresident =
   //     selectedIndex !== null ? presidents[selectedIndex] : null;
@@ -24,6 +26,7 @@ const ModernView = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [drawerMode, setDrawerMode] = useState("ministry");
   const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const {colors} = useThemeContext();
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -50,6 +53,8 @@ const ModernView = () => {
         (obj) => obj.startTime == selectedPresident.created
       );
       fetchGazetteData(matchedPresidentRelation);
+      console.log('matched president relation : ',matchedPresidentRelation)
+      console.log('selected president : ', selectedPresident)
     }
   }, [selectedPresident]);
 
@@ -69,11 +74,13 @@ const ModernView = () => {
         filteredDates = dates.filter((date) => date >= startTime);
       } else {
         filteredDates = dates.filter(
-          (date) => date >= startTime && date <= endTime
+          (date) => date >= startTime && date < endTime
         );
       }
 
       const transformed = filteredDates.map((date) => ({ date: date }));
+
+      console.log('transform data : ', dates)
 
       dispatch(setGazetteData(transformed));
       // dispatch(setAllMinistryData(allMinistryData));
@@ -152,7 +159,7 @@ const ModernView = () => {
           },
           my: 2,
           borderRadius: "15px",
-          backgroundColor: colors.white,
+          backgroundColor: colors.backgroundWhite,
         }}
       >
         {/* Selected Info Card */}
@@ -174,9 +181,9 @@ const ModernView = () => {
                 lg: "25%",
               },
               marginRight: 1,
-              border: `2px solid ${colors.secondary}50`,
+              border: `2px solid ${colors.purple}50`,
               borderRadius: "15px",
-              backgroundColor: colors.white,
+              backgroundColor: colors.backgroundPrimary,
               boxShadow: "none",
             }}
           >
@@ -184,7 +191,7 @@ const ModernView = () => {
               sx={{
                 width: "175px",
                 height: "35px",
-                backgroundColor: `${colors.secondary}`,
+                backgroundColor: `${colors.purple}`,
                 borderBottomRightRadius: "15px",
               }}
             >
@@ -224,8 +231,8 @@ const ModernView = () => {
                         sx={{
                           width: 75,
                           height: 75,
-                          border: "3px solid white",
-                          backgroundColor: "white",
+                          border: `3px solid ${colors.backgroundSecondary}`,
+                          backgroundColor: colors.backgroundPrimary,
                           margin: "auto",
                         }}
                       />
@@ -254,7 +261,17 @@ const ModernView = () => {
                       <Typography
                         sx={{ fontSize: 18, color: colors.textMuted }}
                       >
-                        {selectedPresident.created.split("-")[0]} -
+                        {selectedPresident.created.split("-")[0]} -{" "}
+                        {(() => {
+                          const relation = presidencyRelationList.find(
+                            (rel) => rel.relatedEntityId === selectedPresident.id
+                          );
+                          if (!relation) return "Unknown";
+
+                          return relation.endTime
+                            ? new Date(relation.endTime).getFullYear()
+                            : "Present";
+                        })()}
                       </Typography>
                     </Box>
                   </Box>
