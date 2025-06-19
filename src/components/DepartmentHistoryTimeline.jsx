@@ -34,7 +34,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         const appointedRelation = allRelations.find(
                             (relation) => relation.name === 'AS_APPOINTED'
                         );
-                        console.log("appointed relation ", appointedRelation)
+                        // console.log("appointed relation ", appointedRelation)
                         if (!appointedRelation) {
                             return { ...ministry, minister: null, startTime: null };
                         }
