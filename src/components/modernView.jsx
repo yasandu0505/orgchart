@@ -17,6 +17,7 @@ const ModernView = () => {
   const { selectedDate, selectedPresident, presidentRelationList } =
     useSelector((state) => state.presidency);
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
+  const presidencyRelationList = useSelector((state) => state.presidency.presidentRelationList)
   // const presidents = useSelector((state) => state.presidency.presidentList);
   //   const selectedPresident =
   //     selectedIndex !== null ? presidents[selectedIndex] : null;
@@ -260,7 +261,17 @@ const ModernView = () => {
                       <Typography
                         sx={{ fontSize: 18, color: colors.textMuted }}
                       >
-                        {selectedPresident.created.split("-")[0]} -
+                        {selectedPresident.created.split("-")[0]} -{" "}
+                        {(() => {
+                          const relation = presidencyRelationList.find(
+                            (rel) => rel.relatedEntityId === selectedPresident.id
+                          );
+                          if (!relation) return "Unknown";
+
+                          return relation.endTime
+                            ? new Date(relation.endTime).getFullYear()
+                            : "Present";
+                        })()}
                       </Typography>
                     </Box>
                   </Box>

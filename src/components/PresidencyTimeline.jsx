@@ -15,6 +15,7 @@ export default function PresidencyTimeline() {
   const selectedPresident = useSelector((state) => state.presidency.selectedPresident);
   const selectedIndex = useSelector((state) => state.presidency.selectedIndex);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
+  const presidencyRelationList = useSelector((state) => state.presidency.presidentRelationList)
   const { gazetteData } = useSelector((state) => state.gazettes);
   const scrollRef = useRef(null);
   const avatarRef = useRef(null);
@@ -25,7 +26,7 @@ export default function PresidencyTimeline() {
 
   const initialSelectionDone = useRef(false);
 
-  const {colors} = useThemeContext();
+  const { colors } = useThemeContext();
 
   const updateScrollButtons = () => {
     const scrollEl = scrollRef.current;
@@ -297,13 +298,39 @@ export default function PresidencyTimeline() {
                     </Box>
                   )}
 
-                  <Typography variant="body2" sx={{ mt: 1, color: colors.textPrimary, fontFamily: "poppins", fontWeight: isSelected ? 600 : "" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      mt: 1,
+                      color: colors.textPrimary,
+                      fontFamily: "poppins",
+                      fontWeight: isSelected ? 600 : "",
+                    }}
+                  >
                     {utils.extractNameFromProtobuf(president.name)}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: colors.textMuted, fontFamily: "poppins" }}>
-                    {selectedPresident &&
-                      selectedPresident.created.split("-")[0]} -
+
+                  <Typography
+                    variant="caption"
+                    sx={{ color: colors.textMuted, fontFamily: "poppins" }}
+                  >
+                    {selectedPresident && (
+                      <>
+                        {president.created.split("-")[0]} -{" "}
+                        {(() => {
+                          const relation = presidencyRelationList.find(
+                            (rel) => rel.relatedEntityId === president.id
+                          );
+                          if (!relation) return "Unknown";
+
+                          return relation.endTime
+                            ? new Date(relation.endTime).getFullYear()
+                            : "Present";
+                        })()}
+                      </>
+                    )}
                   </Typography>
+
                 </Box>
 
                 {isSelected && gazetteData?.length > 0 && (
