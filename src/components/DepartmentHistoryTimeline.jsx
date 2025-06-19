@@ -1,25 +1,28 @@
 import { useState, useEffect } from 'react';
-import { Typography, Paper, Avatar, } from '@mui/material';
-import colors from '../assets/colors';
-import { useSelector, useDispatch } from "react-redux";
+import { Typography, Paper, Avatar, Box} from '@mui/material';
+import { useSelector } from "react-redux";
 import utils from '../utils/utils';
 import api from '../services/services';
 import { Timeline, TimelineItem, TimelineOppositeContent, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent, } from '@mui/lab';
+import { useThemeContext } from '../themeContext';
+import { ClipLoader } from "react-spinners";
 
 const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
     const dictionary = useSelector((state) => state.allDepartmentData.departmentHistory);
     const allMinistryData = useSelector((state) => state.allMinistryData.allMinistryData);
     const [enrichedMinistries, setEnrichedMinistries] = useState([]);
-    const allPersonList = useSelector((state) => state.allPerson.allPerson)
+    const allPersonList = useSelector((state) => state.allPerson.allPerson);
+    const [loading, setLoading] = useState(false);
+    const {colors} = useThemeContext();
 
     const toggleSelect = (idx) => {
         setSelectedIndex(selectedIndex === idx ? null : idx);
     };
 
-
     useEffect(() => {
         const enrichWithMinisters = async () => {
+            setLoading(true);
             const rawMinistries = (dictionary[selectedDepartment?.id] || [])
                 .map((id) => allMinistryData.find((m) => m.id === id))
 
@@ -52,8 +55,8 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     }
                 })
             );
-
             setEnrichedMinistries(enriched);
+            setLoading(false)
         };
 
         if (selectedDepartment?.id) {
@@ -64,11 +67,11 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
 
     return (
         <>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3 }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3, color: colors.textPrimary , fontFamily: "poppins" }}>
                 {utils.extractNameFromProtobuf(selectedDepartment.name)}
             </Typography>
 
-            {enrichedMinistries && enrichedMinistries.length > 0 ? (
+            {!loading ? (<>{enrichedMinistries && enrichedMinistries.length > 0 ? (
                 <Timeline position="alternate" sx={{ py: 0 }}>
                     {enrichedMinistries
                         .sort((b, a) => new Date(a.startTime) - new Date(b.startTime))
@@ -76,7 +79,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                             <TimelineItem
                                 key={idx}
                                 sx={{
-                                    '&:hover': { backgroundColor: '#f5f5f5', borderRadius: 2 },
+                                    '&:hover': { backgroundColor: colors.backgroundPrimary, borderRadius: 2 },
                                     cursor: 'pointer',
                                     transition: 'background-color 0.3s ease',
                                     py: 0.5,
@@ -85,11 +88,12 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                 <TimelineOppositeContent
                                     sx={{
                                         m: 'auto 0',
-                                        color: 'text.secondary',
+                                        color: colors.secondary,
                                         fontWeight: '600',
                                         fontSize: 12,
                                         minWidth: 70,
                                         pr: 1,
+                                        fontFamily: "poppins"
                                     }}
                                     align="right"
                                     variant="body2"
@@ -110,7 +114,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                             boxShadow: `0 0 6px rgba(25, 118, 210, 0.7)`,
                                             animation: 'pulse 2.5s infinite',
                                             backgroundColor: colors.backgroundSecondary,
-                                            background: `linear-gradient(45deg,${colors.dotColorActive}, #21cbf3)`,
+                                            // background: `linear-gradient(45deg,${colors.dotColorActive}, #21cbf3)`,
                                         }}
                                     />
                                     {idx < arr.length - 1 && (
@@ -145,13 +149,14 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                                 {entry.minister ? entry.minister.charAt(0).toUpperCase() : '?'}
                                             </Avatar>
                                             <div style={{ flexGrow: 1 }}>
-                                                <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 14 }}>
+                                                <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 15, fontFamily: "poppins" }}>
                                                     {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
                                                 </Typography>
                                                 <Typography
                                                     variant="caption"
-                                                    color="text.secondary"
-                                                    sx={{ fontSize: 12 }}
+                                                    color={colors.textMuted2}
+                                                    sx={{ fontSize: 14, fontFamily: "poppins"}}
+
                                                 >
                                                     {entry.minister}
                                                 </Typography>
@@ -164,10 +169,27 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         ))}
                 </Timeline>
             ) : (
-                <Typography variant="body2" sx={{ mt: 2 }}>
+                <Typography variant="body2" sx={{ mt: 2, fontFamily: "poppins", color: colors.textPrimary}}>
                     No timeline history available.
                 </Typography>
-            )}
+            )}</>) : (<><Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "20vh",
+          }}
+        >
+          <ClipLoader
+            color={colors.timelineLineActive}
+            loading={loading}
+            size={25}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+          />
+        </Box></>)}
+
+            
 
             <style>
                 {`

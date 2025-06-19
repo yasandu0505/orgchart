@@ -19,6 +19,7 @@ import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 import { useDispatch } from "react-redux";
 import { useThemeContext } from "../themeContext";
+import { ClipLoader } from "react-spinners";
 
 function Navbar() {
   const [view, setView] = useState("modern");
@@ -232,7 +233,13 @@ function Navbar() {
             justifyItems: "center",
           }}
         >
-          <CircularProgress color="success" value={75} />
+          <ClipLoader
+              color={colors.timelineLineActive}
+              loading={loading}
+              size={50}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
         </Box>
       ) : (
         <>

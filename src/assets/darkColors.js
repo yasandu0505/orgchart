@@ -7,7 +7,8 @@ const colors = {
   textPrimary: '#EBF2F5',               
   textSecondary: '#4FC3F7',             
   textMuted: '#BBBBBB',                 
-  textSearch: '#82B1FF',               
+  textSearch: '#82B1FF',   
+  textMuted2: '#1a1a1a',            
 
   // Dots / Timeline / UI
   dotColorActive: '#4FC3F7',            

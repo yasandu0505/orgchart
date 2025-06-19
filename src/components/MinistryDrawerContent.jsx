@@ -11,7 +11,6 @@ import {
 import PersonIcon from "@mui/icons-material/Person";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import colors from "../assets/colors";
 import utils from "../utils/utils";
 import { ClipLoader } from "react-spinners";
 import api from "././../services/services";
@@ -205,7 +204,6 @@ const MinistryDrawerContent = ({
                       {depName}
                     </Typography>
 
-                    {/* ✅ Show tag if this person is the president */}
                     {isPresident && (
                       <Typography
                         variant="subtitle2"
@@ -226,7 +224,6 @@ const MinistryDrawerContent = ({
                 );
               })
             ) : (
-              // ✅ Handle the empty list case: just show the president
               <Button
                 variant="contained"
                 size="medium"

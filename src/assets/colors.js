@@ -9,6 +9,7 @@ const colors = {
   textSecondary: '#2593B8',
   textMuted: '#999999',
   textSearch:'#0d47a1',
+  textMuted2: '#1a1a1a', 
 
   // Dots / Timeline / UI
   dotColorActive: '#0E3ABF', // Blue

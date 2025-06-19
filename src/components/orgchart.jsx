@@ -8,6 +8,7 @@ import { setSelectedDate } from "../store/presidencySlice";
 import { setGazetteData } from "../store/gazetteDate";
 import { colors } from "@mui/material";
 import { useThemeContext } from "../themeContext";
+import { ClipLoader } from "react-spinners";
 
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
@@ -353,6 +354,7 @@ export default function OrgChart() {
   const { selectedPresident, selectedDate, presidentRelationList } =
     useSelector((state) => state.presidency);
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
+  const [loading, setLoading] = useState(false);
 
   const { colors } = useThemeContext();
 
@@ -361,6 +363,7 @@ export default function OrgChart() {
   useEffect(() => {
     const initializeApp = async () => {
       if (!selectedPresident?.created) return;
+      setLoading(true);
       const matchedPresidentRelation = presidentRelationList.find(
         (obj) => obj.startTime == selectedPresident.created
       );
@@ -553,7 +556,13 @@ export default function OrgChart() {
                     backgroundColor: colors.backgroundColor,
                   }}
                 >
-                  <p>Loading...</p>
+                  <ClipLoader
+                    color={colors.timelineLineActive}
+                    loading={isTreeDataLoading}
+                    size={25}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                  />
                 </div>
               ) : (
                 <TidyTree
@@ -566,7 +575,6 @@ export default function OrgChart() {
               )}
             </ErrorBoundary>
           </div>
-
         </div>
       </div>
     </ErrorBoundary>
