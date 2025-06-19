@@ -7,7 +7,6 @@ import api from "./../services/services";
 import utils from "./../utils/utils";
 import { setAllMinistryData } from "../store/allMinistryData";
 import { setAllDepartmentData, setDepartmentHistory } from "../store/allDepartmentData";
-import { useSelector } from "react-redux";
 import presidentDetails from "./../assets/personImages.json";
 import { setAllPerson } from "../store/allPersonList";
 import CircularProgress from "@mui/material/CircularProgress";

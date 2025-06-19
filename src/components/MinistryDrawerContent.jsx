@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 const MinistryDrawerContent = ({
   selectedCard,
   selectedDate,
+  onDepartmentClick
 }) => {
 
   const allPersonList = useSelector((state) => state.allPerson.allPerson);
@@ -164,7 +165,7 @@ const MinistryDrawerContent = ({
                     border: `1px solid ${colors.backgroundPrimary}10`
                   }}
                   fullWidth
-                  // onClick={() => onDepartmentClick(dep)}
+                  
                 >
                   <PersonIcon
                     fontSize="small"
@@ -218,7 +219,7 @@ const MinistryDrawerContent = ({
                     textAlign: "start"
                   }}
                   fullWidth
-                  // onClick={() => onDepartmentClick(dep)}
+                  onClick={() => onDepartmentClick(dep)}
                 >
                   <AccountBalanceIcon
                     fontSize="small"

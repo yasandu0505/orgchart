@@ -1,23 +1,77 @@
-import { useState } from 'react';
-import {Typography,Paper,Avatar,} from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Typography, Paper, Avatar, } from '@mui/material';
 import colors from '../assets/colors';
-import {Timeline,TimelineItem,TimelineOppositeContent,TimelineSeparator,TimelineDot,TimelineConnector,TimelineContent,} from '@mui/lab';
+import { useSelector, useDispatch } from "react-redux";
+import utils from '../utils/utils';
+import api from '../services/services';
+import { Timeline, TimelineItem, TimelineOppositeContent, TimelineSeparator, TimelineDot, TimelineConnector, TimelineContent, } from '@mui/lab';
 
 const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
+    const dictionary = useSelector((state) => state.allDepartmentData.departmentHistory);
+    const allMinistryData = useSelector((state) => state.allMinistryData.allMinistryData);
+    const [enrichedMinistries, setEnrichedMinistries] = useState([]);
+    const allPersonList = useSelector((state) => state.allPerson.allPerson)
+
     const toggleSelect = (idx) => {
         setSelectedIndex(selectedIndex === idx ? null : idx);
     };
+
+
+    useEffect(() => {
+        const enrichWithMinisters = async () => {
+            const rawMinistries = (dictionary[selectedDepartment?.id] || [])
+                .map((id) => allMinistryData.find((m) => m.id === id))
+
+            const enriched = await Promise.all(
+                rawMinistries.map(async (ministry) => {
+                    try {
+                        const allRelations = await api.fetchAllRelationsForMinistry(ministry.id);
+
+                        const appointedRelation = allRelations.find(
+                            (relation) => relation.name === 'AS_APPOINTED'
+                        );
+                        console.log("appointed relation ", appointedRelation)
+                        if (!appointedRelation) {
+                            return { ...ministry, minister: null, startTime: null };
+                        }
+                        const minister = allPersonList.find(
+                            (p) => p.id === appointedRelation.relatedEntityId
+                        );
+
+                        return {
+                            ...ministry,
+                            minister: minister
+                                ? utils.extractNameFromProtobuf(minister.name)
+                                : null,
+                            startTime: appointedRelation.startTime,
+                            endTime: appointedRelation.endTime,
+                        };
+                    } catch (e) {
+                        return { ...ministry, minister: null };
+                    }
+                })
+            );
+
+            setEnrichedMinistries(enriched);
+        };
+
+        if (selectedDepartment?.id) {
+            enrichWithMinisters();
+        }
+    }, []);
+
+
     return (
         <>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3 }}>
-                {selectedDepartment.name}
+                {utils.extractNameFromProtobuf(selectedDepartment.name)}
             </Typography>
 
-            {selectedDepartment.history && selectedDepartment.history.length > 0 ? (
+            {enrichedMinistries && enrichedMinistries.length > 0 ? (
                 <Timeline position="alternate" sx={{ py: 0 }}>
-                    {selectedDepartment.history
-                        .sort((a, b) => new Date(a.date) - new Date(b.date))
+                    {enrichedMinistries
+                        .sort((b, a) => new Date(a.startTime) - new Date(b.startTime))
                         .map((entry, idx, arr) => (
                             <TimelineItem
                                 key={idx}
@@ -40,7 +94,11 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                     align="right"
                                     variant="body2"
                                 >
-                                    {new Date(entry.date).toLocaleDateString()}
+                                    {entry.startTime
+                                        ? `${new Date(entry.startTime).toLocaleDateString()} - ${entry.endTime
+                                            ? new Date(entry.endTime).toLocaleDateString()
+                                            : 'Present'}`
+                                        : 'Unknown'}
                                 </TimelineOppositeContent>
 
                                 <TimelineSeparator>
@@ -88,14 +146,14 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                             </Avatar>
                                             <div style={{ flexGrow: 1 }}>
                                                 <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 14 }}>
-                                                    {entry.minister}
+                                                    {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
                                                 </Typography>
                                                 <Typography
                                                     variant="caption"
                                                     color="text.secondary"
                                                     sx={{ fontSize: 12 }}
                                                 >
-                                                    {entry.headMinister}
+                                                    {entry.minister}
                                                 </Typography>
                                             </div>
                                         </div>
