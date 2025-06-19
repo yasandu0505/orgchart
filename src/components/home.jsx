@@ -167,7 +167,7 @@ const Home = () => {
             
             <div className="space-y-3">
               {/* Executive Level */}
-              <div className="bg-gradient-to-r from-cyan-950/40 to-cyan-900/40 rounded-lg p-4 border-l-4 border-cyan-400 hover:from-cyan-900/50 hover:to-cyan-800/50 transition-all duration-300 cursor-pointer">
+              <div className="bg-gradient-to-r from-cyan-950/40 to-cyan-900/40 rounded-lg p-4 border-l-4 border-cyan-400 hover:from-cyan-900/50 hover:to-cyan-800/50 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <Building2 className="w-5 h-5 text-cyan-400" />
@@ -181,7 +181,7 @@ const Home = () => {
               </div>
 
               {/* Ministry Level */}
-              <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 rounded-lg p-4 border-l-4 border-blue-400 hover:from-blue-900/50 hover:to-blue-800/50 transition-all duration-300 cursor-pointer">
+              <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 rounded-lg p-4 border-l-4 border-blue-400 hover:from-blue-900/50 hover:to-blue-800/50 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <Users className="w-5 h-5 text-blue-400" />
@@ -195,7 +195,7 @@ const Home = () => {
               </div>
 
               {/* Department Level */}
-              <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 rounded-lg p-4 border-l-4 border-purple-400 hover:from-purple-900/50 hover:to-purple-800/50 transition-all duration-300 cursor-pointer">
+              <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 rounded-lg p-4 border-l-4 border-purple-400 hover:from-purple-900/50 hover:to-purple-800/50 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <User className="w-5 h-5 text-purple-400" />
@@ -212,12 +212,12 @@ const Home = () => {
               <div className="bg-black/50 rounded-lg p-3 mt-4 border border-gray-800/40">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <p className="text-lg font-bold text-cyan-400">847</p>
-                    <p className="text-xs text-gray-400">Total Positions</p>
+                    <p className="text-lg font-bold text-cyan-400">23</p>
+                    <p className="text-xs text-gray-400">Total Ministries</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-blue-400">23</p>
-                    <p className="text-xs text-gray-400">Active Projects</p>
+                    <p className="text-lg font-bold text-blue-400">847</p>
+                    <p className="text-xs text-gray-400">Active Departments</p>
                   </div>
                 </div>
               </div>
