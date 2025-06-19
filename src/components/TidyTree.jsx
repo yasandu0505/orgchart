@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react"
 import * as d3 from "d3"
-import "./TidyTree.css"
+// import "./TidyTree.css"
+import { useThemeContext } from "../themeContext";
 
 const TidyTree = ({
   data,
@@ -14,6 +15,7 @@ const TidyTree = ({
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
   const treeRef = useRef(null)
   const rootRef = useRef(null)
+  const {isDark, colors} = useThemeContext();
 
   // Handle container resize
   useEffect(() => {
@@ -32,6 +34,14 @@ const TidyTree = ({
 
     return () => resizeObserver.disconnect()
   }, [])
+
+  useEffect(()=>{
+     if (isDark) {
+    import("./TidyTree.dark.css");
+  } else {
+    import("./TidyTree.css");
+  }
+  },{isDark})
 
   // Stabilize the tree structure
   const treeStructure = useMemo(() => {
@@ -522,7 +532,7 @@ const TidyTree = ({
         width: "100%",
         height: "100%",
         overflow: "auto",
-        backgroundColor: "#ffffff"
+        backgroundColor: colors.backgroundPrimary
       }}
     />
   )

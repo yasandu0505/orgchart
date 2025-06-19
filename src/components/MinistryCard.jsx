@@ -5,12 +5,12 @@ import PersonIcon from "@mui/icons-material/Person";
 import colors from "../assets/colors";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
+import { useThemeContext } from "../themeContext";
 
 const MinistryCard = ({ card, onClick }) => {
 
   const {selectedPresident} = useSelector((state) => state.presidency);
-
-
+  const {colors} = useThemeContext();
 
   return (
     <Card
@@ -20,13 +20,13 @@ const MinistryCard = ({ card, onClick }) => {
         border: `2px solid ${colors.backgroundSecondary}50`,
         transition: "box-shadow 0.2s",
         "&:hover": {
-          border: `2px solid ${colors.backgroundSecondary}`,
+          border: `2px solid ${colors.ministryCardBorderHover}`,
         },
-        "&:active": {
-          border: `2px solid ${colors.backgroundSecondary}`,
-          backgroundColor: "#ececf5",
-        },
-        backgroundColor: "#f9f9fc",
+        // "&:active": {
+        //   border: `2px solid ${colors.backgroundSecondary}`,
+        //   backgroundColor: "#ececf5",
+        // },
+        backgroundColor: colors.backgroundPrimary,
         borderRadius: "10px",
       }}
       onClick={() => onClick(card)}
@@ -82,25 +82,6 @@ const MinistryCard = ({ card, onClick }) => {
               )}
             </Stack>
           </Stack>
-
-          {/* <Stack direction="row" alignItems="center" spacing={1}>
-            <PersonIcon
-              sx={{ color: colors.backgroundSecondary }}
-              fontSize="small"
-            />
-            <Typography variant="body2">
-              <strong>Deputy:</strong> {card.deputyMinister || "—"}
-            </Typography>
-          </Stack>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <PersonIcon
-              sx={{ color: colors.backgroundSecondary }}
-              fontSize="small"
-            />
-            <Typography variant="body2">
-              <strong>State:</strong> {card.stateMinister || "—"}
-            </Typography>
-          </Stack> */}
         </Stack>
       </Stack>
     </Card>

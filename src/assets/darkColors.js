@@ -1,34 +1,38 @@
-
 const colors = {
-  backgroundPrimary: '#F8FAFF',
-  backgroundSecondary: '#2593B8',
-  backgroundTertiary:'rgba(25, 164, 210, 0.4)',
-  
+  backgroundPrimary: '#000B18',           // Dark background
+  backgroundSecondary: '#1E2A38',         // Slightly lighter section background
+  backgroundWhite: '#1E2A38', // Subtle accent bg
+
   // Text
-  textPrimary: '#181818',
-  textSecondary: '#2593B8',
-  textMuted: '#999999',
-  textSearch:'#0d47a1',
+  textPrimary: '#ffffff',                // Main white text
+  textSecondary: '#4FC3F7',              // Light blue for emphasis
+  textMuted: '#BBBBBB',                  // Muted light gray
+  textSearch: '#82B1FF',                 // Light blue for search highlights
 
   // Dots / Timeline / UI
-  dotColorActive: '#11486B', // Blue
-  dotColorInactive: '#999', // Grey
-  timelineLineActive: '#155DFC', // Blue
-  timelineColor: '#ccc',
+  dotColorActive: '#4FC3F7',             // Active blue
+  dotColorInactive: '#BBBBBB',           // Inactive gray
+  timelineLineActive: '#448AFF',         // Brighter blue
+  timelineColor: '#444444',              // Dark gray line
+
+  ministryCardBorderHover: "#2593B8",
+  ministryCardClickedActive: "#1E2A38",
 
   // Buttons / Accents
-  primary: '#ffffff',
-  secondary: '#9c27b0',
-  success: '#4caf50',
-  warning: '#ff9800',
-  danger: '#f44336',
+  primary: '#0E3ABF ',                    // Default dark button bg
+  secondary: '#CE93D8',                  // Soft purple
+  success: '#81C784',                    // Light green
+  warning: '#FFB74D',                    // Soft orange
+  danger: '#E57373',                     // Soft red
 
   // Misc
-  inactiveBorderColor: 'gray',
+  inactiveBorderColor: '#555555',        // Border gray for inactive
 
-  //main colors
-  white: "#ffffff",
-  green: "#3DD37B"
+  // Main colors
+  white: '#ffffff',                      // Used for highlights or cards
+  green: '#1FCE68',
+  purple: "#AD46FF"                       // Same accent green (works well on dark too)
+
 };
 
 export default colors;

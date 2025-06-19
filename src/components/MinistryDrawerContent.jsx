@@ -17,10 +17,14 @@ import { ClipLoader } from "react-spinners";
 import api from "././../services/services";
 import { useSelector } from "react-redux";
 
+import { useThemeContext } from "../themeContext";
+
 const MinistryDrawerContent = ({
   selectedCard,
   selectedDate,
 }) => {
+  
+  const {colors} = useThemeContext();
 
   const allPersonList = useSelector((state) => state.allPerson.allPerson);
   const allDepartmentList = useSelector(
@@ -86,12 +90,12 @@ const MinistryDrawerContent = ({
     <Box
       sx={{
         p: 2,
-        backgroundColor: "none",
+        backgroundColor: colors.backgroundPrimary,
         mt: -5,
       }}
     >
       {/* Date */}
-      <Typography variant="h6" sx={{ color: "text.secondary",fontFamily: "poppins", }}>
+      <Typography variant="h6" sx={{ color: colors.textSecondary, fontFamily: "poppins", }}>
         Gazette Date
       </Typography>
       <Box>
@@ -106,7 +110,7 @@ const MinistryDrawerContent = ({
       {/* Ministry Name */}
       <Box display="flex" alignItems="center" my={1}>
         <ApartmentIcon
-          color="primary"
+          color={colors.textPrimary}
           sx={{ mr: 1, color: colors.backgroundSecondary }}
         />
         <Typography variant="h5" sx={{ fontWeight: "bold", color: colors.textPrimary, fontFamily:"poppins" }}>
@@ -138,7 +142,7 @@ const MinistryDrawerContent = ({
           {/* Ministers */}
           <Typography
             variant="subtitle1"
-            sx={{ mt: 2, fontSize: "1.25rem",  color: "text.primary", fontFamily:"poppins" }}
+            sx={{ mt: 2, fontSize: "1.25rem",  color: colors.textPrimary, fontFamily:"poppins" }}
           >
             Minister
           </Typography>
@@ -168,9 +172,12 @@ const MinistryDrawerContent = ({
                 >
                   <PersonIcon
                     fontSize="small"
-                    sx={{ mr: 1, color: colors.backgroundSecondary }}
+                    sx={{ mr: 1, color: colors.backgroundSecondary}}
                   />
+                  <Typography sx={{fontFamily: "poppins"}}>
+
                   {utils.extractNameFromProtobuf(dep.name)}
+                  </Typography>
                 </Button>
               ))
             ) : (
@@ -191,7 +198,7 @@ const MinistryDrawerContent = ({
           {/* Departments */}
           <Typography
             variant="subtitle1"
-            sx={{ mt: 2, fontSize: "1.25rem",  color: "text.primary", fontFamily:"poppins" }}
+            sx={{ mt: 2, fontSize: "1.25rem",  color: colors.textPrimary, fontFamily:"poppins" }}
           >
             Departments
           </Typography>
@@ -224,7 +231,10 @@ const MinistryDrawerContent = ({
                     fontSize="small"
                     sx={{ mr: 2, color: colors.backgroundSecondary }}
                   />
+                  <Typography sx={{fontFamily: "poppins"}}>
+
                   {utils.extractNameFromProtobuf(dep.name)}
+                  </Typography>
                 </Button>
               ))
             ) : (

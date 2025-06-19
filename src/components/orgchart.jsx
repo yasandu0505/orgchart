@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSelectedDate } from "../store/presidencySlice";
 import { setGazetteData } from "../store/gazetteDate";
 import { colors } from "@mui/material";
+import { useThemeContext } from "../themeContext";
 
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
@@ -350,6 +351,8 @@ export default function OrgChart() {
   const { selectedPresident,selectedDate, presidentRelationList } = useSelector((state) => state.presidency);
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
 
+  const {colors} = useThemeContext();
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -483,6 +486,7 @@ export default function OrgChart() {
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
+          backgroundColor: colors.backgroundPrimary
         }}
       >
         {/* Header */}
@@ -510,6 +514,7 @@ export default function OrgChart() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+          backgroundColor: colors.backgroundPrimary
           }}
         >
           <ErrorBoundary FallbackComponent={ErrorFallback}>
@@ -527,7 +532,7 @@ export default function OrgChart() {
         <div
           style={{
             flex: 1,
-            backgroundColor: colors.backgroundColor,
+            backgroundColor: colors.backgroundPrimary,
             overflow: "hidden",
             position: "relative",
           }}

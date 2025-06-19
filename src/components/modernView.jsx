@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Box, Card, Typography, Avatar } from "@mui/material";
 import PresidencyTimeline from "./PresidencyTimeline";
-import colors from "../assets/colors";
+// import colors from "../assets/colors";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import InfoTab from "./InfoTab";
@@ -10,6 +10,7 @@ import api from "../services/services";
 import utils from "../utils/utils";
 import { setSelectedDate } from "../store/presidencySlice";
 import { setGazetteData } from "../store/gazetteDate";
+import { useThemeContext } from "../themeContext";
 
 const ModernView = () => {
   const dispatch = useDispatch();
@@ -24,6 +25,7 @@ const ModernView = () => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [drawerMode, setDrawerMode] = useState("ministry");
   const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const {colors} = useThemeContext();
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -71,7 +73,7 @@ const ModernView = () => {
         filteredDates = dates.filter((date) => date >= startTime);
       } else {
         filteredDates = dates.filter(
-          (date) => date >= startTime && date <= endTime
+          (date) => date >= startTime && date < endTime
         );
       }
 
@@ -156,7 +158,7 @@ const ModernView = () => {
           },
           my: 2,
           borderRadius: "15px",
-          backgroundColor: colors.white,
+          backgroundColor: colors.backgroundWhite,
         }}
       >
         {/* Selected Info Card */}
@@ -178,9 +180,9 @@ const ModernView = () => {
                 lg: "25%",
               },
               marginRight: 1,
-              border: `2px solid ${colors.secondary}50`,
+              border: `2px solid ${colors.purple}50`,
               borderRadius: "15px",
-              backgroundColor: colors.white,
+              backgroundColor: colors.backgroundPrimary,
               boxShadow: "none",
             }}
           >
@@ -188,7 +190,7 @@ const ModernView = () => {
               sx={{
                 width: "175px",
                 height: "35px",
-                backgroundColor: `${colors.secondary}`,
+                backgroundColor: `${colors.purple}`,
                 borderBottomRightRadius: "15px",
               }}
             >
@@ -228,8 +230,8 @@ const ModernView = () => {
                         sx={{
                           width: 75,
                           height: 75,
-                          border: "3px solid white",
-                          backgroundColor: "white",
+                          border: `3px solid ${colors.backgroundSecondary}`,
+                          backgroundColor: colors.backgroundPrimary,
                           margin: "auto",
                         }}
                       />

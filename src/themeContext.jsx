@@ -4,11 +4,10 @@ import darkColors from "./assets/darkColors";
 
 const ThemeContext = createContext();
 
-export default function ThemContext({ children }) {
-  const [isDark, setIsDark] = useState(false);
+export const ThemeProvider = ({ children }) => {
+  const [isDark, setIsDark] = useState(true);
 
   const toggleTheme = () => setIsDark((prev) => !prev);
-
   const colors = isDark ? darkColors : lightColors;
 
   return (
@@ -16,6 +15,6 @@ export default function ThemContext({ children }) {
       {children}
     </ThemeContext.Provider>
   );
-}
+};
 
 export const useThemeContext = () => useContext(ThemeContext);
