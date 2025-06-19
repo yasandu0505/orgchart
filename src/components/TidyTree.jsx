@@ -559,12 +559,14 @@ const TidyTree = ({
       style={{
         paddingTop: "30px",
         paddingBottom: "30px",
-        width: "100%",
+        minWidth: "100%",
         height: "100%",
-        overflow: "auto",
+        overflowX: "auto",
         backgroundColor: colors.backgroundPrimary,
+        overflowY: "visible" /* Allow vertical content to be visible */,
+        whiteSpace: "nowrap" /* Prevent wrapping */,
       }}
-    />
+    ></div>
   );
 };
 
