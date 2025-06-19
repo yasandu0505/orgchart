@@ -15,11 +15,10 @@ const InfoTab = ({
   onBack,
   onDepartmentClick,
 }) => {
-
-  const {colors} = useThemeContext();
+  const { colors } = useThemeContext();
 
   return (
-    <Drawer anchor="right" open={drawerOpen} onClose={onClose} >
+    <Drawer anchor="right" open={drawerOpen} onClose={onClose}>
       <Box
         sx={{
           width: {
@@ -34,7 +33,7 @@ const InfoTab = ({
           display: "flex",
           flexDirection: "column",
           backgroundColor: colors.backgroundPrimary,
-          overflow: "auto"
+          overflow: "auto",
         }}
       >
         {/* Header */}
@@ -53,8 +52,12 @@ const InfoTab = ({
             <Box width={75} /> // spacer
           )}
 
-          <IconButton onClick={onClose} >
-            <CloseIcon backgroundColor={colors.white} />
+          <IconButton onClick={onClose}>
+            <CloseIcon
+              sx={{
+                color: colors.textPrimary,
+              }}
+            />
           </IconButton>
         </Box>
 

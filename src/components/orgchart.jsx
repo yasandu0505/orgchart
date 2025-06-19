@@ -476,10 +476,11 @@ export default function OrgChart() {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <div>
       <div
         style={{
           position: "fixed",
-          top: 100,
+          top: 0,
           left: 0,
           right: 0,
           bottom: 0,
@@ -510,6 +511,7 @@ export default function OrgChart() {
             // borderBottom: "1px solid #333",
             // padding: "20px",
             // flexShrink: 0,
+            paddingTop: "138px",
             width: "100%",
             display: "flex",
             justifyContent: "center",
@@ -552,6 +554,7 @@ export default function OrgChart() {
                 <p>Loading...</p>
               </div>
             ) : (
+              
               <TidyTree
                 data={treeData}
                 onMinistryClick={handleMinistryClick}
@@ -562,6 +565,7 @@ export default function OrgChart() {
             )}
           </ErrorBoundary>
         </div>
+      </div>
       </div>
     </ErrorBoundary>
   );

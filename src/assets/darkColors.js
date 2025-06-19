@@ -1,37 +1,37 @@
 const colors = {
-  backgroundPrimary: '#000B18',           // Dark background
-  backgroundSecondary: '#1E2A38',         // Slightly lighter section background
-  backgroundWhite: '#1E2A38', // Subtle accent bg
+  backgroundPrimary: '#000B18',          
+  backgroundSecondary: '#1E2A38',         
+  backgroundWhite: '#1E2A38',
 
   // Text
-  textPrimary: '#ffffff',                // Main white text
-  textSecondary: '#4FC3F7',              // Light blue for emphasis
-  textMuted: '#BBBBBB',                  // Muted light gray
-  textSearch: '#82B1FF',                 // Light blue for search highlights
+  textPrimary: '#EBF2F5',               
+  textSecondary: '#4FC3F7',             
+  textMuted: '#BBBBBB',                 
+  textSearch: '#82B1FF',               
 
   // Dots / Timeline / UI
-  dotColorActive: '#4FC3F7',             // Active blue
-  dotColorInactive: '#BBBBBB',           // Inactive gray
-  timelineLineActive: '#448AFF',         // Brighter blue
-  timelineColor: '#444444',              // Dark gray line
+  dotColorActive: '#4FC3F7',            
+  dotColorInactive: '#BBBBBB',           
+  timelineLineActive: '#448AFF',        
+  timelineColor: '#444444',             
 
   ministryCardBorderHover: "#2593B8",
   ministryCardClickedActive: "#1E2A38",
 
   // Buttons / Accents
-  primary: '#0E3ABF ',                    // Default dark button bg
-  secondary: '#CE93D8',                  // Soft purple
-  success: '#81C784',                    // Light green
-  warning: '#FFB74D',                    // Soft orange
-  danger: '#E57373',                     // Soft red
+  primary: '#0E3ABF ',                  
+  secondary: '#CE93D8',                 
+  success: '#81C784',                   
+  warning: '#FFB74D',                   
+  danger: '#E57373',                    
 
   // Misc
-  inactiveBorderColor: '#555555',        // Border gray for inactive
+  inactiveBorderColor: '#555555',        
 
   // Main colors
-  white: '#ffffff',                      // Used for highlights or cards
+  white: '#ffffff',                    
   green: '#1FCE68',
-  purple: "#AD46FF"                       // Same accent green (works well on dark too)
+  purple: "#AD46FF"                      
 
 };
 
