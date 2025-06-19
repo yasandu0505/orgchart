@@ -78,7 +78,7 @@ const Home = () => {
 
     nodes.append("circle")
       .attr("r", 6)
-      .attr("fill", d => d.depth === 0 ? "#3b82f6" : d.depth === 1 ? "#8b5cf6" : "#06b6d4");
+      .attr("fill", d => d.depth === 0 ? "#06b6d4" : d.depth === 1 ? "#3b82f6" : "#8b5cf6");
 
     nodes.append("text")
       .attr("dy", -10)
