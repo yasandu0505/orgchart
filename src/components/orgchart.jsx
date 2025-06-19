@@ -12,7 +12,8 @@ import { ClipLoader } from "react-spinners";
 
 
 
-const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
+// const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
+const apiUrl = ""
 
 // Decode minister name from hex format
 const decodeHexString = (hex) =>
