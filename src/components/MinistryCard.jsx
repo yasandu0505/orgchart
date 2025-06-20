@@ -2,7 +2,6 @@
 
 import { Card, Typography, Box, Stack, Avatar } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
-import colors from "../assets/colors";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useThemeContext } from "../themeContext";

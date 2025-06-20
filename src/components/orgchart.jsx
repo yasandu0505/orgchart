@@ -218,8 +218,6 @@ const fetchInitialGazetteData = async () => {
       .filter((value, index, self) => self.indexOf(value) === index)
       .sort();
 
-    // const dispatch = useDispatch();
-    // dispatch(setGazetteData(dates));
 
     return { dates };
   } catch (error) {
@@ -368,6 +366,7 @@ export default function OrgChart() {
   useEffect(() => {
     const initializeApp = async () => {
       if (!selectedPresident?.created) return;
+      console.log(loading)
       setLoading(true);
       const matchedPresidentRelation = presidentRelationList.find(
         (obj) => obj.startTime == selectedPresident.created
@@ -376,20 +375,21 @@ export default function OrgChart() {
       const startTime = matchedPresidentRelation.startTime.split("T")[0];
       const endTime = matchedPresidentRelation.endTime.split("T")[0];
       const { dates } = await fetchInitialGazetteData();
+      
       var filteredDates = [];
       if (endTime == "") {
         filteredDates = dates.filter((date) => date >= startTime);
       } else {
         filteredDates = dates.filter(
-          (date) => date >= startTime && date <= endTime
+          (date) => date >= startTime && date < endTime
         );
       }
       const transform = filteredDates.map((date) => ({ date: date }));
       dispatch(setGazetteData(transform));
       setGazetteData(dates);
 
-      if (dates.length > 0) {
-        const latestDate = dates[dates.length - 1];
+      if (filteredDates.length > 0) {
+        const latestDate = filteredDates[filteredDates.length - 1];
         const activeMinistryTree = await fetchActiveMinistries(
           latestDate,
           allMinistryData
@@ -398,7 +398,6 @@ export default function OrgChart() {
         dispatch(setSelectedDate({ date: latestDate }));
         setAllData({ [latestDate]: activeMinistryTree });
       }
-
       setIsTreeDataLoading(false);
     };
 
@@ -411,11 +410,13 @@ export default function OrgChart() {
     // Clear department data and expanded state when changing dates
     setDepartmentData({});
     setExpandedMinistries(new Set());
+    console.log("all data : ", allData);
     if (!allData[date.date]) {
       const activeMinistryTree = await fetchActiveMinistries(
         date.date,
         allMinistryData
       );
+      console.log('gazzet data : ', gazetteData)
       setAllData((prev) => ({ ...prev, [date.date]: activeMinistryTree }));
       setTreeData(activeMinistryTree);
     } else {
@@ -425,7 +426,10 @@ export default function OrgChart() {
   };
 
   useEffect(() => {
-    handleDateChange(selectedDate);
+    if (selectedDate) {
+      console.log('selected date : ', selectedDate)
+      handleDateChange(selectedDate);
+    }
   }, [selectedDate]);
 
   // Fixed ministry click handler with proper toggle logic

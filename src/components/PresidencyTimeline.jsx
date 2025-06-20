@@ -4,7 +4,11 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 // import colors from "../assets/colors";
 import { useSelector, useDispatch } from "react-redux";
-import { setSelectedIndex, setSelectedDate, setSelectedPresident } from "../store/presidencySlice";
+import {
+  setSelectedIndex,
+  setSelectedDate,
+  setSelectedPresident,
+} from "../store/presidencySlice";
 import utils from "../utils/utils";
 import StyledBadge from "../assets/materialCustomAvatar";
 import { useThemeContext } from "../themeContext";
@@ -12,10 +16,14 @@ import { useThemeContext } from "../themeContext";
 export default function PresidencyTimeline() {
   const dispatch = useDispatch();
   const presidents = useSelector((state) => state.presidency.presidentList);
-  const selectedPresident = useSelector((state) => state.presidency.selectedPresident);
+  const selectedPresident = useSelector(
+    (state) => state.presidency.selectedPresident
+  );
   const selectedIndex = useSelector((state) => state.presidency.selectedIndex);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
-  const presidencyRelationList = useSelector((state) => state.presidency.presidentRelationList)
+  const presidencyRelationList = useSelector(
+    (state) => state.presidency.presidentRelationList
+  );
   const { gazetteData } = useSelector((state) => state.gazettes);
   const scrollRef = useRef(null);
   const avatarRef = useRef(null);
@@ -39,10 +47,7 @@ export default function PresidencyTimeline() {
   };
 
   useEffect(() => {
-    if (
-      !initialSelectionDone.current &&
-      presidents.length > 0
-    ) {
+    if (!initialSelectionDone.current && presidents.length > 0) {
       initialSelectionDone.current = true;
       const lastIndex = presidents.length - 1;
       dispatch(setSelectedIndex(lastIndex));
@@ -51,7 +56,7 @@ export default function PresidencyTimeline() {
         dispatch(setSelectedDate(gazetteData[0]));
       }
     }
-    updateScrollButtons()
+    updateScrollButtons();
   }, [presidents, gazetteData]);
 
   useEffect(() => {
@@ -60,7 +65,8 @@ export default function PresidencyTimeline() {
         const scrollContainer = scrollRef.current;
         const lastItem = scrollContainer?.children[selectedIndex];
         if (scrollContainer && lastItem) {
-          const scrollLeft = lastItem.offsetLeft - scrollContainer.offsetLeft - 24;
+          const scrollLeft =
+            lastItem.offsetLeft - scrollContainer.offsetLeft - 24;
           scrollContainer.scrollTo({
             left: scrollLeft,
             behavior: "smooth",
@@ -70,7 +76,6 @@ export default function PresidencyTimeline() {
       }, 50);
     }
   }, [selectedIndex]);
-
 
   useEffect(() => {
     updateScrollButtons();
@@ -154,6 +159,7 @@ export default function PresidencyTimeline() {
           "&:hover": {
             backgroundColor: colors.backgroundPrimary,
           },
+          color:colors.timelineColor
         }}
       >
         <ArrowBackIosNewIcon />
@@ -223,10 +229,15 @@ export default function PresidencyTimeline() {
                 <Box
                   onClick={() => {
                     if (!isSelected) {
+                      dispatch(setSelectedPresident(null));
+                      dispatch(setSelectedIndex(null));
                       dispatch(setSelectedPresident(president));
                       dispatch(setSelectedIndex(index));
                       const firstDate = gazetteData?.[0]?.date;
-                      if (firstDate) dispatch(setSelectedDate(firstDate));
+                      if (firstDate) {
+                        dispatch(setSelectedDate(null));
+                        dispatch(setSelectedDate(firstDate));
+                      }
                     }
                   }}
                   sx={{
@@ -330,7 +341,6 @@ export default function PresidencyTimeline() {
                       </>
                     )}
                   </Typography>
-
                 </Box>
 
                 {isSelected && gazetteData?.length > 0 && (
@@ -384,7 +394,7 @@ export default function PresidencyTimeline() {
                                 : colors.dotColorInactive,
                               fontSize: "0.75rem",
                               fontWeight: isDateSelected ? "bold" : "",
-                              fontFamily: "poppins"
+                              fontFamily: "poppins",
                             }}
                           >
                             {item.date}
@@ -399,7 +409,6 @@ export default function PresidencyTimeline() {
           })}
       </Box>
 
-
       <IconButton
         onClick={() => scroll("right")}
         sx={{
@@ -411,6 +420,7 @@ export default function PresidencyTimeline() {
           "&:hover": {
             backgroundColor: colors.backgroundPrimary,
           },
+          color: colors.timelineColor,
         }}
       >
         <ArrowForwardIosIcon />
