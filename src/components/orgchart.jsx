@@ -361,6 +361,7 @@ export default function OrgChart() {
   useEffect(() => {
     const initializeApp = async () => {
       if (!selectedPresident?.created) return;
+      console.log(loading)
       setLoading(true);
       const matchedPresidentRelation = presidentRelationList.find(
         (obj) => obj.startTime == selectedPresident.created

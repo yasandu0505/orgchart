@@ -51,6 +51,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                             endTime: appointedRelation.endTime,
                         };
                     } catch (e) {
+                        console.log(e.message)
                         return { ...ministry, minister: null };
                     }
                 })
