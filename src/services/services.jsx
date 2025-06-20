@@ -1,9 +1,12 @@
 import utils from "../utils/utils"
 
+// const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
+const apiUrl = "";
+
 // Fetch initial gazette dates and all ministry protobuf data
 const fetchInitialGazetteData = async () => {
   try {
-    const response = await fetch("/v1/entities/search", {
+    const response = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -16,7 +19,7 @@ const fetchInitialGazetteData = async () => {
       })
     })
 
-    const responseForPerson = await fetch("/v1/entities/search", {
+    const responseForPerson = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -78,7 +81,7 @@ const fetchInitialGazetteData = async () => {
 
 const fetchPresidentsData = async (governmentNodeId = "gov_01") => {
   try{
-    const response = await fetch(`/v1/entities/${governmentNodeId}/allrelations`, {
+    const response = await fetch(`${apiUrl}/v1/entities/${governmentNodeId}/allrelations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -98,7 +101,7 @@ const fetchPresidentsData = async (governmentNodeId = "gov_01") => {
 
 const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNodeId = "gov_01") => {
   try {
-    const response = await fetch(`/v1/entities/${governmentNodeId}/relations`, {
+    const response = await fetch(`${apiUrl}/v1/entities/${governmentNodeId}/relations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -171,7 +174,7 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
 
 const fetchAllPersons = async () => {
   try{
-const response = await fetch("/v1/entities/search", {
+const response = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -200,7 +203,7 @@ const response = await fetch("/v1/entities/search", {
 
 const fetchActiveRelationsForMinistry = async (selectedDate, ministryId, relationType) => {
   try {
-    const response = await fetch(`/v1/entities/${ministryId}/relations`, {
+    const response = await fetch(`${apiUrl}/v1/entities/${ministryId}/relations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -227,7 +230,7 @@ const fetchActiveRelationsForMinistry = async (selectedDate, ministryId, relatio
 
 const fetchAllDepartments = async () => {
     // Fetch all department protobuf data
-    const response = await fetch("/v1/entities/search", {
+    const response = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -249,7 +252,7 @@ const fetchAllDepartments = async () => {
 
 const fetchAllMinistries = async () => {
     // Fetch all ministries protobuf data
-    const response = await fetch("/v1/entities/search", {
+    const response = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

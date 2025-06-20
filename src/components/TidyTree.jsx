@@ -11,10 +11,11 @@ const TidyTree = ({
   expandedMinistries = new Set(),
 }) => {
   const containerRef = useRef(null);
-  // const svgRef = useRef(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const treeRef = useRef(null);
   const rootRef = useRef(null);
+  const zoomRef = useRef(null);
+  const gMainRef = useRef(null);
   const { colors } = useThemeContext();
 
   // Handle container resize
@@ -67,53 +68,86 @@ const TidyTree = ({
     [loadingDepartments]
   );
 
-  // Function to highlight nodes and their path
+  // Function to highlight nodes and their path - FIXED
   const highlightPath = (ministryId) => {
     // Remove all existing highlights
-    d3.selectAll(".nodes circle, .nodes text, .links path").classed(
-      "highlight",
-      false
-    );
+    if (gMainRef.current) {
+      d3.select(gMainRef.current)
+        .selectAll(".nodes circle, .nodes text, .links path")
+        .classed("highlight", false);
 
-    if (!ministryId) return;
+      if (!ministryId) return;
 
-    // Highlight the root
-    d3.select(`[data-id='root']`)
-      .selectAll("circle, text")
-      .classed("highlight", true);
+      // Highlight the root
+      d3.select(gMainRef.current)
+        .selectAll(".nodes g")
+        .filter(d => d.data.type === "root")
+        .selectAll("circle, text")
+        .classed("highlight", true);
 
-    // Highlight the clicked ministry
-    d3.select(`[data-id='${ministryId}']`)
-      .selectAll("circle, text")
-      .classed("highlight", true);
+      // Highlight the clicked ministry
+      d3.select(gMainRef.current)
+        .selectAll(".nodes g")
+        .filter(d => d.data.id === ministryId)
+        .selectAll("circle, text")
+        .classed("highlight", true);
 
-    // Highlight departments of the clicked ministry
-    if (departmentData[ministryId]) {
-      departmentData[ministryId].forEach((dept) => {
-        d3.select(`[data-id='${dept.id}']`)
-          .selectAll("circle, text")
-          .classed("highlight", true);
-      });
+      // Highlight departments of the clicked ministry
+      if (departmentData[ministryId]) {
+        departmentData[ministryId].forEach((dept) => {
+          d3.select(gMainRef.current)
+            .selectAll(".nodes g")
+            .filter(d => d.data.id === dept.id)
+            .selectAll("circle, text")
+            .classed("highlight", true);
+        });
+      }
+
+      // Highlight the connecting links
+      d3.select(gMainRef.current)
+        .selectAll(".links path")
+        .classed("highlight", (d) =>
+          (d.source.data.type === "root" && d.target.data.id === ministryId) ||
+          (d.source.data.id === ministryId && d.target.data.type === "department")
+        );
     }
+  };
 
-    // Highlight the connecting links
-    d3.selectAll(".links path").classed(
-      "highlight",
-      (d) =>
-        (d.source.data.type === "root" && d.target.data.id === ministryId) ||
-        (d.source.data.id === ministryId && d.target.data.type === "department")
-    );
+  // Function to attach click handlers to nodes - FIXED
+  const attachClickHandlers = (nodeSelection) => {
+    // Remove existing click handlers first
+    nodeSelection.selectAll("circle").on("click", null);
+    nodeSelection.selectAll("text:not(.loading-indicator)").on("click", null);
+
+    // Attach new click handlers with proper event handling
+    nodeSelection
+      .selectAll("circle")
+      .on("click", function(event, d) {
+        if (d.data.type === "ministry") {
+          event.stopPropagation();
+          onMinistryClick(d.data.id);
+        }
+      });
+
+    nodeSelection
+      .selectAll("text:not(.loading-indicator)")
+      .on("click", function(event, d) {
+        if (d.data.type === "ministry") {
+          event.stopPropagation();
+          onMinistryClick(d.data.id);
+        }
+      });
   };
 
   // Update function to add/remove departments for a specific ministry
   const updateDepartments = (ministryId, isExpanding) => {
-    if (!rootRef.current || !treeRef.current) return;
+    if (!rootRef.current || !treeRef.current || !gMainRef.current) return;
 
     const root = rootRef.current;
     const tree = treeRef.current;
-    const svg = d3.select(containerRef.current).select("svg");
-    const gNode = svg.select(".nodes");
-    const gLink = svg.select(".links");
+    const gMain = gMainRef.current;
+    const gNode = d3.select(gMain).select(".nodes");
+    const gLink = d3.select(gMain).select(".links");
     const { width } = dimensions;
 
     const duration = 500;
@@ -156,30 +190,22 @@ const TidyTree = ({
     });
 
     const marginTop = 10;
-    // const marginRight = 10
     const marginBottom = 10;
     const marginLeft = 40;
     const height = right.x - left.x + marginTop + marginBottom;
-
-    // Update SVG dimensions
-    svg
-      .transition()
-      .duration(duration)
-      .attr("height", height)
-      .attr("viewBox", [-marginLeft, left.x - marginTop, width, height]);
 
     const nodes = root.descendants();
     const links = root.links();
     const ministersExpanded = expandedMinistriesArray.length > 0;
 
-    // Update nodes
+    // Update nodes with proper key function
     const node = gNode.selectAll("g").data(nodes, (d) => d.data.id || "root");
 
     // Enter new nodes (departments)
     const nodeEnter = node
       .enter()
       .append("g")
-      .attr("transform", () => `translate(${ministryNode.y},${ministryNode.x})`) // Start from ministry position
+      .attr("transform", () => `translate(${ministryNode.y},${ministryNode.x})`)
       .attr("data-id", (d) => d.data.id || "root")
       .attr("fill-opacity", 0)
       .attr("stroke-opacity", 0);
@@ -211,30 +237,26 @@ const TidyTree = ({
         d.data.type === "ministry" ? "pointer" : "default"
       );
 
-    // Add click handlers to ALL nodes (including existing ones)
-    node
-      .merge(nodeEnter)
-      .selectAll("circle")
-      .on("click", (event, d) => {
-        if (d.data.type === "ministry") {
-          event.stopPropagation();
-          onMinistryClick(d.data.id);
-        }
-      });
+    // Add loading indicators for new nodes
+    nodeEnter
+      .append("text")
+      .attr("class", "loading-indicator")
+      .attr("dy", "0.31em")
+      .attr("x", -15)
+      .attr("text-anchor", "middle")
+      .text("⟳")
+      .attr("fill", "#ffeb3b")
+      .style("font-size", "12px")
+      .style("opacity", 0);
 
-    node
-      .merge(nodeEnter)
-      .selectAll("text:not(.loading-indicator)")
-      .on("click", (event, d) => {
-        if (d.data.type === "ministry") {
-          event.stopPropagation();
-          onMinistryClick(d.data.id);
-        }
-      });
+    // Merge enter and update selections
+    const nodeUpdate = node.merge(nodeEnter);
+
+    // Attach click handlers to ALL nodes (both existing and new)
+    attachClickHandlers(nodeUpdate);
 
     // Update all nodes positions with better layout
-    node
-      .merge(nodeEnter)
+    nodeUpdate
       .transition()
       .duration(duration)
       .attr("transform", (d) => {
@@ -245,9 +267,8 @@ const TidyTree = ({
           // Ministry nodes
           adjustedY = ministersExpanded ? width * 0.25 : width * 0.5;
         } else if (d.depth === 2) {
-          // Department nodes - ensure they fit within screen
-          const maxDepartmentX = width - 450; // Leave 200px margin from right edge
-          adjustedY = Math.min(d.y, maxDepartmentX);
+          // Department nodes - allow them to extend beyond screen for pan/zoom
+          adjustedY = d.y;
         }
 
         return `translate(${adjustedY},${d.x})`;
@@ -256,8 +277,7 @@ const TidyTree = ({
       .attr("stroke-opacity", 1);
 
     // Update loading indicators
-    node
-      .merge(nodeEnter)
+    nodeUpdate
       .selectAll(".loading-indicator")
       .style("opacity", (d) => {
         return loadingDepartmentsArray.includes(d.data.id) ? 1 : 0;
@@ -268,7 +288,7 @@ const TidyTree = ({
       .exit()
       .transition()
       .duration(duration)
-      .attr("transform", `translate(${ministryNode.y},${ministryNode.x})`) // Exit to ministry position
+      .attr("transform", `translate(${ministryNode.y},${ministryNode.x})`)
       .attr("fill-opacity", 0)
       .attr("stroke-opacity", 0)
       .remove();
@@ -307,8 +327,8 @@ const TidyTree = ({
           adjustedTargetY = ministersExpanded ? width * 0.25 : width * 0.5;
         }
         if (d.target.depth === 2) {
-          const maxDepartmentX = width - 450;
-          adjustedTargetY = Math.min(d.target.y, maxDepartmentX);
+          // Allow departments to extend beyond screen
+          adjustedTargetY = d.target.y;
         }
 
         return d3
@@ -373,6 +393,17 @@ const TidyTree = ({
     });
   }, [expandedMinistriesArray, departmentData, dimensions]);
 
+  // Reset zoom function
+  const resetZoom = () => {
+    if (zoomRef.current && containerRef.current) {
+      const svg = d3.select(containerRef.current).select("svg");
+      svg.transition().duration(750).call(
+        zoomRef.current.transform,
+        d3.zoomIdentity
+      );
+    }
+  };
+
   // Initial tree setup
   useEffect(() => {
     if (!treeStructure || dimensions.width === 0) return;
@@ -388,11 +419,29 @@ const TidyTree = ({
       .append("svg")
       .attr("width", width)
       .attr("height", height)
-      .attr("viewBox", [0, 0, width, height])
       .style("max-width", "100%")
       .style("height", "auto")
       .style("font", "10px sans-serif")
-      .style("user-select", "none");
+      .style("user-select", "none")
+      .style("cursor", "grab");
+
+    // Create zoom behavior
+    const zoom = d3.zoom()
+      .scaleExtent([0.1, 4])
+      .on("zoom", (event) => {
+        if (gMainRef.current) {
+          d3.select(gMainRef.current).attr("transform", event.transform);
+        }
+      });
+
+    zoomRef.current = zoom;
+
+    // Apply zoom to SVG
+    svg.call(zoom);
+
+    // Create main group for all content
+    const gMain = svg.append("g").attr("class", "main-content");
+    gMainRef.current = gMain.node(); // Store the actual DOM node
 
     // Margins
     const marginTop = 10;
@@ -405,14 +454,14 @@ const TidyTree = ({
     rootRef.current = root;
 
     // Tree layout with better spacing
-    const dx = 25; // Increased vertical spacing
+    const dx = 25;
     const dy = (width - marginRight - marginLeft) / (1 + root.height);
 
     const tree = d3.tree().nodeSize([dx, dy]);
     treeRef.current = tree;
 
-    // Create groups
-    const gLink = svg
+    // Create groups within main group
+    const gLink = gMain
       .append("g")
       .attr("class", "links")
       .attr("fill", "none")
@@ -420,7 +469,7 @@ const TidyTree = ({
       .attr("stroke-opacity", 0.4)
       .attr("stroke-width", 1.5);
 
-    const gNode = svg
+    const gNode = gMain
       .append("g")
       .attr("class", "nodes")
       .attr("cursor", "pointer")
@@ -439,10 +488,8 @@ const TidyTree = ({
 
     const treeHeight = right.x - left.x + marginTop + marginBottom;
 
-    // Set SVG dimensions
-    svg
-      .attr("height", treeHeight)
-      .attr("viewBox", [-marginLeft, left.x - marginTop, width, treeHeight]);
+    // Set initial viewBox to show the tree centered
+    svg.attr("viewBox", [-marginLeft, left.x - marginTop, width, treeHeight]);
 
     const nodes = root.descendants();
     const links = root.links();
@@ -456,7 +503,7 @@ const TidyTree = ({
       .attr("transform", (d) => {
         let adjustedY = d.y;
         if (d.depth === 1) {
-          adjustedY = width * 0.5; // Start ministries at center
+          adjustedY = width * 0.5;
         }
         return `translate(${adjustedY},${d.x})`;
       })
@@ -474,13 +521,7 @@ const TidyTree = ({
       .attr("stroke-width", 1.5)
       .style("cursor", (d) =>
         d.data.type === "ministry" ? "pointer" : "default"
-      )
-      .on("click", (event, d) => {
-        if (d.data.type === "ministry") {
-          event.stopPropagation();
-          onMinistryClick(d.data.id);
-        }
-      });
+      );
 
     // Add text
     nodeEnter
@@ -492,13 +533,7 @@ const TidyTree = ({
       .attr("fill", "#F4F4F4")
       .style("cursor", (d) =>
         d.data.type === "ministry" ? "pointer" : "default"
-      )
-      .on("click", (event, d) => {
-        if (d.data.type === "ministry") {
-          event.stopPropagation();
-          onMinistryClick(d.data.id);
-        }
-      });
+      );
 
     // Add loading indicators
     nodeEnter
@@ -511,6 +546,9 @@ const TidyTree = ({
       .attr("fill", "#ffeb3b")
       .style("font-size", "12px")
       .style("opacity", 0);
+
+    // Attach click handlers to initial nodes
+    attachClickHandlers(nodeEnter);
 
     // Add initial links
     gLink
@@ -548,18 +586,136 @@ const TidyTree = ({
 
   return (
     <div
-      ref={containerRef}
       style={{
+        position: "relative",
         paddingTop: "30px",
         paddingBottom: "30px",
         minWidth: "100%",
         height: "100%",
-        overflowX: "auto",
         backgroundColor: colors.backgroundPrimary,
-        overflowY: "visible" /* Allow vertical content to be visible */,
-        whiteSpace: "nowrap" /* Prevent wrapping */,
       }}
-    ></div>
+    >
+      {/* Zoom Controls */}
+      <div
+        style={{
+          position: "absolute",
+          top: "40px",
+          right: "20px",
+          zIndex: 1000,
+          display: "flex",
+          flexDirection: "column",
+          gap: "5px",
+        }}
+      >
+        <button
+          onClick={() => {
+            if (zoomRef.current && containerRef.current) {
+              const svg = d3.select(containerRef.current).select("svg");
+              svg.transition().duration(200).call(
+                zoomRef.current.scaleBy,
+                1.5
+              );
+            }
+          }}
+          style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            border: "2px solid #2593B8",
+            backgroundColor: colors.backgroundPrimary,
+            color: colors.textPrimary,
+            cursor: "pointer",
+            fontSize: "18px",
+            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          title="Zoom In"
+        >
+          +
+        </button>
+        <button
+          onClick={() => {
+            if (zoomRef.current && containerRef.current) {
+              const svg = d3.select(containerRef.current).select("svg");
+              svg.transition().duration(200).call(
+                zoomRef.current.scaleBy,
+                1 / 1.5
+              );
+            }
+          }}
+          style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            border: "2px solid #2593B8",
+            backgroundColor: colors.backgroundPrimary,
+            color: colors.textPrimary,
+            cursor: "pointer",
+            fontSize: "18px",
+            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          title="Zoom Out"
+        >
+          −
+        </button>
+        <button
+          onClick={resetZoom}
+          style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            border: "2px solid #2593B8",
+            backgroundColor: colors.backgroundPrimary,
+            color: colors.textPrimary,
+            cursor: "pointer",
+            fontSize: "12px",
+            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          title="Reset Zoom"
+        >
+          ⌂
+        </button>
+      </div>
+
+      {/* Instructions */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "20px",
+          left: "20px",
+          zIndex: 1000,
+          padding: "10px",
+          backgroundColor: "rgba(0, 0, 0, 0.7)",
+          color: "#fff",
+          borderRadius: "5px",
+          fontSize: "12px",
+          maxWidth: "200px",
+        }}
+      >
+        <div>• Drag to pan around</div>
+        <div>• Scroll to zoom in/out</div>
+        <div>• Click ministry nodes to expand</div>
+        <div>• Use controls to zoom/reset</div>
+      </div>
+
+      <div
+        ref={containerRef}
+        style={{
+          width: "100%",
+          height: "100%",
+          overflowX: "hidden",
+          overflowY: "hidden",
+        }}
+      ></div>
+    </div>
   );
 };
 
