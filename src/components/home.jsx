@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { MessageCircle,Users, ChevronRight, Building2, User } from 'lucide-react';
 import * as d3 from 'd3';
 import { useNavigate } from 'react-router-dom';
+import './../index.css'
 import Version from './version';
 import "../assets/chatbotCSS.css"
 
@@ -77,7 +78,7 @@ const Home = () => {
 
     nodes.append("circle")
       .attr("r", 6)
-      .attr("fill", d => d.depth === 0 ? "#3b82f6" : d.depth === 1 ? "#8b5cf6" : "#06b6d4");
+      .attr("fill", d => d.depth === 0 ? "#06b6d4" : d.depth === 1 ? "#3b82f6" : "#8b5cf6");
 
     nodes.append("text")
       .attr("dy", -10)
@@ -89,7 +90,7 @@ const Home = () => {
   }, []);
 
   const handleExplore = () => {
-    navigate("/modern-view");
+    navigate("/orgchart");
   }
 
 
@@ -114,7 +115,7 @@ const Home = () => {
             with GovTrack - the comprehensive governance management platform for public servants.
           </p>
           <button 
-            className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 border border-cyan-400/20" 
+            className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 border border-cyan-400/20 cursor-pointer" 
             onClick={handleExplore}
           >
             Begin Exploration
@@ -166,7 +167,7 @@ const Home = () => {
             
             <div className="space-y-3">
               {/* Executive Level */}
-              <div className="bg-gradient-to-r from-cyan-950/40 to-cyan-900/40 rounded-lg p-4 border-l-4 border-cyan-400 hover:from-cyan-900/50 hover:to-cyan-800/50 transition-all duration-300 cursor-pointer">
+              <div className="bg-gradient-to-r from-cyan-950/40 to-cyan-900/40 rounded-lg p-4 border-l-4 border-cyan-400 hover:from-cyan-900/50 hover:to-cyan-800/50 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <Building2 className="w-5 h-5 text-cyan-400" />
@@ -180,7 +181,7 @@ const Home = () => {
               </div>
 
               {/* Ministry Level */}
-              <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 rounded-lg p-4 border-l-4 border-blue-400 hover:from-blue-900/50 hover:to-blue-800/50 transition-all duration-300 cursor-pointer">
+              <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 rounded-lg p-4 border-l-4 border-blue-400 hover:from-blue-900/50 hover:to-blue-800/50 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <Users className="w-5 h-5 text-blue-400" />
@@ -194,7 +195,7 @@ const Home = () => {
               </div>
 
               {/* Department Level */}
-              <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 rounded-lg p-4 border-l-4 border-purple-400 hover:from-purple-900/50 hover:to-purple-800/50 transition-all duration-300 cursor-pointer">
+              <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 rounded-lg p-4 border-l-4 border-purple-400 hover:from-purple-900/50 hover:to-purple-800/50 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <User className="w-5 h-5 text-purple-400" />
@@ -211,12 +212,12 @@ const Home = () => {
               <div className="bg-black/50 rounded-lg p-3 mt-4 border border-gray-800/40">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <p className="text-lg font-bold text-cyan-400">847</p>
-                    <p className="text-xs text-gray-400">Total Positions</p>
+                    <p className="text-lg font-bold text-cyan-400">23</p>
+                    <p className="text-xs text-gray-400">Total Ministries</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-blue-400">23</p>
-                    <p className="text-xs text-gray-400">Active Projects</p>
+                    <p className="text-lg font-bold text-blue-400">847</p>
+                    <p className="text-xs text-gray-400">Active Departments</p>
                   </div>
                 </div>
               </div>

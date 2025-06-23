@@ -1,22 +1,27 @@
 
 const colors = {
-  backgroundPrimary: '#f5f5f5',
+  backgroundPrimary: '#F8FAFF',
   backgroundSecondary: '#2593B8',
-  backgroundTertiary:'rgba(25, 164, 210, 0.4)',
+  backgroundWhite:'#fff',
   
   // Text
-  textPrimary: '#1a1a1a',
+  textPrimary: '#181818',
   textSecondary: '#2593B8',
   textMuted: '#999999',
   textSearch:'#0d47a1',
+  textMuted2: '#1a1a1a', 
 
   // Dots / Timeline / UI
-  dotColorActive: '#2593B8', // Blue
-  dotColorInactive: '#444', // Grey
-  timelineLineActive: '#2593B8', // Blue
+  dotColorActive: '#0E3ABF', // Blue
+  dotColorInactive: '#999', // Grey
+  timelineLineActive: '#0E3ABF', // Blue
+  timelineColor: '#cccccc',
+
+  ministryCardBorderHover: "#2593B8",
+  ministryCardClickedActive: "#2593B8",
 
   // Buttons / Accents
-  primary: '#2593B8',
+  primary: '#0E3ABF',
   secondary: '#9c27b0',
   success: '#4caf50',
   warning: '#ff9800',
@@ -24,6 +29,11 @@ const colors = {
 
   // Misc
   inactiveBorderColor: 'gray',
+
+  //main colors
+  white: "#ffffff",
+  green: "#3DD37B",
+  purple: "#AD46FF"   
 };
 
 export default colors;

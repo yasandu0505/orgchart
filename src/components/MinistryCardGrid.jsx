@@ -1,46 +1,188 @@
-// src/components/MinistryCardGrid.jsx
+import {
+  Box,
+  Grid,
+  Typography,
+  Alert,
+  AlertTitle,
+  Divider,
+  Chip,
+} from "@mui/material";
+import MinistryCard from "./MinistryCard";
+// import colors from "../assets/colors";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import api from "./../services/services";
+import { ClipLoader } from "react-spinners";
+import { setSelectedMinistry } from "../store/allMinistryData";
+import { useThemeContext } from "../themeContext";
 
-import { Box, Grid, Typography } from '@mui/material';
-import MinistryCard from './MinistryCard';
-import colors from '../assets/colors';
+const MinistryCardGrid = ({ onCardClick }) => {
+  const dispatch = useDispatch();
+  const { allMinistryData } = useSelector((state) => state.allMinistryData);
+  const { selectedDate } = useSelector((state) => state.presidency);
+  const [activeMinistryList, setActiveMinistryList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const allPersonList = useSelector((state) => state.allPerson.allPerson);
+  const {colors} = useThemeContext();
 
-const MinistryCardGrid = ({ selectedPresident, selectedDate, onCardClick }) => {
-    if (!selectedPresident || !selectedDate) return null;
+  useEffect(() => {
+    fetchMinistryList();
+  }, [selectedDate, allMinistryData]);
 
-    const dateEntry = selectedPresident.dates.find(d => d.date === selectedDate);
-    if (!dateEntry || !Array.isArray(dateEntry.ministerList)) return null;
+  const fetchMinistryList = async () => {
+    if (!selectedDate || !allMinistryData || allMinistryData.length === 0)
+      return;
 
-    const ministryCards = dateEntry.ministerList.map((minister, index) => ({
-        id: index,
-        title: minister.name,
-        headMinister: minister.headMinister,
-        deputyMinister: minister.deputyMinister,
-        stateMinister: minister.stateMinister,
-        departments: minister.departments,
-    }));
+    try {
+      setLoading(true);
+      const activeMinistry = await api.fetchActiveMinistries(
+        selectedDate,
+        allMinistryData
+      );
 
-    return (
-        <Box sx={{ px: 4, pb: 4 }}>
-            <Box sx={{ p: 3, overflowX: 'auto' }}>
-                <Box sx={{ textAlign: 'center', mb: 3 }}>
-                    <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                        Gazette Date
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.textSecondary}}>
-                        {selectedDate}
-                    </Typography>
-                </Box>
+      const enrichedMinistries = await Promise.all(
+        activeMinistry.children.map(async (ministry) => {
+          const response = await api.fetchActiveRelationsForMinistry(
+            selectedDate.date,
+            ministry.id,
+            "AS_APPOINTED"
+          );
+          const res = await response.json();
 
-                <Grid container spacing={2}>
-                    {ministryCards.map((card) => (
-                        <Grid key={card.id} item xs={12} sm={6} md={4}>
-                            <MinistryCard card={card} onClick={onCardClick} />
-                        </Grid>
-                    ))}
-                </Grid>
-            </Box>
+          const personSet = new Set(
+            res.map((person) => person.relatedEntityId)
+          );
+          const personListInDetail = allPersonList.filter((person) =>
+            personSet.has(person.id)
+          );
+
+          const headMinisterName = personListInDetail[0]?.name || null;
+          return {
+            ...ministry,
+            headMinisterName,
+          };
+        })
+      );
+
+      setActiveMinistryList(enrichedMinistries);
+      setLoading(false);
+    } catch (e) {
+      console.log("error fetch ministry list : ", e.message);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Box sx={{ px: 4, pb: 4 }}>
+      <Box
+        sx={{
+          py: {
+            xs: 2,
+            sm: 3,
+            md: 5,
+          },
+          overflowX: "auto",
+        }}
+      >
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          <Typography
+            variant="h6"
+            sx={{ color: colors.textPrimary, fontFamily: "poppins" }}
+          >
+            Gazette Date
+          </Typography>
+          <Divider>
+            <Chip
+              label={selectedDate.date}
+              
+              sx={{
+                backgroundColor: "transparent",
+                fontWeight: "bold",
+                color: colors.textSecondary,
+                fontFamily: "poppins",
+                fontSize: 25,
+                P: 1,
+              }}
+            />
+          </Divider>
         </Box>
-    );
+
+        {loading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "20vh",
+            }}
+          >
+            <ClipLoader
+              color={colors.timelineLineActive}
+              loading={loading}
+              size={25}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          </Box>
+        ) : (
+          <Grid
+            container
+            spacing={2}
+            sx={{
+              p: 1,
+              borderRadius: "15px",
+              backgroundColor: colors.backgroundColor,
+            }}
+          >
+            {activeMinistryList && activeMinistryList.length > 0 ? (
+              activeMinistryList.map((card) => (
+                <Grid
+                  key={card.id}
+                  sx={{
+                    display: 'grid',
+                    flexBasis: {
+                      xs: "100%",
+                      sm: "48%",
+                      md: "31.5%",
+                      lg: "23.5%",
+                    },
+                    maxWidth: {
+                      xs: "100%",
+                      sm: "48%",
+                      md: "31.5%",
+                      lg: "23.5%",
+                    },
+                  }}
+                >
+                  <MinistryCard
+                    card={card}
+                    onClick={() => {
+                      dispatch(setSelectedMinistry(card.id)), onCardClick(card);
+                    }}
+                  />
+                </Grid>
+              ))
+            ) : (
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
+                  <AlertTitle sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
+                    Info: No ministries in the goverment. Sometimes this can be
+                    the president appointed date.
+                  </AlertTitle>
+                </Alert>
+              </Box>
+            )}
+          </Grid>
+        )}
+      </Box>
+    </Box>
+  );
 };
 
 export default MinistryCardGrid;

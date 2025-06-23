@@ -1,20 +1,26 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import OrgChart from "./components/orgchart.jsx";
-import ModernView from "./components/modernView.jsx";
-import Home from "./components/home.jsx";
-import Error404 from "./components/404Error.jsx";
+import Home from "./components/home";
+import Error404 from "./components/404Error";
+import Navbar from "./components/NavBar";
 import './animations.css';
+import './components/TidyTree.variables.css';
+import './components/TidyTree.css';
+import { useThemeContext } from "./themeContext";
 
 const App = () => {
+
+  const {isDark} = useThemeContext();
+  
   return(
+    <div className={isDark ? "dark-mode" : ""}>
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/orgchart" element={<OrgChart />} />
-        <Route path="/modern-view" element={<ModernView />} />
+        <Route path="/orgchart" element={<Navbar/>} />
         <Route path="*" element={<Error404 />} />
       </Routes>
     </Router>
+    </div>
   );
 }
 
